@@ -7,6 +7,9 @@ services:
         build:
             context: .
             dockerfile: docker/php/Dockerfile
+            args:
+                USER_ID: ${UID:-1000}
+                GROUP_ID: ${GID:-1000}
         volumes:
             - ./:/var/www
         depends_on:
@@ -15,7 +18,6 @@ services:
             - intra_network
         ports:
             - "8101:8101"
-        user: "${UID}:${GID}"
     nginx:
         image: nginx:alpine
         ports:

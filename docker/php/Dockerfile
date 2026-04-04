@@ -17,6 +17,9 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
+# Instala Node.js e npm
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
 
 # Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -24,9 +27,17 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Define diretório da aplicação
 WORKDIR /var/www
 
+# Define usuário igual ao host para evitar problemas de permissão
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN groupadd -g ${GROUP_ID} laravel && \
+    useradd -u ${USER_ID} -g laravel -m laravel
+
 # Copia o script de inicialização
 COPY docker/php/start.sh /start.sh
 RUN chmod +x /start.sh
+
+USER laravel
 
 # Define como ponto de entrada
 ENTRYPOINT ["/start.sh"]
