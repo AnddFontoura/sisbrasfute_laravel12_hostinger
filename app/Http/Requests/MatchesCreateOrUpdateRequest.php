@@ -22,7 +22,18 @@ class MatchesCreateOrUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'teamId' => 'required|integer|exists:teams,id',
+            'myTeamIs' => 'required|string',
+            'enemyTeamId' => 'nullable|int',
+            'enemyTeamName' => 'nullable|string',
+            'cityId' => 'required|int',
+            'matchLocation' => 'required|string|min:1|max:1000',
+            'myTeamScore' => 'nullable|int',
+            'enemyTeamScore' => 'nullable|int',
+            'hasPenalties' => 'nullable|int',
+            'enemyTeamPenaltyScore' => 'nullable|int',
+            'myTeamPenaltyScore' => 'nullable|int',
+            'matchSchedule' => 'required|date',
         ];
     }
 }
