@@ -63,15 +63,13 @@ class AuthController extends Controller
         }
 
         $user = auth()->user();
-        $tokenResult = $user->createToken('MeuApp');
-        $token = $tokenResult->accessToken;
-        $expiresAt = $tokenResult->token->expires_at;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
             'token_type'   => 'Bearer',
-            'expires_at'   => $expiresAt->toDateTimeString(), // ou ->timestamp
-            'user'         => $user // opcional: dados do usuário logado
+            //'expires_at'   => $expiresAt->toDateTimeString(),
+            'user'         => $user
         ]);
     }
 
