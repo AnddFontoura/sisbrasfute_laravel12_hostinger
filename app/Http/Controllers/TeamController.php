@@ -29,22 +29,7 @@ class TeamController extends Controller
 
     public function save(TeamCreateOrUpdateRequest $request, int $teamId = null): JsonResponse
     {
-        $data = $request->only([
-            'teamCityId',
-            'teamName',
-            'teamGender',
-            'teamModalityId',
-            'teamDescription',
-            'teamFoundationDate',
-            'teamLogo',
-            'teamBanner',
-            'teamFacebook',
-            'teamInstagram',
-            'teamX',
-            'teamTiktok',
-            'teamYoutube',
-            'teamKwai',
-        ]);
+        $data = $request->validated();
 
         if ($teamId) {
             $teamInfo = $this->teamService->updateTeam($data, $teamId);
