@@ -64,7 +64,7 @@ class Player extends Model
 
     public function getAgeAttribute(): ?string
     {
-        return Carbon::createFromDate($this->birthdate)->diffInYears();
+        return number_format(Carbon::createFromDate($this->birthdate)->diffInYears(null, true), 0);
     }
 
     public function getBirthdateBrAttribute(): ?string
