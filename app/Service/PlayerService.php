@@ -12,6 +12,7 @@ class PlayerService
         protected UploadService $uploadService,
         protected GamePositionService $gamePositionService,
         protected ModalityService $modalityService,
+        protected PlayerHasModalitiesService $playerHasModalitiesService,
     ) {
     }
 
@@ -62,7 +63,7 @@ class PlayerService
         $profile = $this->playerRepository->getByUserId($user->id);
 
         if (isset($data['playerModalities'])) {
-            $this->modalityService->updatePlayerModalities($data['playerModalities'], $profile->id);
+            $this->playerHasModalitiesService->updatePlayerModalities($data['playerModalities'], $profile->id);
         }
 
         if (isset($data['playerGamePositions'])) {
