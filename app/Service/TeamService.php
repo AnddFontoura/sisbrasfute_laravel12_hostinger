@@ -17,7 +17,7 @@ class TeamService extends BaseService
     {
     }
 
-    public function updateTeam(array $data, int $teamId): Team
+    public function updateTeam(array $data, int $teamId): Team|int
     {
         $team = $this->teamRepository->getById($teamId);
 

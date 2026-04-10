@@ -41,7 +41,7 @@ Route::middleware('auth:api')->group(function () {
         ->group(function () {
             Route::get('/', 'index');
             Route::post('save', 'save');
-            Route::post('/update/{teamId}', 'update')->middleware('isTeamManager');
+            Route::post('/update/{teamId}', 'save')->middleware('isTeamManager');
             Route::get('show/{teamId}', 'show');
             Route::get('list/my-teams', 'listOfManagedTeamsByUser');
         });
@@ -52,7 +52,7 @@ Route::middleware('auth:api')->group(function () {
         ->group(function () {
             Route::get('/{teamId}', 'index')->middleware('isTeamManager');
             Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
-            Route::post('{teamId}/update/{id}', 'update')->middleware('isTeamManager');
+            Route::post('{teamId}/update/{id}', 'save')->middleware('isTeamManager');
             Route::get('{teamId}/show/{id}', 'show')->middleware('isTeamManager');
         });
 
