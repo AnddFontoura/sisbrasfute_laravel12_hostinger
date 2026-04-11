@@ -21,7 +21,7 @@ class TeamFinance extends Model
         'description', //descricao do pagamento, para controle interno
         'value', //Valor em float
         'method', //Método de pamgamento boleto - cartoa - dinheiro - pix
-        'type', //tipo de pagamento, se é débito (0) de valor ou crédito (1) de valor
+        'type', //tipo de pagamento, se é débito (0)  ou crédito (1)
         'origin', //Origem do pagamento, campo, arbitro, bola, mensalidade, outros
     ];
 

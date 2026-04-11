@@ -19,12 +19,7 @@ class TeamService extends BaseService
 
     public function updateTeam(array $data, int $teamId): Team|int
     {
-        $team = $this->teamRepository->getById($teamId);
-
-        throw_if(!isset($team), new \Exception(
-            __('error.team.team_not_found'),
-            Response::HTTP_FAILED_DEPENDENCY
-        ));
+        $this->checkIfTeamExists($teamId);
 
         if(isset($data['teamLogo'])) {
             if (isset($team->logo_path)) {
@@ -145,5 +140,15 @@ class TeamService extends BaseService
         );
 
         return $teamInfo;
+    }
+
+    public function checkIfTeamExists(int $teamId)
+    {
+        $team = $this->teamRepository->getById($teamId);
+
+        throw_if(!isset($team), new \Exception(
+            __('error.team.team_not_found'),
+            Response::HTTP_FAILED_DEPENDENCY
+        ));
     }
 }
