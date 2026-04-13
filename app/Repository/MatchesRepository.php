@@ -11,12 +11,17 @@ class MatchesRepository extends BaseRepository
         $this->model = $matches;
     }
 
-    public function getOrderedByMatchDate(string $orderBy = 'asc')
+    public function getOrderedByMatchDate(array $filter, string $orderBy = 'asc')
     {
-        return $this->model
+        $sql = $this->model
             ->with('cityInfo.stateInfo')
-            ->orderBy('schedule', $orderBy)
-            ->get();
+            ->orderBy('schedule', $orderBy);
+
+        if (isset($filter['teamId'])) {
+            $sql->where('created_by_team_id', $filter['teamId']);
+        }
+
+        return $sql->paginate(12);
     }
 
     public function getById(int $id)

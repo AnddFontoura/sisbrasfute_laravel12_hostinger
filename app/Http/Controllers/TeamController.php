@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TeamCreateOrUpdateRequest;
+use App\Http\Requests\TeamListRequest;
 use App\Repository\TeamRepository;
 use App\Service\TeamService;
 use App\Service\UploadService;
@@ -20,9 +21,11 @@ class TeamController extends Controller
 
     }
 
-    public function index()
+    public function index(TeamListRequest $request)
     {
-        $teamList = $this->teamRepository->getOrderedByName();
+        $filter = $request->validated();
+
+        $teamList = $this->teamRepository->getPaginatedByName($filter);
 
         return response()->json($teamList, Response::HTTP_OK);
     }

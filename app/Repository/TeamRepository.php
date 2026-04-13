@@ -12,6 +12,18 @@ class TeamRepository extends BaseRepository
         $this->model = $team;
     }
 
+    public function getPaginatedByName(array $filter, string $orderBy = 'asc')
+    {
+        $sql = $this->model;
+
+        if (isset($filter['teamId'])) {
+            $sql->where('team_id' , '=', $filter['teamId']);
+        }
+
+        return $sql
+            ->orderBy('name', $orderBy)
+            ->get();
+    }
 
     public function getById(int $id)
     {

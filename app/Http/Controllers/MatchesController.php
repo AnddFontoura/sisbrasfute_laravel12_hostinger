@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MatchesCreateOrUpdateRequest;
+use App\Http\Requests\TeamListRequest;
 use App\Repository\MatchesRepository;
 use App\Service\MatchesService;
 use Illuminate\Http\JsonResponse;
@@ -17,9 +18,11 @@ class MatchesController extends Controller
 
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(TeamListRequest $request): JsonResponse
     {
-        $matchesList = $this->matchesRepository->getOrderedByMatchDate('desc');
+        $filter = $request->validated();
+
+        $matchesList = $this->matchesRepository->getOrderedByMatchDate($filter, 'desc');
 
         return response()->json($matchesList, JsonResponse::HTTP_OK);
     }
