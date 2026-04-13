@@ -13,7 +13,7 @@ abstract class BaseRepository
         return $this->model
             ->create($data);
     }
-    public function getOrderedByName(array $filter, string $orderBy = 'asc')
+    public function getOrderedByName(string $orderBy = 'asc')
     {
         return $this->model
             ->orderBy('name', $orderBy)
