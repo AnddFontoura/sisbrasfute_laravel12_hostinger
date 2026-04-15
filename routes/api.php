@@ -9,6 +9,7 @@ use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamFinanceController;
+use App\Http\Controllers\TeamPlayerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,16 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/update/{teamId}', 'save')->middleware('isTeamManager');
             Route::get('show/{teamId}', 'show');
             Route::get('list/my-teams', 'listOfManagedTeamsByUser');
+        });
+
+    Route::prefix('team-player')
+        ->name('team-player.')
+        ->controller(TeamPlayerController::class)
+        ->group(function () {
+           Route::get('/{teamId}/list', 'index')->middleware('isTeamManager');
+           Route::get('/{teamId}/show/{playerId}', 'show');
+           Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
+           Route::post('/{teamId}/update/{playerId}', 'save')->middleware('isTeamManager');
         });
 
     Route::prefix('team-finance')
