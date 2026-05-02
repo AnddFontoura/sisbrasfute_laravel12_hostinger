@@ -10,6 +10,7 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamFinanceController;
 use App\Http\Controllers\TeamPlayerController;
+use App\Http\Controllers\TeamSearchPositionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +56,16 @@ Route::middleware('auth:api')->group(function () {
            Route::get('/{teamId}/show/{playerId}', 'show');
            Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
            Route::post('/{teamId}/update/{playerId}', 'save')->middleware('isTeamManager');
+        });
+
+    Route::prefix('team-search-position')
+        ->name('team-search-position.')
+        ->controller(TeamSearchPositionController::class)
+        ->group(function () {
+            Route::get('/{teamId}/list', 'index')->middleware('isTeamManager');
+            Route::get('/{teamId}/show/{playerId}', 'show');
+            Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
+            Route::delete('/{teamId}/delete/{id}', 'delete')->middleware('isTeamManager');
         });
 
     Route::prefix('team-finance')
