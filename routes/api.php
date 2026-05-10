@@ -7,6 +7,7 @@ use App\Http\Controllers\MatchesController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\TeamApplicationController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamFinanceController;
 use App\Http\Controllers\TeamPlayerController;
@@ -66,6 +67,13 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/{teamId}/show/{playerId}', 'show');
             Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
             Route::delete('/{teamId}/delete/{id}', 'delete')->middleware('isTeamManager');
+        });
+
+    Route::prefix('team-application')
+        ->name('team-application.')
+        ->controller(TeamApplicationController::class)
+        ->group(function (){
+            Route::post('/apply/save', 'save');
         });
 
     Route::prefix('team-finance')

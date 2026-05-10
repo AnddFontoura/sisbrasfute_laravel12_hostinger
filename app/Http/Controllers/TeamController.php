@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TeamCreateOrUpdateRequest;
 use App\Http\Requests\TeamListRequest;
 use App\Repository\TeamRepository;
+use App\Repository\TeamSearchPositionRepository;
+use App\Service\PlayerService;
+use App\Service\TeamPlayerService;
 use App\Service\TeamService;
 use App\Service\UploadService;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +20,9 @@ class TeamController extends Controller
         protected UploadService $uploadService,
         protected TeamService $teamService,
         protected TeamRepository $teamRepository,
+        protected TeamSearchPositionRepository $teamSearchPositionRepository,
+        protected TeamPlayerService $teamPlayerService,
+        protected PlayerService $playerService,
     ) {
 
     }
@@ -50,6 +56,7 @@ class TeamController extends Controller
     public function show(int $teamId): JsonResponse
     {
         $team = $this->teamRepository->getById($teamId);
+        $team->isRecruiting = $this->teamSearchPositionRepository->getPositionsByTeam($teamId);
 
         return response()->json($team, Response::HTTP_OK);
     }
@@ -60,5 +67,11 @@ class TeamController extends Controller
         $teamList = $this->teamRepository->getTeamsManagedByUser($user);
 
         return response()->json(['teams' => $teamList], Response::HTTP_OK);
+    }
+
+    public function teamApply(int $teamId)
+    {
+        $user = Auth::user();
+        $this->teamPlayerService->applyToTeam($user, $teamId);
     }
 }

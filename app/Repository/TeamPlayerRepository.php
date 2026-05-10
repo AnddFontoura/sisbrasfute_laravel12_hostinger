@@ -24,4 +24,12 @@ class TeamPlayerRepository extends BaseRepository
         return $sql->orderBy('name', 'asc')
             ->paginate(12);
     }
+
+    public function firstByUserIdAndTeamId(int $userId, int $teamId)
+    {
+        return $this->model
+            ->where('user_id', $userId)
+            ->where('team_id', $teamId)
+            ->first();
+    }
 }

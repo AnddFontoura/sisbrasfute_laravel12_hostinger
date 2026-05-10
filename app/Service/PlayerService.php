@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Repository\PlayerRepository;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class PlayerService
 {
@@ -69,5 +70,15 @@ class PlayerService
         if (isset($data['playerGamePositions'])) {
             $this->gamePositionService->updatePlayerGamePosition($data['playerGamePositions'], $profile->id);
         }
+    }
+
+    public function checkIfPlayerExists($userId)
+    {
+        $hasProfile = $this->playerRepository->firstByUserId($userId);
+
+        throw_if(!isset($hasProfile), new \Exception(
+            __('error.player.player_profile_not_found'),
+            Response::HTTP_FAILED_DEPENDENCY
+        ));
     }
 }

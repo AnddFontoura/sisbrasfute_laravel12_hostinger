@@ -57,7 +57,7 @@ class Player extends Model
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
-    public function hasGamePositions(): HasMany
+    public function playerGamePositionInfo(): HasMany
     {
         return $this->hasMany(PlayerHasGamePosition::class, 'player_id', 'id');
     }

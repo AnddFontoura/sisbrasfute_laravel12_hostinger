@@ -2,13 +2,20 @@
 
 namespace App\Service;
 
+use App\Repository\PlayerRepository;
 use App\Repository\TeamPlayerRepository;
+use App\Repository\TeamSearchPositionRepository;
+use Symfony\Component\HttpFoundation\Response;
 
 class TeamPlayerService extends BaseService
 {
     public function __construct(
         protected TeamPlayerRepository $teamPlayerRepository,
+        protected TeamSearchPositionService $teamSearchPositionService,
         protected TeamService $teamService,
+        protected PlayerService $playerService,
+        protected PlayerRepository $playerRepository,
+        protected TeamSearchPositionRepository $teamSearchPositionRepository,
     ) {
 
     }
@@ -19,4 +26,5 @@ class TeamPlayerService extends BaseService
 
         return $this->teamPlayerRepository->getPlayersFromTeam($filter, $teamId);
     }
+
 }

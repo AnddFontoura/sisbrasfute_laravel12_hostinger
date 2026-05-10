@@ -37,9 +37,11 @@ class PlayerRepository extends BaseRepository
             ->first();
     }
 
-    public function getByUserId(int $userId)
+    public function firstByUserId(int $userId)
     {
         return $this->model
+            ->with('cityInfo.stateInfo')
+            ->with('playerGamePositionInfo.gamePositionInfo')
             ->where('user_id', $userId)
             ->first();
     }
