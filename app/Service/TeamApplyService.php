@@ -48,4 +48,9 @@ class TeamApplyService extends BaseService
             'game_position_id' => $gamePositionId,
         ]);
     }
+
+    public function answerApplication(array $data, int $teamId, int $teamApplicationId)
+    {
+
+    }
 }

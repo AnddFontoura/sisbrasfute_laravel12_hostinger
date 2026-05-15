@@ -19,4 +19,13 @@ class TeamApplyRepository extends BaseRepository
             ->where('team_id', $teamId)
             ->first();
     }
+
+    public function getTeamApplicationsPaginated(array $data, int $teamId, int $page)
+    {
+        $sql = $this->model
+            ->with('playerInfo')
+            ->where('team_id', $teamId);
+
+        return $sql->paginate($this->paginateAmount, ['*'], $page);
+    }
 }

@@ -73,7 +73,9 @@ Route::middleware('auth:api')->group(function () {
         ->name('team-application.')
         ->controller(TeamApplicationController::class)
         ->group(function (){
+            Route::get('/{teamId}/list/{page?}', 'index')->middleware('isTeamManager');
             Route::post('/apply/save', 'save');
+            Route::get('{teamId}/{teamApplicationId}/answer', 'answer');
         });
 
     Route::prefix('team-finance')

@@ -8,6 +8,8 @@ abstract class BaseRepository
 {
     protected $model;
 
+    protected int $paginateAmount = 15;
+
     public function create(array $data): Model
     {
         return $this->model
