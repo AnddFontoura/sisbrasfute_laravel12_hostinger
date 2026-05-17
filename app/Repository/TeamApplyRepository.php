@@ -24,7 +24,8 @@ class TeamApplyRepository extends BaseRepository
     {
         $sql = $this->model
             ->with('playerInfo')
-            ->where('team_id', $teamId);
+            ->where('team_id', $teamId)
+            ->where('reviewed', false);
 
         return $sql->paginate($this->paginateAmount, ['*'], $page);
     }

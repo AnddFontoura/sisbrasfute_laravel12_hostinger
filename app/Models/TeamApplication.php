@@ -17,6 +17,7 @@ class TeamApplication extends Model
         'game_position_id',
         'team_id',
         'approved',
+        'reviewed',
         'rejection_reason'
     ];
 

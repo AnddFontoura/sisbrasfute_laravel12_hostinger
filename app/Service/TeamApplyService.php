@@ -53,10 +53,11 @@ class TeamApplyService extends BaseService
 
     public function answerApplication(array $data, int $teamId, int $teamApplicationId)
     {
-       $approved = $data['applicationDecision'] === 'approved';
+       $approved = $data['applicationDecision'] === 'accepted' ? 1 : 0;
        $this->teamApplyRepository->updateById(
            [
                'approved' => $approved,
+               'reviewed' => true,
                'rejection_reason' => $data['rejectionReason'] ?? null,
            ],
            $teamApplicationId
