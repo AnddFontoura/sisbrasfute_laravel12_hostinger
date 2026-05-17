@@ -17,7 +17,7 @@ class MatchesService extends BaseService
     public function createOrUpdateMatch(array $data, ?int $matchId = null): void
     {
         $isHomeTeam = $data['myTeamIs'] === 'home';
-        $myTeamInfo = $this->teamRepository->getById($data['teamId']);
+        $myTeamInfo = $this->teamRepository->firstById($data['teamId']);
 
         $dataToUpdate = [
             'created_by_team_id' =>

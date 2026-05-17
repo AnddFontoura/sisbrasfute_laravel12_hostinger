@@ -144,7 +144,7 @@ class TeamService extends BaseService
 
     public function checkIfTeamExists(int $teamId)
     {
-        $team = $this->teamRepository->getById($teamId);
+        $team = $this->teamRepository->firstById($teamId);
 
         throw_if(!isset($team), new \Exception(
             __('error.team.team_not_found'),

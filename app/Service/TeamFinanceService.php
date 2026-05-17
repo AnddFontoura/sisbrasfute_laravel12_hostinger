@@ -29,6 +29,6 @@ class TeamFinanceService extends BaseService
 
     public function checkIfTeamFinanceBelongsToTeam(int $teamFinanceId, int $teamId): bool
     {
-        return $this->teamFinanceRepository->getById($teamFinanceId)->team_id === $teamId;
+        return $this->teamFinanceRepository->getByfirstByIdId($teamFinanceId)->team_id === $teamId;
     }
 }

@@ -36,7 +36,7 @@ abstract class BaseRepository
             ->get();
     }
 
-    public function getById(int $id)
+    public function firstById(int $id)
     {
         return $this->model
             ->where('id', $id)

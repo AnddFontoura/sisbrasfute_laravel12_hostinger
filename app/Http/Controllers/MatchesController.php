@@ -39,7 +39,7 @@ class MatchesController extends Controller
 
     public function show(int $matchId): JsonResponse
     {
-        $team = $this->matchesRepository->getById($matchId);
+        $team = $this->matchesRepository->firstById($matchId);
 
         return response()->json($team, JsonResponse::HTTP_OK);
     }
