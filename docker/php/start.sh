@@ -4,13 +4,8 @@ echo "🚀 Iniciando ambiente Laravel + Frontend..."
 
 cd /var/www
 
-# Instala dependências PHP se a pasta vendor não existir
-if [ ! -d "vendor" ]; then
-  echo "📦 Instalando dependências PHP (composer)..."
-  composer install
-else
-  echo "✅ Dependências PHP já instaladas."
-fi
+echo "📦 Instalando dependências PHP (composer)..."
+composer install
 
 
 # Garante que o .env e chave da aplicação existam

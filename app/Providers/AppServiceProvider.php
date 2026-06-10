@@ -22,5 +22,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Passport::personalAccessTokensExpireIn(now()->addDays(15));
         Passport::loadKeysFrom(storage_path());
+
+        $paths = collect(glob(database_path('migrations/*')))
+            ->filter(fn ($path) => is_dir($path))
+            ->toArray();
+
+        $this->loadMigrationsFrom($paths);
     }
 }
