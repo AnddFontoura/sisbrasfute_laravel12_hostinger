@@ -28,7 +28,7 @@ class MatchesController extends Controller
     }
 
 
-    public function save(MatchesCreateOrUpdateRequest $request, int $matchId = null): JsonResponse
+    public function save(MatchesCreateOrUpdateRequest $request, ?int $matchId = null): JsonResponse
     {
         $data = $request->validated();
 
