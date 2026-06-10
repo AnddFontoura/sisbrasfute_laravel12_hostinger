@@ -43,4 +43,4 @@ USER laravel
 ENTRYPOINT ["/start.sh"]
 
 # Exponha a porta do Laravel
-EXPOSE 8101
+EXPOSE 8201
