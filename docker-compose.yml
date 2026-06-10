@@ -17,7 +17,7 @@ services:
         networks:
             - intra_network
         ports:
-            - "8201:8201"
+            - "${LARAVEL_PORT:-8201}:${LARAVEL_PORT:-8201}"
     nginx:
         image: nginx:alpine
         ports:
@@ -34,7 +34,7 @@ services:
         restart: unless-stopped
         image: mysql:8.0
         ports:
-            - ${HOST_DB_PORT:-3307}:3306"
+            - "${HOST_DB_PORT:-3307}:3306"
         environment:
             MYSQL_DATABASE: sisbrasfute
             MYSQL_ROOT_PASSWORD: root
