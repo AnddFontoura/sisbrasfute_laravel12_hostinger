@@ -10,6 +10,7 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\TeamApplicationController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamFinanceController;
+use App\Http\Controllers\TeamMatchesController;
 use App\Http\Controllers\TeamPlayerController;
 use App\Http\Controllers\TeamSearchPositionController;
 use Illuminate\Http\Request;
@@ -49,12 +50,20 @@ Route::middleware('auth:api')->group(function () {
             Route::get('list/my-teams', 'listOfManagedTeamsByUser');
         });
 
+    Route::prefix('team-matches')
+        ->name('team-matches.')
+        ->controller(TeamMatchesController::class)
+        ->group(function () {
+            Route::post('/create', 'createTeamMatch')->middleware('isTeamManager');
+            Route::post('/join', 'joinTeamMatch')->middleware('isTeamMember');
+        });
+
     Route::prefix('team-player')
         ->name('team-player.')
         ->controller(TeamPlayerController::class)
         ->group(function () {
            Route::get('/{teamId}/list', 'index')->middleware('isTeamManager');
-           Route::get('/{teamId}/show/{playerId}', 'show');
+           Route::get('/{teamId}/show/{playerId}', 'show')->middleware('isTeamMember');
            Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
            Route::post('/{teamId}/update/{playerId}', 'save')->middleware('isTeamManager');
         });
@@ -64,7 +73,7 @@ Route::middleware('auth:api')->group(function () {
         ->controller(TeamSearchPositionController::class)
         ->group(function () {
             Route::get('/{teamId}/list', 'index')->middleware('isTeamManager');
-            Route::get('/{teamId}/show/{playerId}', 'show');
+            Route::get('/{teamId}/show/{playerId}', 'show')->middleware('isTeamMember');
             Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
             Route::delete('/{teamId}/delete/{id}', 'delete')->middleware('isTeamManager');
         });
