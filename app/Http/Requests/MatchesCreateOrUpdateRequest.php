@@ -34,6 +34,9 @@ class MatchesCreateOrUpdateRequest extends FormRequest
             'enemyTeamPenaltyScore' => 'nullable|int',
             'myTeamPenaltyScore' => 'nullable|int',
             'matchSchedule' => 'required|date',
+            'teamsCount' => 'nullable|int',
+            'playersCount' => 'nullable|int',
+            'positions' => 'nullabe|array',
         ];
     }
 }

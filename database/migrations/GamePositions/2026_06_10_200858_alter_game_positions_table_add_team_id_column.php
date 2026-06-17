@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('game_positions', function (Blueprint $table) {
-            $table->foreignId('team_id')->constrained('teams')->nullable(true)->after('id');
+            $table->foreignId('team_id')->nullable(true)->after('id')->constrained('teams');
         });
     }
 

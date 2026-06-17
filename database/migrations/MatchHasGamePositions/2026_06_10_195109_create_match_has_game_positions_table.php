@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('game_position_id')->constrained('game_positions')->nullable(true);
             $table->foreignId('team_id')->constrained('teams')->nullable(true);
             $table->foreignId('player_id')->constrained('players')->nullable(true);
+            $table->integer('team_reference')->nullable(true);
             $table->float('value', 2)->nullable(true);
             $table->timestamps();
             $table->softDeletes();
