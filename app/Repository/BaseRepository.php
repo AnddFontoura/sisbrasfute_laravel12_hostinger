@@ -15,6 +15,7 @@ abstract class BaseRepository
         return $this->model
             ->create($data);
     }
+
     public function getOrderedByName(string $orderBy = 'asc')
     {
         return $this->model
@@ -46,7 +47,20 @@ abstract class BaseRepository
     public function updateById(array $data, int $id)
     {
         return $this->model
-            ->where('id', $id)
-            ->update($data);
+            ->updateOrCreate(
+                [
+                    'id' => $id
+                ],
+                $data
+            );
+    }
+
+    public function createOrUpdateByParameters(array $search, array $newOrUpdate)
+    {
+        return $this->model
+            ->updateOrCreate(
+                $search,
+                $newOrUpdate
+            );
     }
 }

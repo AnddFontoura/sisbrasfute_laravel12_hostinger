@@ -14,14 +14,24 @@ class TeamRepository extends BaseRepository
 
     public function getPaginatedByName(array $filter, string $orderBy = 'asc')
     {
-        $sql = $this->model;
+        $sql = $this->model->select(
+            'teams.name',
+            'teams.id',
+            'teams.banner_path',
+            'teams.user_id',
+            'teams.logo_path',
+            'cities.name as city_name',
+            'states.name as state_name',
+        )
+        ->join('cities', 'cities.id', '=', 'teams.city_id')
+        ->join('states', 'states.id', '=', 'cities.state_id');
 
         if (isset($filter['teamId'])) {
             $sql->where('team_id' , '=', $filter['teamId']);
         }
 
         return $sql
-            ->orderBy('name', $orderBy)
+            ->orderBy('teams.name', $orderBy)
             ->get();
     }
 

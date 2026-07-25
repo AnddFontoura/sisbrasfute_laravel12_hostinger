@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Models\Matches;
+use App\Models\MatchesHasGamePositions;
 use App\Repository\MatchesRepository;
 use App\Repository\TeamRepository;
 
@@ -9,12 +11,13 @@ class MatchesService extends BaseService
 {
     public function __construct(
         protected MatchesRepository $matchesRepository,
+        protected MatchesHasGamePositions $matchesHasGamePositions,
         protected TeamRepository $teamRepository,
     ) {
 
     }
 
-    public function createOrUpdateMatch(array $data, ?int $matchId = null): void
+    public function createOrUpdateMatch(array $data, ?int $matchId = null): Matches
     {
         $isHomeTeam = $data['myTeamIs'] === 'home';
         $myTeamInfo = $this->teamRepository->firstById($data['teamId']);
@@ -72,11 +75,11 @@ class MatchesService extends BaseService
         ];
 
         if ($matchId) {
-            $this->matchesRepository->updateById($dataToUpdate, $matchId);
+            $matchInfo = $this->matchesRepository->updateById($dataToUpdate, $matchId);
         } else {
-            $this->matchesRepository->create($dataToUpdate);
+            $matchInfo = $this->matchesRepository->create($dataToUpdate);
         }
 
-        //$this->matchHasPlayerService->fillPlayersOnMatch($match, $teamId);
+        return $matchInfo;
     }
 }
