@@ -32,4 +32,16 @@ class TeamPlayerRepository extends BaseRepository
             ->where('team_id', $teamId)
             ->first();
     }
+
+    /**
+     * Busca team_player por user_id e team_id.
+     * Usado para resolver o team_player_id no fluxo de auto-atribuição de posição.
+     */
+    public function findByUserAndTeam(int $userId, int $teamId): ?TeamPlayer
+    {
+        return $this->model
+            ->where('user_id', $userId)
+            ->where('team_id', $teamId)
+            ->first();
+    }
 }

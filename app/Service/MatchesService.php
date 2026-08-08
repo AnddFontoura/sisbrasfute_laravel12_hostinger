@@ -13,6 +13,7 @@ class MatchesService extends BaseService
         protected MatchesRepository $matchesRepository,
         protected MatchesHasGamePositions $matchesHasGamePositions,
         protected TeamRepository $teamRepository,
+        protected MatchHasGamePositionService $matchHasGamePositionService,
     ) {
 
     }
@@ -78,6 +79,12 @@ class MatchesService extends BaseService
             $matchInfo = $this->matchesRepository->updateById($dataToUpdate, $matchId);
         } else {
             $matchInfo = $this->matchesRepository->create($dataToUpdate);
+        }
+
+        if (isset($data['positions'])) {
+            $positions = is_string($data['positions']) ? json_decode($data['positions'], true) : $data['positions'];
+            $data['positions'] = $positions;
+            $this->matchHasGamePositionService->createOrUpdateGamePosition($matchInfo, $data);
         }
 
         return $matchInfo;

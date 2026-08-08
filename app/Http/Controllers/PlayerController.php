@@ -44,4 +44,59 @@ class PlayerController extends Controller
 
         return response()->json($player, JsonResponse::HTTP_OK);
     }
+
+    public function getPlayerTeams(int $playerId): JsonResponse
+    {
+        $player = $this->playerRepository->getById($playerId);
+
+        if (!$player) {
+            return response()->json([], JsonResponse::HTTP_OK);
+        }
+
+        $teams = \App\Models\TeamPlayer::where('user_id', $player->user_id)
+            ->with('teamInfo')
+            ->get()
+            ->map(fn($tp) => [
+                'id' => $tp->teamInfo?->id,
+                'name' => $tp->teamInfo?->name,
+                'logo_url' => $tp->teamInfo?->logo_url,
+            ])
+            ->filter(fn($t) => $t['id'] !== null)
+            ->sortBy('name')
+            ->values();
+
+        return response()->json($teams, JsonResponse::HTTP_OK);
+    }
+
+    public function getPlayerMatches(int $playerId, Request $request): JsonResponse
+    {
+        $player = $this->playerRepository->getById($playerId);
+
+        if (!$player) {
+            return response()->json([], JsonResponse::HTTP_OK);
+        }
+
+        $limit = min((int) $request->input('limit', 5), 5);
+
+        $teamPlayerIds = \App\Models\TeamPlayer::where('user_id', $player->user_id)->pluck('id');
+
+        $matches = \App\Models\MatchHasPlayer::whereIn('team_player_id', $teamPlayerIds)
+            ->with('matchInfo')
+            ->get()
+            ->pluck('matchInfo')
+            ->unique('id')
+            ->sortByDesc('schedule')
+            ->take($limit)
+            ->map(fn($match) => [
+                'id' => $match->id,
+                'home_team_name' => $match->home_team_name,
+                'visitor_team_name' => $match->visitor_team_name,
+                'home_score' => $match->home_score,
+                'visitor_score' => $match->visitor_score,
+                'schedule_br' => $match->schedule_br,
+            ])
+            ->values();
+
+        return response()->json($matches, JsonResponse::HTTP_OK);
+    }
 }

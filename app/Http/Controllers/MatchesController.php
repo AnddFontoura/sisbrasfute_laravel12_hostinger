@@ -39,8 +39,15 @@ class MatchesController extends Controller
 
     public function show(int $matchId): JsonResponse
     {
-        $team = $this->matchesRepository->firstById($matchId);
+        $match = $this->matchesRepository->getById($matchId);
 
-        return response()->json($team, JsonResponse::HTTP_OK);
+        if (!$match) {
+            return response()->json(
+                ['message' => 'Partida não encontrada'],
+                JsonResponse::HTTP_NOT_FOUND
+            );
+        }
+
+        return response()->json($match, JsonResponse::HTTP_OK);
     }
 }

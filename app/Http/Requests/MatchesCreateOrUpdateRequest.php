@@ -11,7 +11,7 @@ class MatchesCreateOrUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -36,7 +36,9 @@ class MatchesCreateOrUpdateRequest extends FormRequest
             'matchSchedule' => 'required|date',
             'teamsCount' => 'nullable|int',
             'playersCount' => 'nullable|int',
-            'positions' => 'nullabe|array',
+            'positions' => 'nullable',
+            'matchType' => 'nullable|string',
+            'indicatePositions' => 'nullable',
         ];
     }
 }

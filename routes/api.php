@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GamePositionController;
 use App\Http\Controllers\MatchesController;
+use App\Http\Controllers\MatchPositionController;
+use App\Http\Controllers\PlayerSelfAssignController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\StateController;
@@ -105,6 +107,11 @@ Route::middleware('auth:api')->group(function () {
             Route::post('save', 'save');
             Route::post('/update/{matchId}', 'update')->middleware('isTeamAdmin');
             Route::get('show/{matchId}', 'show');
+            Route::get('{matchId}/players', [MatchPositionController::class, 'index']);
+            Route::post('{matchId}/players/save', [MatchPositionController::class, 'save'])->middleware('isTeamAdmin');
+            Route::post('{matchId}/players/{atribuicaoId}/payment', [MatchPositionController::class, 'updatePayment'])->middleware('isTeamAdmin');
+            Route::post('{matchId}/players/self-assign', [PlayerSelfAssignController::class, 'store'])->middleware('isTeamMember');
+            Route::delete('{matchId}/players/self-assign', [PlayerSelfAssignController::class, 'destroy'])->middleware('isTeamMember');
         });
 
     Route::prefix('player-profile')
@@ -115,6 +122,8 @@ Route::middleware('auth:api')->group(function () {
             Route::post('save', 'save');
             Route::get('show/{playerId}', 'show');
             Route::get('show', 'show');
+            Route::get('{playerId}/teams', 'getPlayerTeams');
+            Route::get('{playerId}/matches', 'getPlayerMatches');
         });
 
     Route::prefix('states')
