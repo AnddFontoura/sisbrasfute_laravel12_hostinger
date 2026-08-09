@@ -5,8 +5,8 @@ namespace App\Http\Middleware;
 use App\Models\Team;
 use App\Models\TeamPlayer;
 use Closure;
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class IsTeamMemberMiddleware
@@ -19,7 +19,6 @@ class IsTeamMemberMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $teamId = $request->teamId;
-        $team = Team::where('id', $teamId)->first();
         $teamHasPlayer = TeamPlayer::where('team_id', $teamId)->where('user_id', Auth::id())->first();
 
         if (!$teamHasPlayer) {
@@ -29,5 +28,6 @@ class IsTeamMemberMiddleware
             );
         }
 
-        return $next($request);    }
+        return $next($request);
+    }
 }
