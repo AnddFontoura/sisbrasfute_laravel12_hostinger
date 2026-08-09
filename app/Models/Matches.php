@@ -68,4 +68,9 @@ class Matches extends Model
     {
         return $this->belongsTo(TeamTag::class, 'tag_id');
     }
+
+    public function positions()
+    {
+        return $this->hasMany(MatchesHasGamePositions::class, 'match_id', 'id');
+    }
 }

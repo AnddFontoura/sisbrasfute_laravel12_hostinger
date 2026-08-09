@@ -28,14 +28,14 @@ class MatchesService extends BaseService
                 $data['teamId'],
             'championship_id' =>
                 null,
-            'visitor_team_id' =>
-                $isHomeTeam ?
-                    $data['teamId'] :
-                    null,
             'home_team_id' =>
                 $isHomeTeam ?
                     $data['teamId'] :
                     null,
+            'visitor_team_id' =>
+                $isHomeTeam ?
+                    null :
+                    $data['teamId'],
             'field_id' =>
                 null,
             'city_id' =>
