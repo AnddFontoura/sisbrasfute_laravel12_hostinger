@@ -15,6 +15,7 @@ class TeamPlayerRepository extends BaseRepository
     public function getPlayersFromTeam(array $filter, int $teamId)
     {
         $sql = $this->model
+            ->with('tags')
             ->where('team_id', $teamId);
 
         if (isset($filter['showDeleted']) && $filter['showDeleted'] === 'true') {

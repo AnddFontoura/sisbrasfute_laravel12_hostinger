@@ -73,6 +73,8 @@ class MatchesService extends BaseService
                 $data['matchLocation'],
             'schedule' =>
                 $data['matchSchedule'],
+            'tag_id' =>
+                $data['tagId'] ?? null,
         ];
 
         if ($matchId) {

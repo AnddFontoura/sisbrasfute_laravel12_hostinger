@@ -159,6 +159,21 @@ class MatchPositionService extends BaseService
             Response::HTTP_FORBIDDEN
         ));
 
+        // 2.5 Validar elegibilidade por tag
+        if ($match->tag_id) {
+            $tag = \App\Models\TeamTag::find($match->tag_id);
+
+            // Se tag foi deletada, tratar como sem restrição (graceful degradation)
+            if ($tag) {
+                $hasTag = $teamPlayer->tags()->where('team_tag_id', $match->tag_id)->exists();
+
+                throw_if(!$hasTag, new \Exception(
+                    'Você não possui a tag necessária para participar desta partida',
+                    Response::HTTP_FORBIDDEN
+                ));
+            }
+        }
+
         // 3. Validar que a posição está configurada na partida
         $positionConfigured = $this->matchHasGamePositionRepository
             ->getPositionsByMatchId($matchId)

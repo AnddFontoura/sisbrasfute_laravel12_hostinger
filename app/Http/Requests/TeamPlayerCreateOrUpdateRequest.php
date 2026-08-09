@@ -11,7 +11,7 @@ class TeamPlayerCreateOrUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,19 @@ class TeamPlayerCreateOrUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'nullable|string|max:255',
+            'nickname' => 'nullable|string|max:255',
+            'game_position_id' => 'nullable|integer|exists:game_positions,id',
+            'uniform_size' => 'nullable|string|max:10',
+            'photo' => 'nullable|string',
+            'number' => 'nullable|integer',
+            'height' => 'nullable|numeric',
+            'weight' => 'nullable|numeric',
+            'foot_size' => 'nullable|numeric',
+            'glove_size' => 'nullable|string|max:10',
+            'birthdate' => 'nullable|date',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'integer|exists:team_tags,id',
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -32,6 +33,7 @@ class Matches extends Model
         'home_score',
         'location',
         'schedule',
+        'tag_id',
     ];
 
     protected $dates = [
@@ -60,5 +62,10 @@ class Matches extends Model
     public function getScheduleBrAttribute(): ?string
     {
         return Carbon::create($this->schedule)->format('d/m/Y H:i');
+    }
+
+    public function tag(): BelongsTo
+    {
+        return $this->belongsTo(TeamTag::class, 'tag_id');
     }
 }

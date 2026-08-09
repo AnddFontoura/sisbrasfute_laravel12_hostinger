@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -42,5 +43,11 @@ class TeamPlayer extends Model
     public function gamePositionInfo(): HasOne
     {
         return $this->hasOne(GamePosition::class, 'id', 'game_position_id');
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(TeamTag::class, 'team_player_has_tags', 'team_player_id', 'team_tag_id')
+            ->withTimestamps();
     }
 }

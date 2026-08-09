@@ -15,6 +15,7 @@ use App\Http\Controllers\TeamFinanceController;
 use App\Http\Controllers\TeamMatchesController;
 use App\Http\Controllers\TeamPlayerController;
 use App\Http\Controllers\TeamSearchPositionController;
+use App\Http\Controllers\TeamTagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -68,6 +69,17 @@ Route::middleware('auth:api')->group(function () {
            Route::get('/{teamId}/show/{playerId}', 'show')->middleware('isTeamMember');
            Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
            Route::post('/{teamId}/update/{playerId}', 'save')->middleware('isTeamManager');
+        });
+
+    Route::prefix('team/{teamId}/tags')
+        ->name('team-tags.')
+        ->controller(TeamTagController::class)
+        ->middleware('isTeamManager')
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::put('/{tagId}', 'update');
+            Route::delete('/{tagId}', 'destroy');
         });
 
     Route::prefix('team-search-position')

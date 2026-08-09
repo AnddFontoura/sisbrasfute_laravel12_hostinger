@@ -39,6 +39,7 @@ class MatchesCreateOrUpdateRequest extends FormRequest
             'positions' => 'nullable',
             'matchType' => 'nullable|string',
             'indicatePositions' => 'nullable',
+            'tagId' => 'nullable|integer|exists:team_tags,id',
         ];
     }
 }
