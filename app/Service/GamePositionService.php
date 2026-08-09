@@ -21,7 +21,7 @@ class GamePositionService
             if ($gpExists) {
                 $gpExists->restore();
             } else {
-                $this->gamePositionRepository->create([
+                $this->gamePositionRepository->createPlayerGamePosition([
                     'game_position_id' => $gamePosition,
                     'player_id' => $playerId,
                 ]);

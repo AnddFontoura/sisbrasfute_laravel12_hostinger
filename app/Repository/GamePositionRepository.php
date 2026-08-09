@@ -3,36 +3,45 @@
 namespace App\Repository;
 
 use App\Models\GamePosition;
+use App\Models\PlayerHasGamePosition;
 use Illuminate\Support\Collection;
 
 class GamePositionRepository extends BaseRepository
 {
-    public function __construct(GamePosition $model)
+    protected $pivotModel;
+
+    public function __construct(GamePosition $model, PlayerHasGamePosition $pivotModel)
     {
         $this->model = $model;
+        $this->pivotModel = $pivotModel;
     }
 
-    public function getFirstByPlayerId(int $playerId): ?GamePosition
+    public function getFirstByPlayerId(int $playerId): ?PlayerHasGamePosition
     {
-        return $this->model
+        return $this->pivotModel
             ->where('player_id', $playerId)
             ->first();
     }
 
     public function deleteGamePositionsOfPlayer(int $playerId): void
     {
-        $this->model
+        $this->pivotModel
             ->where('player_id', $playerId)
             ->delete();
     }
 
-    public function getPlayerGamePosition(int $playerId, int $gamePositionId): ?GamePosition
+    public function getPlayerGamePosition(int $playerId, int $gamePositionId): ?PlayerHasGamePosition
     {
-        return $this->model
+        return $this->pivotModel
             ->where('game_position_id', $gamePositionId)
             ->where('player_id', $playerId)
             ->withTrashed()
             ->first();
+    }
+
+    public function createPlayerGamePosition(array $data): PlayerHasGamePosition
+    {
+        return $this->pivotModel->create($data);
     }
 
     public function getOrderedByNameWithParameters(array $parameters): ?Collection
