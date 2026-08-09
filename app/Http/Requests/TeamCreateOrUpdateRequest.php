@@ -14,20 +14,21 @@ class TeamCreateOrUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'teamCityId' => 'required|integer|min:1',
-            'teamModalityId' => 'required|exists:modalities,id',
-            'teamName' => 'required|string|min:1|max:254',
-            'teamDescription' => 'required|string|min:1',
-            'teamGender' => 'required|integer',
-            'teamFoundationDate' => 'required|date:Y-m-d',
-            'teamLogo' => 'nullable|image',
-            'teamBanner' => 'nullable|image',
+            'teamCityId' => 'nullable|integer|min:1',
+            'teamModalityId' => 'nullable|exists:modalities,id',
+            'teamName' => 'nullable|string|min:1|max:254',
+            'teamDescription' => 'nullable|string',
+            'teamGender' => 'nullable|integer',
+            'teamFoundationDate' => 'nullable|date',
+            'teamLogo' => 'nullable|image|max:10240',
+            'teamBanner' => 'nullable|image|max:10240',
             'teamFacebook' => 'nullable|string',
             'teamInstagram' => 'nullable|string',
             'teamX' => 'nullable|string',
             'teamTiktok' => 'nullable|string',
             'teamYoutube' => 'nullable|string',
             'teamKwai' => 'nullable|string',
+            'teamKwaii' => 'nullable|string',
         ];
     }
 }
