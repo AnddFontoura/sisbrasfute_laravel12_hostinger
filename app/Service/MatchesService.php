@@ -20,7 +20,8 @@ class MatchesService extends BaseService
 
     public function createOrUpdateMatch(array $data, ?int $matchId = null): Matches
     {
-        $isHomeTeam = $data['myTeamIs'] === 'home';
+        $isHomeTeam = ($data['myTeamIs'] ?? null) === 'home';
+        $isTeamMatch = ($data['matchType'] ?? null) === 'team_match';
         $myTeamInfo = $this->teamRepository->firstById($data['teamId']);
 
         $dataToUpdate = [
@@ -29,13 +30,13 @@ class MatchesService extends BaseService
             'championship_id' =>
                 null,
             'home_team_id' =>
-                $isHomeTeam ?
+                $isTeamMatch || $isHomeTeam ?
                     $data['teamId'] :
                     null,
             'visitor_team_id' =>
-                $isHomeTeam ?
-                    null :
-                    $data['teamId'],
+                $isTeamMatch ?
+                    $data['teamId'] :
+                    ($isHomeTeam ? null : $data['teamId']),
             'field_id' =>
                 null,
             'city_id' =>
@@ -44,29 +45,41 @@ class MatchesService extends BaseService
                 $data['championshipName'] ??
                     null,
             'visitor_team_name' =>
-                $isHomeTeam ?
-                    $data['enemyTeamName'] :
-                    $myTeamInfo->name,
-            'visitor_score' =>
-                $isHomeTeam ?
-                    $data['enemyTeamScore'] :
-                    $data['myTeamScore'],
-            'visitor_penalty_score' =>
-                $isHomeTeam ?
-                    $data['enemyTeamPenaltyScore'] :
-                    $data['myTeamPenaltyScore'],
-            'home_team_name' =>
-                $isHomeTeam ?
+                $isTeamMatch ?
                     $myTeamInfo->name :
-                    $data['enemyTeamName'],
+                    ($isHomeTeam ?
+                        $data['enemyTeamName'] :
+                        $myTeamInfo->name),
+            'visitor_score' =>
+                $isTeamMatch ?
+                    null :
+                    ($isHomeTeam ?
+                        $data['enemyTeamScore'] :
+                        $data['myTeamScore']),
+            'visitor_penalty_score' =>
+                $isTeamMatch ?
+                    null :
+                    ($isHomeTeam ?
+                        $data['enemyTeamPenaltyScore'] :
+                        $data['myTeamPenaltyScore']),
+            'home_team_name' =>
+                $isTeamMatch ?
+                    $myTeamInfo->name :
+                    ($isHomeTeam ?
+                        $myTeamInfo->name :
+                        $data['enemyTeamName']),
             'home_score' =>
-                $isHomeTeam ?
-                    $data['myTeamScore'] :
-                    $data['enemyTeamScore'],
+                $isTeamMatch ?
+                    null :
+                    ($isHomeTeam ?
+                        $data['myTeamScore'] :
+                        $data['enemyTeamScore']),
             'home_penalty_score' =>
-                $isHomeTeam ?
-                    $data['myTeamPenaltyScore'] :
-                    $data['enemyTeamPenaltyScore'],
+                $isTeamMatch ?
+                    null :
+                    ($isHomeTeam ?
+                        $data['myTeamPenaltyScore'] :
+                        $data['enemyTeamPenaltyScore']),
             'has_penalties' =>
                 $data['hasPenalties'] ?? 0,
             'location' =>

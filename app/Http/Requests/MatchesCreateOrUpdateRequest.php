@@ -23,7 +23,7 @@ class MatchesCreateOrUpdateRequest extends FormRequest
     {
         return [
             'teamId' => 'required|integer|exists:teams,id',
-            'myTeamIs' => 'required|string',
+            'myTeamIs' => 'nullable|string',
             'enemyTeamId' => 'nullable|int',
             'enemyTeamName' => 'nullable|string',
             'cityId' => 'required|int',
