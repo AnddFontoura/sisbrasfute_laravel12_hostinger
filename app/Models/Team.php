@@ -69,6 +69,10 @@ class Team extends Model
 
     public function getFoundationDateBrAttribute(): ?string
     {
-        return Carbon::create($this->fundation_date)->format('d/m/Y');
+        if (!$this->foundation_date) {
+            return null;
+        }
+
+        return Carbon::parse($this->foundation_date)->format('d/m/Y');
     }
 }
