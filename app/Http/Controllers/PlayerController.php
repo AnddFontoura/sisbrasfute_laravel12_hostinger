@@ -39,7 +39,7 @@ class PlayerController extends Controller
         if ($id) {
             $player = $this->playerRepository->getById($id);
         } else {
-            $player = $this->playerRepository->getByUserId(Auth::id());
+            $player = $this->playerRepository->firstByUserId(Auth::id());
         }
 
         return response()->json($player, JsonResponse::HTTP_OK);

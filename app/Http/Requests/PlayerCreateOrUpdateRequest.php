@@ -14,9 +14,9 @@ class PlayerCreateOrUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'playerCityId' => 'required|exists:cities,id',
-            'playerName' => 'required|string|max:255',
-            'playerNickName' => 'required|string|max:255',
+            'playerCityId' => 'nullable|exists:cities,id',
+            'playerName' => 'nullable|string|max:255',
+            'playerNickName' => 'nullable|string|max:255',
             'playerPositions' => 'nullable|array',
             'playerModalities' => 'nullable|array',
             'playerGender' => 'nullable|string',
@@ -26,9 +26,18 @@ class PlayerCreateOrUpdateRequest extends FormRequest
             'playerFootSize' => 'nullable|numeric|between:15,50',
             'playerGloveSize' => 'nullable|numeric|between:5,15',
             'playerUniformSize' => 'nullable|string|max:3',
-            'playerPhoto' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'playerPhoto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'social' => 'nullable|array',
-            'playerStatus' => 'required|boolean',
+            'playerStatus' => 'nullable|in:0,1,true,false',
+            'playerYoutube' => 'nullable|string|max:255',
+            'playerTiktok' => 'nullable|string|max:255',
+            'playerInstagram' => 'nullable|string|max:255',
+            'playerX' => 'nullable|string|max:255',
+            'playerKwaii' => 'nullable|string|max:255',
+            'playerFacebook' => 'nullable|string|max:255',
+            'playerGDA' => 'nullable|string|max:255',
+            'playerBirthCity' => 'nullable|integer',
+            'removePhoto' => 'nullable|string',
         ];
     }
 }
