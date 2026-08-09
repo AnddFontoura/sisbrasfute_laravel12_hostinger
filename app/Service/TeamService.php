@@ -19,7 +19,12 @@ class TeamService extends BaseService
 
     public function updateTeam(array $data, int $teamId): Team|int
     {
-        $this->checkIfTeamExists($teamId);
+        $team = $this->teamRepository->firstById($teamId);
+
+        throw_if(!$team, new \Exception(
+            'Time não encontrado',
+            Response::HTTP_NOT_FOUND
+        ));
 
         if(isset($data['teamLogo'])) {
             if (isset($team->logo_path)) {
