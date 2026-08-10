@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TeamFinanceCreateOrUpdateRequest;
-use App\Models\TeamFinance;
 use App\Repository\TeamFinanceRepository;
 use App\Service\TeamFinanceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class TeamFinanceController extends Controller
 {
@@ -16,7 +14,6 @@ class TeamFinanceController extends Controller
         protected TeamFinanceService $teamFinanceService,
         protected TeamFinanceRepository $teamFinanceRepository,
     ) {
-
     }
 
     public function index(Request $request, int $teamId): JsonResponse
@@ -30,22 +27,27 @@ class TeamFinanceController extends Controller
     {
         $data = $request->validated();
 
-        if ($teamId) {
-            $teamFinanceId = $this->teamFinanceService->updateTeamFinance($data, $teamFinanceId);
-
-            $message = "Time atualizado com sucesso";
+        if ($teamFinanceId) {
+            $this->teamFinanceService->updateTeamFinance($data, $teamId, $teamFinanceId);
+            $message = "Registro financeiro atualizado com sucesso";
         } else {
-            $teamFinanceId = $this->teamFinanceService->createTeamFinance($data);
-
+            $this->teamFinanceService->createTeamFinance($data, $teamId);
             $message = "Registro financeiro criado com sucesso";
         }
 
-        return response()->json($message, JsonResponse::HTTP_CREATED);
+        return response()->json(['message' => $message], JsonResponse::HTTP_CREATED);
     }
 
     public function show(int $teamId, int $id): JsonResponse
     {
         $teamFinance = $this->teamFinanceRepository->getById($id);
+
+        if (!$teamFinance || $teamFinance->team_id !== $teamId) {
+            return response()->json(
+                ['message' => 'Registro não encontrado'],
+                JsonResponse::HTTP_NOT_FOUND
+            );
+        }
 
         return response()->json($teamFinance, JsonResponse::HTTP_OK);
     }

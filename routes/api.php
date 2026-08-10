@@ -12,6 +12,7 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\TeamApplicationController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamFinanceController;
+use App\Http\Controllers\TeamFinanceReasonController;
 use App\Http\Controllers\TeamMatchesController;
 use App\Http\Controllers\TeamPlayerController;
 use App\Http\Controllers\TeamSearchPositionController;
@@ -109,6 +110,16 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
             Route::post('{teamId}/update/{id}', 'save')->middleware('isTeamManager');
             Route::get('{teamId}/show/{id}', 'show')->middleware('isTeamManager');
+        });
+
+    Route::prefix('team/{teamId}/finance-reasons')
+        ->name('team-finance-reasons.')
+        ->controller(TeamFinanceReasonController::class)
+        ->middleware('isTeamManager')
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::delete('/{reasonId}', 'destroy');
         });
 
     Route::prefix('matches')

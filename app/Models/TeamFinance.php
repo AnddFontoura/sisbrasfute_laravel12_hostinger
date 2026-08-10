@@ -18,11 +18,12 @@ class TeamFinance extends Model
         'team_id',
         'match_id',
         'team_player_id',
-        'description', //descricao do pagamento, para controle interno
-        'value', //Valor em float
-        'method', //Método de pamgamento boleto - cartoa - dinheiro - pix
-        'type', //tipo de pagamento, se é débito (0)  ou crédito (1)
-        'origin', //Origem do pagamento, campo, arbitro, bola, mensalidade, outros
+        'description',
+        'value',
+        'method',
+        'type',
+        'origin',
+        'reason_id',
     ];
 
     public function teamInfo(): HasOne
@@ -34,8 +35,14 @@ class TeamFinance extends Model
     {
         return $this->hasOne(TeamPlayer::class, 'id', 'team_player_id');
     }
+
     public function matchInfo(): HasOne
     {
         return $this->hasOne(Matches::class, 'id', 'match_id');
+    }
+
+    public function reasonInfo(): HasOne
+    {
+        return $this->hasOne(TeamFinanceReason::class, 'id', 'reason_id');
     }
 }

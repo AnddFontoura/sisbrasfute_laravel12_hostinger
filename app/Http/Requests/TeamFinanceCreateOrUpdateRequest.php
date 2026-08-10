@@ -17,10 +17,10 @@ class TeamFinanceCreateOrUpdateRequest extends FormRequest
             'matchId' => 'nullable|integer|exists:matches,id',
             'teamPlayerId' => 'nullable|integer|exists:team_players,id',
             'description' => 'nullable|string|min:1',
-            'value' => 'required|float',
-            'method' => 'required|integer',
-            'type' => 'required|bool',
-            'origin' => 'required|string',
+            'value' => 'required|numeric',
+            'type' => 'required|boolean',
+            'reasonName' => 'nullable|string|min:1|max:100',
+            'reasonId' => 'nullable|integer|exists:team_finance_reasons,id',
         ];
     }
 }

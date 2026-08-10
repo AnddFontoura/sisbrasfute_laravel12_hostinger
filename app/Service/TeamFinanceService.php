@@ -10,25 +10,75 @@ class TeamFinanceService extends BaseService
     public function __construct(
         protected TeamFinanceRepository $teamFinanceRepository,
         protected TeamService $teamService,
+        protected TeamFinanceReasonService $teamFinanceReasonService,
     ) {
     }
 
-    public function createTeamFinance(array $data): TeamFinance
+    public function createTeamFinance(array $data, int $teamId): TeamFinance
     {
-        $this->teamService->checkIfTeamExists($data['teamId']);
+        $this->teamService->checkIfTeamExists($teamId);
 
-        return $this->teamFinanceRepository->create($data);
+        $reasonId = $this->resolveReasonId($data, $teamId);
+
+        $financeData = [
+            'team_id' => $teamId,
+            'match_id' => $data['matchId'] ?? null,
+            'team_player_id' => $data['teamPlayerId'] ?? null,
+            'description' => $data['description'] ?? null,
+            'value' => $data['value'],
+            'type' => $data['type'],
+            'reason_id' => $reasonId,
+        ];
+
+        return $this->teamFinanceRepository->create($financeData);
     }
 
-    public function updateTeamFinance(array $data, int $teamFinanceId)
+    public function updateTeamFinance(array $data, int $teamId, int $teamFinanceId): TeamFinance
     {
-        $this->checkIfTeamFinanceBelongsToTeam($teamFinanceId, $data['teamId']);
+        $this->checkIfTeamFinanceBelongsToTeam($teamFinanceId, $teamId);
 
-        return $this->teamFinanceRepository->updateById($data, $teamFinanceId);
+        $reasonId = $this->resolveReasonId($data, $teamId);
+
+        $financeData = [
+            'team_id' => $teamId,
+            'match_id' => $data['matchId'] ?? null,
+            'team_player_id' => $data['teamPlayerId'] ?? null,
+            'description' => $data['description'] ?? null,
+            'value' => $data['value'],
+            'type' => $data['type'],
+            'reason_id' => $reasonId,
+        ];
+
+        return $this->teamFinanceRepository->updateById($financeData, $teamFinanceId);
+    }
+
+    /**
+     * Resolve the reason_id: if reasonName is provided, find or create the reason.
+     * If reasonId is provided directly, use it. Otherwise null.
+     */
+    private function resolveReasonId(array $data, int $teamId): ?int
+    {
+        if (!empty($data['reasonName'])) {
+            $reason = $this->teamFinanceReasonService->findOrCreate($teamId, $data['reasonName']);
+            return $reason->id;
+        }
+
+        if (!empty($data['reasonId'])) {
+            return (int) $data['reasonId'];
+        }
+
+        return null;
     }
 
     public function checkIfTeamFinanceBelongsToTeam(int $teamFinanceId, int $teamId): bool
     {
-        return $this->teamFinanceRepository->firstById($teamFinanceId)->team_id === $teamId;
+        $finance = $this->teamFinanceRepository->firstById($teamFinanceId);
+
+        throw_if(!$finance || $finance->team_id !== $teamId, new \Exception(
+            'Registro financeiro não encontrado',
+            404
+        ));
+
+        return true;
     }
 }
