@@ -14,6 +14,7 @@ class TeamListRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'page' => 'nullable|integer|min:1',
             'teamId' => 'nullable|integer|exists:teams,id',
             'name' => 'nullable|string|max:255',
             'state_id' => 'nullable|integer|exists:states,id',

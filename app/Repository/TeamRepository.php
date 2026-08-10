@@ -48,7 +48,7 @@ class TeamRepository extends BaseRepository
 
         return $sql
             ->orderBy('teams.name', $orderBy)
-            ->get();
+            ->paginate(12);
     }
 
     public function getById(int $id)
