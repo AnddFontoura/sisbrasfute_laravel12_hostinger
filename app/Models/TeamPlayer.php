@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class TeamPlayer extends Model
 {
@@ -29,6 +30,17 @@ class TeamPlayer extends Model
         'glove_size',
         'birthdate',
     ];
+
+    protected $appends = ['photo_url'];
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (!$this->photo) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->photo);
+    }
 
     public function teamInfo(): HasOne
     {
