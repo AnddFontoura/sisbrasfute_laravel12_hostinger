@@ -27,7 +27,7 @@ class MatchesRepository extends BaseRepository
     public function getById(int $id)
     {
         return $this->model
-            ->with(['cityInfo.stateInfo', 'homeTeamInfo', 'visitorTeamInfo', 'positions.gamePositionInfo'])
+            ->with(['cityInfo.stateInfo', 'homeTeamInfo', 'visitorTeamInfo', 'positions.gamePositionInfo', 'tag'])
             ->where('id', $id)
             ->first();
     }
