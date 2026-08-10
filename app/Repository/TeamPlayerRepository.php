@@ -22,6 +22,23 @@ class TeamPlayerRepository extends BaseRepository
             $sql->withTrashed();
         }
 
+        // Filtro por nome (busca parcial)
+        if (!empty($filter['name'])) {
+            $sql->where('name', 'LIKE', '%' . $filter['name'] . '%');
+        }
+
+        // Filtro por posição
+        if (!empty($filter['game_position_id'])) {
+            $sql->where('game_position_id', $filter['game_position_id']);
+        }
+
+        // Filtro por tag
+        if (!empty($filter['tag_id'])) {
+            $sql->whereHas('tags', function ($query) use ($filter) {
+                $query->where('team_tags.id', $filter['tag_id']);
+            });
+        }
+
         return $sql->orderBy('name', 'asc')
             ->paginate(12);
     }
