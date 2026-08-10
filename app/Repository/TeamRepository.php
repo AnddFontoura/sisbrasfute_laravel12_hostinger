@@ -30,6 +30,22 @@ class TeamRepository extends BaseRepository
             $sql->where('team_id' , '=', $filter['teamId']);
         }
 
+        if (!empty($filter['name'])) {
+            $sql->where('teams.name', 'LIKE', '%' . $filter['name'] . '%');
+        }
+
+        if (!empty($filter['city_id'])) {
+            $sql->where('teams.city_id', '=', $filter['city_id']);
+        }
+
+        if (!empty($filter['state_id'])) {
+            $sql->where('states.id', '=', $filter['state_id']);
+        }
+
+        if (!empty($filter['modality_id'])) {
+            $sql->where('teams.modality_id', '=', $filter['modality_id']);
+        }
+
         return $sql
             ->orderBy('teams.name', $orderBy)
             ->get();
