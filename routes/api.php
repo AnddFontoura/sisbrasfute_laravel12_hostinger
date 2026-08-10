@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GamePositionController;
@@ -175,5 +176,14 @@ Route::middleware('auth:api')->group(function () {
         ->controller(GamePositionController::class)
         ->group(function () {
             Route::get('/list', 'list');
+        });
+
+    Route::prefix('configuration')
+        ->name('configuration.')
+        ->controller(ConfigurationController::class)
+        ->group(function () {
+            Route::get('/', 'show');
+            Route::post('/profile', 'updateProfile');
+            Route::post('/password', 'updatePassword');
         });
 });
