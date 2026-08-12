@@ -10,6 +10,7 @@ use App\Http\Controllers\PlayerSelfAssignController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\PlayerInvitationController;
 use App\Http\Controllers\TeamApplicationController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamFinanceController;
@@ -101,6 +102,17 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/{teamId}/list/{page?}', 'index')->middleware('isTeamManager');
             Route::post('/apply/save', 'save');
             Route::post('{teamId}/{teamApplicationId}/answer', 'answer');
+        });
+
+    Route::prefix('player-invitation')
+        ->name('player-invitation.')
+        ->controller(PlayerInvitationController::class)
+        ->group(function () {
+            Route::post('/{teamId}/send', 'send')->middleware('isTeamManager');
+            Route::get('/{teamId}/list', 'index')->middleware('isTeamManager');
+            Route::delete('/{teamId}/cancel/{invitationId}', 'cancel')->middleware('isTeamManager');
+            Route::get('/received', 'received');
+            Route::post('/{invitationId}/accept', 'accept');
         });
 
     Route::prefix('team-finance')
