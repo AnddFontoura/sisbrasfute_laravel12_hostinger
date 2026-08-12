@@ -17,6 +17,7 @@ use App\Http\Controllers\TeamFinanceController;
 use App\Http\Controllers\TeamFinanceReasonController;
 use App\Http\Controllers\TeamMatchesController;
 use App\Http\Controllers\TeamPlayerController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\TeamSearchPositionController;
 use App\Http\Controllers\TeamTagController;
 use Illuminate\Http\Request;
@@ -40,6 +41,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
