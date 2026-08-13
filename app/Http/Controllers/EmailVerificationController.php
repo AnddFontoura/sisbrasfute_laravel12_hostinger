@@ -102,7 +102,7 @@ class EmailVerificationController extends Controller
             . '&expires=' . $queryParams['expires']
             . '&signature=' . $queryParams['signature'];
 
-        Mail::to($user->email)->queue(new EmailVerificationMail($frontendUrl, $user->name));
+        Mail::to($user->email)->send(new EmailVerificationMail($frontendUrl, $user->name));
 
         return response()->json([
             'message' => 'Email de verificação reenviado.',
