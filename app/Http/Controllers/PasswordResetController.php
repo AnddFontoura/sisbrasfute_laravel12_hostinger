@@ -28,7 +28,7 @@ class PasswordResetController extends Controller
         if ($user) {
             $token = Password::broker()->createToken($user);
 
-            $resetUrl = env('FRONTEND_URL') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+            $resetUrl = config('app.frontend_url') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
 
             Mail::to($user->email)->send(new PasswordResetMail($resetUrl, $user->name));
         }

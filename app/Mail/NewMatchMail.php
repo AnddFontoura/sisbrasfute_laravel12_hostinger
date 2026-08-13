@@ -39,7 +39,7 @@ class NewMatchMail extends Mailable implements ShouldQueue
      */
     public function content(): Content
     {
-        $frontendUrl = env('APP_FRONTEND_URL', 'http://localhost:5173');
+        $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
         $participateUrl = $frontendUrl . '/matches/' . $this->match->id . '/choose-position';
 
         return new Content(
