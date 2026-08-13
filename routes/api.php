@@ -17,6 +17,7 @@ use App\Http\Controllers\TeamFinanceController;
 use App\Http\Controllers\TeamFinanceReasonController;
 use App\Http\Controllers\TeamMatchesController;
 use App\Http\Controllers\TeamPlayerController;
+use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\TeamSearchPositionController;
 use App\Http\Controllers\TeamTagController;
@@ -43,17 +44,19 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/email/resend-verification', [EmailVerificationController::class, 'resend']);
 
     Route::prefix('team')
         ->name('team.')
         ->controller(TeamController::class)
         ->group(function () {
             Route::get('/', 'index');
-            Route::post('save', 'save');
+            Route::post('save', 'save')->middleware('emailVerified');
             Route::post('/update/{teamId}', 'save')->middleware('isTeamManager');
             Route::get('show/{teamId}', 'show');
             Route::get('list/my-teams', 'listOfManagedTeamsByUser');
@@ -143,7 +146,7 @@ Route::middleware('auth:api')->group(function () {
         ->controller(MatchesController::class)
         ->group(function () {
             Route::get('/', 'index');
-            Route::post('save', 'save');
+            Route::post('save', 'save')->middleware('emailVerified');
             Route::post('/update/{matchId}', 'update')->middleware('isTeamAdmin');
             Route::get('show/{matchId}', 'show');
             Route::get('{matchId}/players', [MatchPositionController::class, 'index']);
@@ -158,7 +161,7 @@ Route::middleware('auth:api')->group(function () {
         ->controller(PlayerController::class)
         ->group(function () {
             Route::get('/', 'index');
-            Route::post('save', 'save');
+            Route::post('save', 'save')->middleware('emailVerified');
             Route::get('show/{playerId}', 'show');
             Route::get('show', 'show');
             Route::get('{playerId}/teams', 'getPlayerTeams');

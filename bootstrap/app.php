@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\IsTeamManagerMiddleware;
 use App\Http\Middleware\IsTeamMemberMiddleware;
 use Illuminate\Auth\Middleware\Authenticate;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'auth' => Authenticate::class,
+            'emailVerified' => EnsureEmailIsVerified::class,
             'isTeamManager' => IsTeamManagerMiddleware::class,
             'isTeamMember' => IsTeamMemberMiddleware::class,
         ]);

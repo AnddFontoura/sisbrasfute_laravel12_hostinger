@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmailVerificationMail;
 use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,8 +38,27 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Generate signed verification URL
+        $signedUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+
+        // Construct frontend URL with query parameters
+        $parsed = parse_url($signedUrl);
+        parse_str($parsed['query'], $queryParams);
+        $frontendUrl = config('app.frontend_url')
+            . '/verify-email?id=' . $user->id
+            . '&hash=' . sha1($user->email)
+            . '&expires=' . $queryParams['expires']
+            . '&signature=' . $queryParams['signature'];
+
+        // Queue verification email
+        Mail::to($user->email)->queue(new EmailVerificationMail($frontendUrl, $user->name));
+
         return response()->json(
-            ['message' => 'User registered successfully'],
+            ['message' => 'User registered successfully', 'verification_sent' => true],
             Response::HTTP_CREATED
         );
     }
