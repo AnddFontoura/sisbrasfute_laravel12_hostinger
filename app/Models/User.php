@@ -14,6 +14,14 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     * Get the player profile associated with the user.
+     */
+    public function playerProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(\App\Models\Player::class, 'user_id');
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

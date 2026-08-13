@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
@@ -203,5 +204,17 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', 'show');
             Route::post('/profile', 'updateProfile');
             Route::post('/password', 'updatePassword');
+        });
+
+    Route::prefix('admin')
+        ->middleware('isAdmin')
+        ->controller(AdminController::class)
+        ->group(function () {
+            Route::get('/users', 'users');
+            Route::get('/users/{userId}', 'showUser');
+            Route::get('/teams', 'teams');
+            Route::delete('/teams/{teamId}/logo', 'removeTeamLogo');
+            Route::delete('/teams/{teamId}/banner', 'removeTeamBanner');
+            Route::get('/matches', 'matches');
         });
 });
