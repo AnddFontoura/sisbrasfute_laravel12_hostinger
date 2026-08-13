@@ -15,7 +15,16 @@ class IsAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || !$request->user()->is_admin) {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(
+                ['error' => 'Acesso restrito a administradores.'],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
+        if (!$user->is_admin && !$user->hasRole('admin')) {
             return response()->json(
                 ['error' => 'Acesso restrito a administradores.'],
                 Response::HTTP_FORBIDDEN
