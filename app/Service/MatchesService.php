@@ -14,6 +14,7 @@ class MatchesService extends BaseService
         protected MatchesHasGamePositions $matchesHasGamePositions,
         protected TeamRepository $teamRepository,
         protected MatchHasGamePositionService $matchHasGamePositionService,
+        protected MatchNotificationService $matchNotificationService,
     ) {
 
     }
@@ -100,6 +101,10 @@ class MatchesService extends BaseService
             $positions = is_string($data['positions']) ? json_decode($data['positions'], true) : $data['positions'];
             $data['positions'] = $positions;
             $this->matchHasGamePositionService->createOrUpdateGamePosition($matchInfo, $data);
+        }
+
+        if (!$matchId) {
+            $this->matchNotificationService->notifyNewMatch($matchInfo);
         }
 
         return $matchInfo;
