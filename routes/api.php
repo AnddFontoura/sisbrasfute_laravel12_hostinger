@@ -147,8 +147,7 @@ Route::middleware('auth:api')->group(function () {
         ->controller(MatchesController::class)
         ->group(function () {
             Route::get('/', 'index');
-            Route::post('save', 'save')->middleware('emailVerified');
-            Route::post('/update/{matchId}', 'update')->middleware('isTeamAdmin');
+            Route::post('save/{matchId?}', 'save')->middleware('emailVerified');
             Route::get('show/{matchId}', 'show');
             Route::get('{matchId}/players', [MatchPositionController::class, 'index']);
             Route::post('{matchId}/players/save', [MatchPositionController::class, 'save'])->middleware('isTeamAdmin');
