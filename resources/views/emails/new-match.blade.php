@@ -43,7 +43,7 @@
                                                         <!-- Teams -->
                                                         <tr>
                                                             <td style="font-size: 16px; color: #1a1a1a; font-weight: bold; padding-bottom: 12px;">
-                                                                ⚽ {{ $homeTeamName }} vs {{ $visitorTeamName }}
+                                                                ⚽ {{ $myTeamName }} vs {{ $enemyTeamName ?? 'A definir' }}
                                                             </td>
                                                         </tr>
                                                         <!-- Schedule -->

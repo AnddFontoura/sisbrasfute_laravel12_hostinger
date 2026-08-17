@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\MatchType;
+use App\Enums\MyTeamIs;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,39 +21,45 @@ class Matches extends Model
     protected $fillable = [
         'created_by_team_id',
         'championship_id',
-        'visitor_team_id',
-        'home_team_id',
+        'match_type',
+        'my_team_is',
+        'my_team_id',
+        'enemy_team_id',
         'field_id',
         'city_id',
         'championship_name',
-        'visitor_team_name',
-        'home_team_name',
-        'visitor_score',
+        'my_team_name',
+        'enemy_team_name',
+        'my_team_score',
+        'enemy_team_score',
         'has_penalties',
-        'visitor_penalty_score',
-        'home_penalty_score',
-        'home_score',
+        'my_team_penalty_score',
+        'enemy_team_penalty_score',
         'location',
         'schedule',
         'tag_id',
     ];
 
-    protected $dates = [
-        'schedule'
+    protected $casts = [
+        'match_type' => MatchType::class,
+        'my_team_is' => MyTeamIs::class,
+        'schedule' => 'datetime',
     ];
 
     protected $appends = [
         'schedule_br',
+        'match_type_label',
+        'my_team_is_label',
     ];
 
-    public function homeTeamInfo(): HasOne
+    public function myTeamInfo(): HasOne
     {
-        return $this->hasOne(Team::class, 'id', 'home_team_id');
+        return $this->hasOne(Team::class, 'id', 'my_team_id');
     }
 
-    public function visitorTeamInfo(): HasOne
+    public function enemyTeamInfo(): HasOne
     {
-        return $this->hasOne(Team::class, 'id', 'visitor_team_id');
+        return $this->hasOne(Team::class, 'id', 'enemy_team_id');
     }
 
     public function cityInfo(): HasOne
@@ -62,6 +70,16 @@ class Matches extends Model
     public function getScheduleBrAttribute(): ?string
     {
         return Carbon::create($this->schedule)->format('d/m/Y H:i');
+    }
+
+    public function getMatchTypeLabelAttribute(): string
+    {
+        return $this->match_type?->label() ?? '';
+    }
+
+    public function getMyTeamIsLabelAttribute(): string
+    {
+        return $this->my_team_is?->label() ?? '';
     }
 
     public function tag(): BelongsTo

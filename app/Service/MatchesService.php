@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Enums\MatchType;
+use App\Enums\MyTeamIs;
 use App\Models\Matches;
 use App\Models\MatchesHasGamePositions;
 use App\Repository\MatchesRepository;
@@ -21,74 +23,30 @@ class MatchesService extends BaseService
 
     public function createOrUpdateMatch(array $data, ?int $matchId = null): Matches
     {
-        $isHomeTeam = ($data['myTeamIs'] ?? null) === 'home';
-        $isTeamMatch = ($data['matchType'] ?? null) === 'team_match';
+        $matchType = MatchType::fromFrontendValue($data['matchType'] ?? 'team_match');
+        $myTeamIs = MyTeamIs::fromFrontendValue($data['myTeamIs'] ?? 'home');
         $myTeamInfo = $this->teamRepository->firstById($data['teamId']);
 
         $dataToUpdate = [
-            'created_by_team_id' =>
-                $data['teamId'],
-            'championship_id' =>
-                null,
-            'home_team_id' =>
-                $isTeamMatch || $isHomeTeam ?
-                    $data['teamId'] :
-                    null,
-            'visitor_team_id' =>
-                $isTeamMatch ?
-                    $data['teamId'] :
-                    ($isHomeTeam ? null : $data['teamId']),
-            'field_id' =>
-                null,
-            'city_id' =>
-                $data['cityId'],
-            'championship_name' =>
-                $data['championshipName'] ??
-                    null,
-            'visitor_team_name' =>
-                $isTeamMatch ?
-                    $myTeamInfo->name :
-                    ($isHomeTeam ?
-                        $data['enemyTeamName'] :
-                        $myTeamInfo->name),
-            'visitor_score' =>
-                $isTeamMatch ?
-                    null :
-                    ($isHomeTeam ?
-                        $data['enemyTeamScore'] :
-                        $data['myTeamScore']),
-            'visitor_penalty_score' =>
-                $isTeamMatch ?
-                    null :
-                    ($isHomeTeam ?
-                        $data['enemyTeamPenaltyScore'] :
-                        $data['myTeamPenaltyScore']),
-            'home_team_name' =>
-                $isTeamMatch ?
-                    $myTeamInfo->name :
-                    ($isHomeTeam ?
-                        $myTeamInfo->name :
-                        $data['enemyTeamName']),
-            'home_score' =>
-                $isTeamMatch ?
-                    null :
-                    ($isHomeTeam ?
-                        $data['myTeamScore'] :
-                        $data['enemyTeamScore']),
-            'home_penalty_score' =>
-                $isTeamMatch ?
-                    null :
-                    ($isHomeTeam ?
-                        $data['myTeamPenaltyScore'] :
-                        $data['enemyTeamPenaltyScore']),
-            'has_penalties' =>
-                $data['hasPenalties'] ?? 0,
-            'location' =>
-                $data['matchLocation'],
-            'schedule' =>
-                $data['matchSchedule'],
-            'tag_id' =>
-                $data['tagId'] ?? null,
+            'created_by_team_id' => $data['teamId'],
+            'match_type' => $matchType->value,
+            'my_team_is' => $myTeamIs->value,
+            'my_team_id' => $data['teamId'],
+            'enemy_team_id' => $data['enemyTeamId'] ?? null,
+            'championship_id' => null,
+            'field_id' => null,
+            'city_id' => $data['cityId'],
+            'championship_name' => $data['championshipName'] ?? null,
+            'my_team_name' => $myTeamInfo->name,
+            'enemy_team_name' => $data['enemyTeamName'] ?? null,
+            'my_team_score' => $data['myTeamScore'] ?? null,
+            'enemy_team_score' => $data['enemyTeamScore'] ?? null,
+            'has_penalties' => $data['hasPenalties'] ?? 0,
+            'my_team_penalty_score' => $data['myTeamPenaltyScore'] ?? null,
+            'enemy_team_penalty_score' => $data['enemyTeamPenaltyScore'] ?? null,
+            'location' => $data['matchLocation'],
+            'schedule' => $data['matchSchedule'],
+            'tag_id' => $data['tagId'] ?? null,
         ];
 
         if ($matchId) {

@@ -89,10 +89,10 @@ class PlayerController extends Controller
             ->take($limit)
             ->map(fn($match) => [
                 'id' => $match->id,
-                'home_team_name' => $match->home_team_name,
-                'visitor_team_name' => $match->visitor_team_name,
-                'home_score' => $match->home_score,
-                'visitor_score' => $match->visitor_score,
+                'my_team_name' => $match->my_team_name,
+                'enemy_team_name' => $match->enemy_team_name,
+                'my_team_score' => $match->my_team_score,
+                'enemy_team_score' => $match->enemy_team_score,
                 'schedule_br' => $match->schedule_br,
             ])
             ->values();

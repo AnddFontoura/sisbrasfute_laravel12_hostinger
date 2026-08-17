@@ -23,7 +23,8 @@ class MatchesCreateOrUpdateRequest extends FormRequest
     {
         return [
             'teamId' => 'required|integer|exists:teams,id',
-            'myTeamIs' => 'nullable|string',
+            'matchType' => 'required|string|in:team_match,friendly_match,championship_match',
+            'myTeamIs' => 'nullable|string|in:home,visitor',
             'enemyTeamId' => 'nullable|int',
             'enemyTeamName' => 'nullable|string',
             'cityId' => 'required|int',
@@ -37,9 +38,9 @@ class MatchesCreateOrUpdateRequest extends FormRequest
             'teamsCount' => 'nullable|int',
             'playersCount' => 'nullable|int',
             'positions' => 'nullable',
-            'matchType' => 'nullable|string',
             'indicatePositions' => 'nullable',
             'tagId' => 'nullable|integer|exists:team_tags,id',
+            'championshipName' => 'nullable|string|max:254',
         ];
     }
 }

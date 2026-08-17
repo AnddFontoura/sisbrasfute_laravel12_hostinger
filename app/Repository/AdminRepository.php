@@ -103,8 +103,8 @@ class AdminRepository
         if (!empty($filters['team_name'])) {
             $teamName = $filters['team_name'];
             $query->where(function ($q) use ($teamName) {
-                $q->where('home_team_name', 'LIKE', '%' . $teamName . '%')
-                    ->orWhere('visitor_team_name', 'LIKE', '%' . $teamName . '%');
+                $q->where('my_team_name', 'LIKE', '%' . $teamName . '%')
+                    ->orWhere('enemy_team_name', 'LIKE', '%' . $teamName . '%');
             });
         }
 
