@@ -32,6 +32,27 @@ class MatchesController extends Controller
     {
         $data = $request->validated();
 
+        // Se é uma edição, verificar se o usuário é dono do time que criou a partida
+        if ($matchId) {
+            $match = $this->matchesRepository->getById($matchId);
+
+            if (!$match) {
+                return response()->json(
+                    ['message' => 'Partida não encontrada.'],
+                    JsonResponse::HTTP_NOT_FOUND
+                );
+            }
+
+            $team = \App\Models\Team::find($match->created_by_team_id);
+
+            if (!$team || $team->user_id !== auth()->id()) {
+                return response()->json(
+                    ['message' => 'Você não tem permissão para editar esta partida.'],
+                    JsonResponse::HTTP_FORBIDDEN
+                );
+            }
+        }
+
         $this->matchesService->createOrUpdateMatch($data, $matchId);
 
         return response()->json(['success' => 'Partida criada ou atualizada com sucesso'], JsonResponse::HTTP_OK);
