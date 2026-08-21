@@ -18,7 +18,13 @@ class TeamFinanceController extends Controller
 
     public function index(Request $request, int $teamId): JsonResponse
     {
-        $teamFinances = $this->teamFinanceRepository->getByTeamId($teamId);
+        $filters = $request->only([
+            'type', 'reason_id', 'team_player_id', 'match_id',
+            'date_start', 'date_end', 'value_min', 'value_max',
+        ]);
+        $perPage = (int) $request->query('per_page', 15);
+
+        $teamFinances = $this->teamFinanceRepository->getByTeamId($teamId, $filters, $perPage);
 
         return response()->json($teamFinances, JsonResponse::HTTP_OK);
     }
