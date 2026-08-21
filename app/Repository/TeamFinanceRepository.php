@@ -17,7 +17,7 @@ class TeamFinanceRepository extends BaseRepository
             ->with(['matchInfo', 'teamPlayerInfo', 'reasonInfo'])
             ->where('team_id', $teamId);
 
-        if (!empty($filters['type']) || $filters['type'] === '0') {
+        if (isset($filters['type']) && $filters['type'] !== '') {
             $query->where('type', $filters['type']);
         }
 
