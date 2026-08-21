@@ -27,6 +27,7 @@ class TeamFinanceService extends BaseService
             'description' => $data['description'] ?? null,
             'value' => $data['value'],
             'type' => $data['type'],
+            'origin' => $data['origin'] ?? 'manual',
             'reason_id' => $reasonId,
         ];
 
@@ -46,6 +47,7 @@ class TeamFinanceService extends BaseService
             'description' => $data['description'] ?? null,
             'value' => $data['value'],
             'type' => $data['type'],
+            'origin' => $data['origin'] ?? 'manual',
             'reason_id' => $reasonId,
         ];
 
