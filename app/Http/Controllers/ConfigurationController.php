@@ -26,7 +26,8 @@ class ConfigurationController extends Controller
     }
 
     /**
-     * Atualiza dados pessoais (nome, email, CPF, RG).
+     * Atualiza dados pessoais (nome, CPF, RG).
+     * O email não pode ser alterado por esta rota.
      */
     public function updateProfile(Request $request): JsonResponse
     {
@@ -34,13 +35,11 @@ class ConfigurationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'cpf' => ['nullable', 'string', 'max:14', 'unique:users,cpf,' . $user->id, 'regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/'],
             'rg' => ['nullable', 'string', 'max:20'],
         ], [
             'cpf.regex' => 'O CPF deve estar no formato 000.000.000-00.',
             'cpf.unique' => 'Este CPF já está vinculado a outra conta.',
-            'email.unique' => 'Este email já está em uso por outra conta.',
         ]);
 
         if ($validator->fails()) {
@@ -60,7 +59,6 @@ class ConfigurationController extends Controller
 
         $user->update([
             'name' => $request->name,
-            'email' => $request->email,
             'cpf' => $request->cpf,
             'rg' => $request->rg,
         ]);

@@ -42,6 +42,23 @@ class TeamFinanceReasonController extends Controller
         }
     }
 
+    public function update(Request $request, int $teamId, int $reasonId): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|min:1|max:100',
+        ]);
+
+        try {
+            $reason = $this->teamFinanceReasonService->update($teamId, $reasonId, $request->only(['name']));
+            return response()->json($reason, JsonResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(
+                ['message' => $e->getMessage()],
+                $e->getCode() ?: JsonResponse::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
     public function destroy(int $teamId, int $reasonId): JsonResponse
     {
         try {

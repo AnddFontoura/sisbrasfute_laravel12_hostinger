@@ -139,6 +139,7 @@ Route::middleware('auth:api')->group(function () {
         ->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
+            Route::put('/{reasonId}', 'update');
             Route::delete('/{reasonId}', 'destroy');
         });
 
