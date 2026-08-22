@@ -46,6 +46,9 @@ class TeamRepository extends BaseRepository
             $sql->where('teams.modality_id', '=', $filter['modality_id']);
         }
 
+        // By default, only show active teams in public search
+        $sql->where('teams.status', '=', 1);
+
         return $sql
             ->orderBy('teams.name', $orderBy)
             ->paginate(12);

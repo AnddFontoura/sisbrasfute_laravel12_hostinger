@@ -27,6 +27,7 @@ class Team extends Model
         'banner_path',
         'gender',
         'allow_application',
+        'status',
         'social_profiles',
     ];
 

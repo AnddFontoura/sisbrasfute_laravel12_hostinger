@@ -69,6 +69,54 @@ class TeamController extends Controller
         return response()->json(['teams' => $teamList], Response::HTTP_OK);
     }
 
+    public function deactivate(int $teamId): JsonResponse
+    {
+        $team = $this->teamRepository->getById($teamId);
+
+        if (!$team) {
+            return response()->json(['message' => 'Time não encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $team->update(['status' => 0]);
+
+        return response()->json(['message' => 'Time desativado com sucesso.'], Response::HTTP_OK);
+    }
+
+    public function reactivate(int $teamId): JsonResponse
+    {
+        $team = $this->teamRepository->getById($teamId);
+
+        if (!$team) {
+            return response()->json(['message' => 'Time não encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $team->update(['status' => 1]);
+
+        return response()->json(['message' => 'Time reativado com sucesso.'], Response::HTTP_OK);
+    }
+
+    public function myTeamsFull(): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Teams the user administrates (is owner)
+        $administered = $this->teamRepository->getTeamsManagedByUser($user);
+
+        // Teams the user is a member of (but not the owner)
+        $memberTeams = \App\Models\Team::select('teams.*')
+            ->join('team_players', 'team_players.team_id', '=', 'teams.id')
+            ->where('team_players.user_id', $user->id)
+            ->where('teams.user_id', '!=', $user->id)
+            ->whereNull('team_players.deleted_at')
+            ->whereNull('teams.deleted_at')
+            ->get();
+
+        return response()->json([
+            'administered' => $administered,
+            'member' => $memberTeams,
+        ], Response::HTTP_OK);
+    }
+
     public function teamApply(int $teamId)
     {
         $user = Auth::user();
