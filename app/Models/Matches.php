@@ -38,6 +38,7 @@ class Matches extends Model
         'location',
         'schedule',
         'tag_id',
+        'status',
     ];
 
     protected $casts = [

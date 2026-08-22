@@ -21,6 +21,9 @@ class MatchesRepository extends BaseRepository
             $sql->where('created_by_team_id', $filter['teamId']);
         }
 
+        // Only show active matches in public search
+        $sql->where('status', 1);
+
         return $sql->paginate(12);
     }
 

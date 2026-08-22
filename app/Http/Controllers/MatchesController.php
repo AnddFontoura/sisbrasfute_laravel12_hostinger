@@ -71,4 +71,57 @@ class MatchesController extends Controller
 
         return response()->json($match, JsonResponse::HTTP_OK);
     }
+
+    public function deactivate(int $matchId): JsonResponse
+    {
+        $match = $this->matchesRepository->getById($matchId);
+
+        if (!$match) {
+            return response()->json(['message' => 'Partida não encontrada.'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $team = \App\Models\Team::find($match->created_by_team_id);
+
+        if (!$team || $team->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Você não tem permissão para desativar esta partida.'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        $match->update(['status' => 0]);
+
+        return response()->json(['message' => 'Partida desativada com sucesso.'], JsonResponse::HTTP_OK);
+    }
+
+    public function reactivate(int $matchId): JsonResponse
+    {
+        $match = $this->matchesRepository->getById($matchId);
+
+        if (!$match) {
+            return response()->json(['message' => 'Partida não encontrada.'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $team = \App\Models\Team::find($match->created_by_team_id);
+
+        if (!$team || $team->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Você não tem permissão para reativar esta partida.'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        $match->update(['status' => 1]);
+
+        return response()->json(['message' => 'Partida reativada com sucesso.'], JsonResponse::HTTP_OK);
+    }
+
+    public function myMatches(): JsonResponse
+    {
+        $user = auth()->user();
+
+        // Matches created by teams the user owns
+        $teamIds = \App\Models\Team::where('user_id', $user->id)->pluck('id');
+
+        $matches = \App\Models\Matches::with('cityInfo.stateInfo', 'myTeamInfo', 'enemyTeamInfo')
+            ->whereIn('created_by_team_id', $teamIds)
+            ->orderBy('schedule', 'desc')
+            ->get();
+
+        return response()->json($matches, JsonResponse::HTTP_OK);
+    }
 }
