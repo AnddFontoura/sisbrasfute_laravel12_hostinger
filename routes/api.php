@@ -216,5 +216,8 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/teams/{teamId}/logo', 'removeTeamLogo');
             Route::delete('/teams/{teamId}/banner', 'removeTeamBanner');
             Route::get('/matches', 'matches');
+            Route::get('/game-positions', 'gamePositions');
+            Route::get('/game-positions/{id}', 'showGamePosition');
+            Route::put('/game-positions/{id}', 'updateGamePosition');
         });
 });

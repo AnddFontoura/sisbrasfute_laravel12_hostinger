@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GamePosition;
 use App\Models\Team;
 use App\Repository\AdminRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminController extends Controller
@@ -115,5 +117,67 @@ class AdminController extends Controller
         $matches = $this->adminRepository->getPaginatedMatches($filters, $perPage);
 
         return response()->json($matches, Response::HTTP_OK);
+    }
+
+    public function gamePositions(Request $request): JsonResponse
+    {
+        $query = GamePosition::query();
+
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->filled('short')) {
+            $query->where('short', 'like', '%' . $request->short . '%');
+        }
+
+        $perPage = (int) $request->query('per_page', 15);
+        $positions = $query->orderBy('name')->paginate($perPage);
+
+        return response()->json($positions, Response::HTTP_OK);
+    }
+
+    public function showGamePosition(int $id): JsonResponse
+    {
+        $position = GamePosition::find($id);
+
+        if (!$position) {
+            return response()->json(
+                ['error' => 'Posição não encontrada.'],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        return response()->json($position, Response::HTTP_OK);
+    }
+
+    public function updateGamePosition(Request $request, int $id): JsonResponse
+    {
+        $position = GamePosition::find($id);
+
+        if (!$position) {
+            return response()->json(
+                ['error' => 'Posição não encontrada.'],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:100',
+            'short' => 'required|string|max:10',
+            'description' => 'nullable|string|max:10000',
+            'icon' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                ['errors' => $validator->errors()],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        $position->update($validator->validated());
+
+        return response()->json($position->fresh(), Response::HTTP_OK);
     }
 }
