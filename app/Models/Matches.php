@@ -39,6 +39,7 @@ class Matches extends Model
         'schedule',
         'tag_id',
         'status',
+        'challenge_status',
     ];
 
     protected $casts = [
@@ -91,5 +92,10 @@ class Matches extends Model
     public function positions()
     {
         return $this->hasMany(MatchesHasGamePositions::class, 'match_id', 'id');
+    }
+
+    public function challenges()
+    {
+        return $this->hasMany(MatchChallenge::class, 'match_id', 'id');
     }
 }

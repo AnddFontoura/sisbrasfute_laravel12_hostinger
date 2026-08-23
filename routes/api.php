@@ -175,6 +175,20 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('{matchId}/players/self-assign', [PlayerSelfAssignController::class, 'destroy'])->middleware('isTeamMember');
         });
 
+    Route::prefix('match-challenges')
+        ->name('match-challenges.')
+        ->controller(\App\Http\Controllers\MatchChallengeController::class)
+        ->group(function () {
+            Route::get('/open', 'openMatches');
+            Route::get('/my-challenges', 'myChallenges');
+            Route::get('/{matchId}', 'index');
+            Route::post('/{matchId}/challenge', 'challenge');
+            Route::post('/{matchId}/{challengeId}/accept', 'accept');
+            Route::post('/{matchId}/{challengeId}/decline', 'decline');
+            Route::post('/{matchId}/{challengeId}/confirm', 'confirm');
+            Route::post('/{matchId}/{challengeId}/cancel', 'cancel');
+        });
+
     Route::prefix('player-profile')
         ->name('player-profile.')
         ->controller(PlayerController::class)
