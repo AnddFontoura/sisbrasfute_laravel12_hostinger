@@ -146,6 +146,18 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{reasonId}', 'destroy');
         });
 
+    Route::prefix('team/{teamId}/position-presets')
+        ->name('team-position-presets.')
+        ->controller(\App\Http\Controllers\MatchPositionPresetController::class)
+        ->middleware('isTeamManager')
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('/{presetId}', 'show');
+            Route::put('/{presetId}', 'update');
+            Route::delete('/{presetId}', 'destroy');
+        });
+
     Route::prefix('matches')
         ->name('matches.')
         ->controller(MatchesController::class)
