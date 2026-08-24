@@ -55,7 +55,11 @@ class AuthController extends Controller
             . '&signature=' . $queryParams['signature'];
 
         // Send verification email
-        Mail::to($user->email)->send(new EmailVerificationMail($frontendUrl, $user->name));
+        try {
+            Mail::to($user->email)->send(new EmailVerificationMail($frontendUrl, $user->name));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Falha ao enviar email de verificação para ' . $user->email . ': ' . $e->getMessage());
+        }
 
         return response()->json(
             ['message' => 'User registered successfully', 'verification_sent' => true],

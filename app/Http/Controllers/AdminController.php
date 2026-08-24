@@ -180,4 +180,31 @@ class AdminController extends Controller
 
         return response()->json($position->fresh(), Response::HTTP_OK);
     }
+
+    public function verifyUserEmail(int $userId): JsonResponse
+    {
+        $user = \App\Models\User::find($userId);
+
+        if (!$user) {
+            return response()->json(
+                ['error' => 'Usuário não encontrado.'],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        if ($user->email_verified_at) {
+            return response()->json(
+                ['message' => 'Email já verificado.'],
+                Response::HTTP_OK
+            );
+        }
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        return response()->json(
+            ['message' => 'Email verificado com sucesso.'],
+            Response::HTTP_OK
+        );
+    }
 }

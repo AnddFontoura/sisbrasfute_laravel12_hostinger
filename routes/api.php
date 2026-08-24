@@ -251,5 +251,6 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/game-positions', 'gamePositions');
             Route::get('/game-positions/{id}', 'showGamePosition');
             Route::put('/game-positions/{id}', 'updateGamePosition');
+            Route::post('/users/{userId}/verify-email', 'verifyUserEmail');
         });
 });
