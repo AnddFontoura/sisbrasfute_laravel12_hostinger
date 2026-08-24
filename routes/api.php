@@ -249,6 +249,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/teams/{teamId}/banner', 'removeTeamBanner');
             Route::get('/matches', 'matches');
             Route::get('/game-positions', 'gamePositions');
+            Route::post('/game-positions', 'createGamePosition');
             Route::get('/game-positions/{id}', 'showGamePosition');
             Route::put('/game-positions/{id}', 'updateGamePosition');
             Route::post('/users/{userId}/verify-email', 'verifyUserEmail');

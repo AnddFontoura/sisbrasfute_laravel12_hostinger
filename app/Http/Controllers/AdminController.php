@@ -137,6 +137,27 @@ class AdminController extends Controller
         return response()->json($positions, Response::HTTP_OK);
     }
 
+    public function createGamePosition(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:100',
+            'short' => 'required|string|max:10',
+            'description' => 'nullable|string|max:10000',
+            'icon' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                ['errors' => $validator->errors()],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        $position = GamePosition::create($validator->validated());
+
+        return response()->json($position, Response::HTTP_CREATED);
+    }
+
     public function showGamePosition(int $id): JsonResponse
     {
         $position = GamePosition::find($id);
