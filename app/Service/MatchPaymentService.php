@@ -55,12 +55,22 @@ class MatchPaymentService extends BaseService
         throw_if(!$position, new \Exception('Posição inválida', Response::HTTP_UNPROCESSABLE_ENTITY));
 
         $positionValueCents = (int) (($position->value ?? 0) * 100); // Convert from BRL to centavos
-        $feeCents = $this->calculateFee($positionValueCents);
+        $feeCents = $positionValueCents > 0 ? $this->calculateFee($positionValueCents) : 0;
         $totalCost = $positionValueCents + $feeCents;
 
         // Resolve team_player_id
         $teamPlayer = $this->teamPlayerRepository->findByUserAndTeam($userId, $match->created_by_team_id);
         throw_if(!$teamPlayer, new \Exception('Você não é membro do time desta partida', Response::HTTP_FORBIDDEN));
+
+        // If position is free (value = 0), just create the assignment without wallet operations
+        if ($totalCost === 0) {
+            return MatchHasPlayer::create([
+                'match_id' => $match->id,
+                'team_player_id' => $teamPlayer->id,
+                'game_position_id' => $gamePositionId,
+                'price_payed' => 0,
+            ]);
+        }
 
         return DB::transaction(function () use ($match, $gamePositionId, $userId, $teamPlayer, $positionValueCents, $feeCents, $totalCost) {
             // 1. Check balance and debit wallet
