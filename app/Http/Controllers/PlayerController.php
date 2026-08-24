@@ -60,6 +60,7 @@ class PlayerController extends Controller
                 'id' => $tp->teamInfo?->id,
                 'name' => $tp->teamInfo?->name,
                 'logo_url' => $tp->teamInfo?->logo_url,
+                'team_player_id' => $tp->id,
             ])
             ->filter(fn($t) => $t['id'] !== null)
             ->sortBy('name')

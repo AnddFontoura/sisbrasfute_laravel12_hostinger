@@ -38,4 +38,9 @@ class MatchHasPlayer extends Model
     {
         return $this->hasOne(GamePosition::class, 'id', 'game_position_id');
     }
+
+    public function playerMatchStatistic(): HasOne
+    {
+        return $this->hasOne(PlayerMatchStatistic::class, 'match_has_player_id');
+    }
 }

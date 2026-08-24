@@ -7,6 +7,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\GamePositionController;
 use App\Http\Controllers\MatchesController;
 use App\Http\Controllers\MatchPositionController;
+use App\Http\Controllers\PlayerMatchStatisticsController;
 use App\Http\Controllers\PlayerSelfAssignController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PlayerController;
@@ -100,6 +101,7 @@ Route::middleware('auth:api')->group(function () {
            Route::get('/{teamId}/show/{playerId}', 'show')->middleware('isTeamMember');
            Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
            Route::post('/{teamId}/update/{playerId}', 'save')->middleware('isTeamManager');
+           Route::get('/{teamId}/statistics/{teamPlayerId}', [PlayerMatchStatisticsController::class, 'playerAccumulated'])->middleware('isTeamManager');
         });
 
     Route::prefix('team/{teamId}/tags')
@@ -191,6 +193,8 @@ Route::middleware('auth:api')->group(function () {
             Route::post('{matchId}/players/{atribuicaoId}/payment', [MatchPositionController::class, 'updatePayment'])->middleware('isTeamAdmin');
             Route::post('{matchId}/players/self-assign', [PlayerSelfAssignController::class, 'store'])->middleware('isTeamMember');
             Route::delete('{matchId}/players/self-assign', [PlayerSelfAssignController::class, 'destroy'])->middleware('isTeamMember');
+            Route::get('{matchId}/statistics', [PlayerMatchStatisticsController::class, 'index'])->middleware('isTeamAdmin');
+            Route::post('{matchId}/statistics', [PlayerMatchStatisticsController::class, 'store'])->middleware('isTeamAdmin');
         });
 
     Route::prefix('match-challenges')
