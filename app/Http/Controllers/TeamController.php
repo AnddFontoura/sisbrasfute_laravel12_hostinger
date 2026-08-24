@@ -95,6 +95,65 @@ class TeamController extends Controller
         return response()->json(['message' => 'Time reativado com sucesso.'], Response::HTTP_OK);
     }
 
+    public function performance(int $teamId): JsonResponse
+    {
+        $matches = \App\Models\Matches::where(function ($q) use ($teamId) {
+                $q->where('my_team_id', $teamId)
+                  ->orWhere('enemy_team_id', $teamId)
+                  ->orWhere('created_by_team_id', $teamId);
+            })
+            ->whereNotNull('my_team_score')
+            ->whereNotNull('enemy_team_score')
+            ->whereNull('deleted_at')
+            ->get();
+
+        $statsByYear = [];
+
+        foreach ($matches as $match) {
+            $year = $match->schedule ? $match->schedule->format('Y') : 'Sem data';
+
+            if (!isset($statsByYear[$year])) {
+                $statsByYear[$year] = [
+                    'year' => $year,
+                    'matches' => 0,
+                    'wins' => 0,
+                    'draws' => 0,
+                    'losses' => 0,
+                    'goals_scored' => 0,
+                    'goals_conceded' => 0,
+                ];
+            }
+
+            // Determine if this team is "my_team" or "enemy_team" in the match
+            $isMyTeam = ($match->my_team_id == $teamId || $match->created_by_team_id == $teamId) && $match->enemy_team_id != $teamId;
+
+            if ($isMyTeam) {
+                $scored = (int) $match->my_team_score;
+                $conceded = (int) $match->enemy_team_score;
+            } else {
+                $scored = (int) $match->enemy_team_score;
+                $conceded = (int) $match->my_team_score;
+            }
+
+            $statsByYear[$year]['matches']++;
+            $statsByYear[$year]['goals_scored'] += $scored;
+            $statsByYear[$year]['goals_conceded'] += $conceded;
+
+            if ($scored > $conceded) {
+                $statsByYear[$year]['wins']++;
+            } elseif ($scored === $conceded) {
+                $statsByYear[$year]['draws']++;
+            } else {
+                $statsByYear[$year]['losses']++;
+            }
+        }
+
+        // Sort by year descending
+        krsort($statsByYear);
+
+        return response()->json(array_values($statsByYear), JsonResponse::HTTP_OK);
+    }
+
     public function myTeamsFull(): JsonResponse
     {
         $user = Auth::user();

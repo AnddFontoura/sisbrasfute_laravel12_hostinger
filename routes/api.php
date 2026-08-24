@@ -62,6 +62,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/deactivate/{teamId}', 'deactivate')->middleware('isTeamManager');
             Route::post('/reactivate/{teamId}', 'reactivate')->middleware('isTeamManager');
             Route::get('show/{teamId}', 'show');
+            Route::get('{teamId}/performance', 'performance');
             Route::get('list/my-teams', 'listOfManagedTeamsByUser');
             Route::get('list/my-teams-full', 'myTeamsFull');
         });
