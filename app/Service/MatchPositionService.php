@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Exceptions\InsufficientBalanceException;
 use App\Models\MatchHasPlayer;
 use App\Repository\MatchHasGamePositionRepository;
 use App\Repository\MatchHasPlayerRepository;
@@ -16,6 +17,8 @@ class MatchPositionService extends BaseService
         protected MatchHasGamePositionRepository $matchHasGamePositionRepository,
         protected TeamPlayerRepository $teamPlayerRepository,
         protected MatchesRepository $matchesRepository,
+        protected MatchPaymentService $matchPaymentService,
+        protected MatchNotificationService $matchNotificationService,
     ) {
 
     }
@@ -107,7 +110,7 @@ class MatchPositionService extends BaseService
     }
 
     /**
-     * Libera a posição do jogador na partida via soft-delete.
+     * Libera a posição do jogador na partida via MatchPaymentService (refund atômico).
      * Resolve team_player_id a partir do user_id + created_by_team_id da partida.
      */
     public function releasePosition(int $matchId, int $userId): void
@@ -133,13 +136,18 @@ class MatchPositionService extends BaseService
             Response::HTTP_NOT_FOUND
         ));
 
-        $assignment->delete();
+        // Delegate to MatchPaymentService for atomic refund + deletion
+        $this->matchPaymentService->processRefund($matchId, $userId);
+
+        // Notify eligible players about the available position
+        $this->matchNotificationService->notifyPositionAvailable($match);
     }
 
     /**
      * Auto-atribuição de posição pelo jogador.
      * Valida existência da partida, membership do jogador, configuração da posição,
      * unicidade de atribuição e disponibilidade da posição.
+     * Delega a criação e o pagamento ao MatchPaymentService.
      */
     public function selfAssignPosition(int $matchId, int $gamePositionId, int $userId): MatchHasPlayer
     {
@@ -201,15 +209,12 @@ class MatchPositionService extends BaseService
             Response::HTTP_CONFLICT
         ));
 
-        // 6. Criar atribuição com price_payed = 0
-        $assignment = MatchHasPlayer::create([
-            'match_id' => $matchId,
-            'team_player_id' => $teamPlayer->id,
-            'game_position_id' => $gamePositionId,
-            'price_payed' => 0,
-        ]);
-
-        return $assignment;
+        // 6. Delegate to MatchPaymentService for atomic payment + assignment creation
+        try {
+            return $this->matchPaymentService->processPayment($matchId, $gamePositionId, $userId);
+        } catch (InsufficientBalanceException $e) {
+            throw new \Exception($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY, $e);
+        }
     }
 
     /**

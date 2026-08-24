@@ -12,16 +12,20 @@ use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\PlayerInvitationController;
+use App\Http\Controllers\SystemConfigController;
 use App\Http\Controllers\TeamApplicationController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamFinanceController;
 use App\Http\Controllers\TeamFinanceReasonController;
 use App\Http\Controllers\TeamMatchesController;
 use App\Http\Controllers\TeamPlayerController;
+use App\Http\Controllers\TeamReceivableController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\TeamSearchPositionController;
 use App\Http\Controllers\TeamTagController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\WalletTransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -46,11 +50,24 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
+Route::post('/wallet/webhook', [WalletController::class, 'webhookCallback']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/email/resend-verification', [EmailVerificationController::class, 'resend']);
+
+    // Wallet routes
+    Route::prefix('wallet')
+        ->group(function () {
+            Route::get('/balance', [WalletController::class, 'balance']);
+            Route::post('/deposit', [WalletController::class, 'deposit']);
+            Route::get('/transactions', [WalletTransactionController::class, 'index']);
+        });
+
+    // Team Receivables (team owner)
+    Route::get('/team/{teamId}/receivables', [TeamReceivableController::class, 'index'])
+        ->middleware('isTeamManager');
 
     Route::prefix('team')
         ->name('team.')
@@ -254,5 +271,13 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/game-positions/{id}', 'showGamePosition');
             Route::put('/game-positions/{id}', 'updateGamePosition');
             Route::post('/users/{userId}/verify-email', 'verifyUserEmail');
+        });
+
+    Route::prefix('admin')
+        ->middleware('isAdmin')
+        ->group(function () {
+            Route::get('/config/fee', [SystemConfigController::class, 'getFee']);
+            Route::put('/config/fee', [SystemConfigController::class, 'updateFee']);
+            Route::get('/revenue', [SystemConfigController::class, 'getRevenue']);
         });
 });

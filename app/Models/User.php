@@ -23,6 +23,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the wallet associated with the user.
+     */
+    public function wallet(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
