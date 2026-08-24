@@ -110,17 +110,39 @@ class MatchesController extends Controller
         return response()->json(['message' => 'Partida reativada com sucesso.'], JsonResponse::HTTP_OK);
     }
 
-    public function myMatches(): JsonResponse
+    public function myMatches(Request $request): JsonResponse
     {
         $user = auth()->user();
 
-        // Matches created by teams the user owns
-        $teamIds = \App\Models\Team::where('user_id', $user->id)->pluck('id');
+        // Team IDs where user is the owner
+        $ownedTeamIds = \App\Models\Team::where('user_id', $user->id)->pluck('id');
 
-        $matches = \App\Models\Matches::with('cityInfo.stateInfo', 'myTeamInfo', 'enemyTeamInfo')
-            ->whereIn('created_by_team_id', $teamIds)
-            ->orderBy('schedule', 'desc')
-            ->get();
+        // Team player IDs for this user
+        $teamPlayerIds = \App\Models\TeamPlayer::where('user_id', $user->id)
+            ->whereNull('deleted_at')
+            ->pluck('id');
+
+        // Team IDs where user is a member
+        $memberTeamIds = \App\Models\TeamPlayer::where('user_id', $user->id)
+            ->whereNull('deleted_at')
+            ->pluck('team_id');
+
+        // All relevant team IDs (owned + member)
+        $allTeamIds = $ownedTeamIds->merge($memberTeamIds)->unique();
+
+        $query = \App\Models\Matches::with('cityInfo.stateInfo', 'myTeamInfo', 'enemyTeamInfo')
+            ->where(function ($q) use ($allTeamIds, $teamPlayerIds) {
+                // Matches created by user's teams
+                $q->whereIn('created_by_team_id', $allTeamIds)
+                    // OR matches where user is assigned as a player
+                    ->orWhereHas('positions', function ($sub) use ($teamPlayerIds) {
+                        $sub->whereIn('player_id', $teamPlayerIds);
+                    });
+            })
+            ->orderByRaw('CASE WHEN schedule >= NOW() THEN 0 ELSE 1 END')
+            ->orderBy('schedule', 'asc');
+
+        $matches = $query->paginate(12);
 
         return response()->json($matches, JsonResponse::HTTP_OK);
     }
