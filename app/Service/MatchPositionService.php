@@ -25,7 +25,8 @@ class MatchPositionService extends BaseService
 
     /**
      * Retorna lista de posições da partida com dados dos jogadores atribuídos.
-     * Para cada posição configurada, faz busca na MatchHasPlayer para encontrar jogador atribuído.
+     * Para cada posição configurada, distribui jogadores atribuídos sequencialmente
+     * entre slots com o mesmo game_position_id.
      */
     public function getPositionsWithPlayers(int $matchId): array
     {
@@ -38,13 +39,33 @@ class MatchPositionService extends BaseService
 
         $positions = $this->matchHasGamePositionRepository->getPositionsByMatchId($matchId);
 
+        // Get all assignments for this match
+        $allAssignments = MatchHasPlayer::where('match_id', $matchId)
+            ->whereNull('deleted_at')
+            ->with('teamPlayerInfo')
+            ->get()
+            ->groupBy('game_position_id');
+
         $result = [];
 
+        // Track how many slots of each game_position_id have been assigned
+        $slotCounters = [];
+
         foreach ($positions as $position) {
-            $assignment = $this->matchHasPlayerRepository->findByMatchAndPosition(
-                $matchId,
-                $position->game_position_id
-            );
+            $gpId = $position->game_position_id;
+
+            if (!isset($slotCounters[$gpId])) {
+                $slotCounters[$gpId] = 0;
+            }
+
+            $assignment = null;
+            $assignmentsForPosition = $allAssignments->get($gpId);
+
+            if ($assignmentsForPosition && $assignmentsForPosition->count() > $slotCounters[$gpId]) {
+                $assignment = $assignmentsForPosition->values()->get($slotCounters[$gpId]);
+            }
+
+            $slotCounters[$gpId]++;
 
             $result[] = [
                 'id' => $position->id,
