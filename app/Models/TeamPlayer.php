@@ -19,6 +19,7 @@ class TeamPlayer extends Model
         'user_id',
         'game_position_id',
         'active',
+        'notify_match',
         'name',
         'nickname',
         'uniform_size',
@@ -29,6 +30,10 @@ class TeamPlayer extends Model
         'foot_size',
         'glove_size',
         'birthdate',
+    ];
+
+    protected $casts = [
+        'notify_match' => 'boolean',
     ];
 
     protected $appends = ['photo_url'];

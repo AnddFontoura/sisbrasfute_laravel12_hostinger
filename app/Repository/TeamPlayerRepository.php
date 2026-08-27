@@ -39,6 +39,18 @@ class TeamPlayerRepository extends BaseRepository
             });
         }
 
+        // Filtro por status active
+        $activeFilter = $filter['active'] ?? 'true';
+
+        if ($activeFilter === 'all') {
+            // Sem filtro — retorna todos os jogadores
+        } elseif ($activeFilter === 'false') {
+            $sql->where('active', false);
+        } else {
+            // Default: apenas jogadores ativos
+            $sql->where('active', true);
+        }
+
         return $sql->orderBy('name', 'asc')
             ->paginate(12);
     }

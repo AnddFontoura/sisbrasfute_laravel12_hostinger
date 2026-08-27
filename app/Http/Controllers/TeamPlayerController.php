@@ -7,6 +7,8 @@ use App\Http\Requests\TeamPlayerListRequest;
 use App\Service\TeamPlayerService;
 use App\Service\UploadService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class TeamPlayerController extends Controller
@@ -32,6 +34,71 @@ class TeamPlayerController extends Controller
         $teamPlayer = $this->teamPlayerService->getTeamPlayer($teamId, $playerId);
 
         return response()->json($teamPlayer->load(['tags', 'gamePositionInfo']), JsonResponse::HTTP_OK);
+    }
+
+    public function unlink(int $teamId): JsonResponse
+    {
+        try {
+            $this->teamPlayerService->unlinkPlayer($teamId, Auth::id());
+
+            return response()->json(
+                ['message' => 'Jogador desvinculado com sucesso.'],
+                JsonResponse::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            $statusCode = $e->getCode();
+            if ($statusCode < 100 || $statusCode >= 600) {
+                $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
+            }
+
+            return response()->json(
+                ['message' => $e->getMessage()],
+                $statusCode
+            );
+        }
+    }
+
+    public function updateNotificationPreference(Request $request, int $teamId): JsonResponse
+    {
+        try {
+            $notifyMatch = (bool) $request->input('notify_match');
+
+            $this->teamPlayerService->updateNotificationPreference($teamId, Auth::id(), $notifyMatch);
+
+            return response()->json(
+                ['message' => 'Preferência de notificação atualizada com sucesso.'],
+                JsonResponse::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            $statusCode = $e->getCode();
+            if ($statusCode < 100 || $statusCode >= 600) {
+                $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
+            }
+
+            return response()->json(
+                ['message' => $e->getMessage()],
+                $statusCode
+            );
+        }
+    }
+
+    public function toggleActive(Request $request, int $teamId, int $playerId): JsonResponse
+    {
+        try {
+            $active = (bool) $request->input('active');
+            $this->teamPlayerService->toggleActive($teamId, $playerId, $active, Auth::id());
+
+            return response()->json(
+                ['message' => $active ? 'Jogador ativado com sucesso.' : 'Jogador inativado com sucesso.'],
+                JsonResponse::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            $statusCode = $e->getCode();
+            if ($statusCode < 100 || $statusCode >= 600) {
+                $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
+            }
+            return response()->json(['message' => $e->getMessage()], $statusCode);
+        }
     }
 
     public function save(TeamPlayerCreateOrUpdateRequest $request, int $teamId, ?int $playerId = null): JsonResponse

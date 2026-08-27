@@ -19,6 +19,7 @@ class TeamPlayerListRequest extends FormRequest
             'game_position_id' => 'nullable|integer|exists:game_positions,id',
             'tag_id' => 'nullable|integer|exists:team_tags,id',
             'showDeleted' => 'nullable|string',
+            'active' => 'nullable|in:true,false,all',
         ];
     }
 }

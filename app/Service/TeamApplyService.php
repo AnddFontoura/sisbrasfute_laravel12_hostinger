@@ -74,6 +74,7 @@ class TeamApplyService extends BaseService
                 'game_position_id' => $teamApplication->game_position_id,
                 'city_id' => $player->city_id,
                 'active' => true,
+                'notify_match' => true,
                 'name' => $player->name,
                 'nickname' => $player->nickname,
                 'uniform_size' => $player->uniform_size,

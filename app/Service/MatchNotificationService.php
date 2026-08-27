@@ -85,6 +85,7 @@ class MatchNotificationService extends BaseService
         $query = TeamPlayer::where('team_id', $match->created_by_team_id)
             ->whereNotNull('user_id')
             ->where('active', true)
+            ->where('notify_match', true)
             ->whereNull('deleted_at')
             ->with('userInfo');
 

@@ -102,6 +102,9 @@ Route::middleware('auth:api')->group(function () {
            Route::post('/{teamId}/save', 'save')->middleware('isTeamManager');
            Route::post('/{teamId}/update/{playerId}', 'save')->middleware('isTeamManager');
            Route::get('/{teamId}/statistics/{teamPlayerId}', [PlayerMatchStatisticsController::class, 'playerAccumulated'])->middleware('isTeamManager');
+           Route::post('/{teamId}/unlink', 'unlink');
+           Route::patch('/{teamId}/notification-preference', 'updateNotificationPreference');
+           Route::patch('/{teamId}/toggle-active/{playerId}', 'toggleActive')->middleware('isTeamManager');
         });
 
     Route::prefix('team/{teamId}/tags')
