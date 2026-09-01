@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Repository\PlayerRepository;
 use App\Repository\TeamApplyRepository;
 use App\Repository\TeamPlayerRepository;
+use App\Repository\TeamRepository;
 use Illuminate\Container\Attributes\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,6 +19,8 @@ class TeamApplyService extends BaseService
         protected PlayerService $playerService,
         protected PlayerRepository $playerRepository,
         protected TeamPlayerRepository $teamPlayerRepository,
+        protected NotificationService $notificationService,
+        protected TeamRepository $teamRepository,
     ) {
         $this->user = auth()->user();
     }
@@ -85,6 +88,16 @@ class TeamApplyService extends BaseService
                 'glove_size' => $player->glove_size,
                 'birthdate' => $player->birthdate,
             ]);
+
+            if ($player->user_id) {
+                $team = $this->teamRepository->firstById($teamId);
+
+                $this->notificationService->notifyUserAcceptedIntoTeam(
+                    $player->user_id,
+                    $teamId,
+                    $team->name ?? ''
+                );
+            }
         }
     }
 }

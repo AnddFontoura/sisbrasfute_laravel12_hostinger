@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Repository\PlayerInvitationRepository;
 use App\Repository\PlayerRepository;
 use App\Repository\TeamPlayerRepository;
+use App\Repository\TeamRepository;
 use Symfony\Component\HttpFoundation\Response;
 
 class PlayerInvitationService extends BaseService
@@ -15,6 +16,8 @@ class PlayerInvitationService extends BaseService
         protected PlayerInvitationRepository $playerInvitationRepository,
         protected TeamPlayerRepository $teamPlayerRepository,
         protected PlayerRepository $playerRepository,
+        protected NotificationService $notificationService,
+        protected TeamRepository $teamRepository,
     ) {}
 
     public function sendInvitation(array $data, int $teamId): PlayerInvitation
@@ -96,6 +99,14 @@ class PlayerInvitationService extends BaseService
             'team_player_id' => $teamPlayer->id,
             'user_id' => $userId,
         ], $invitationId);
+
+        $team = $this->teamRepository->firstById($invitation->team_id);
+
+        $this->notificationService->notifyUserAcceptedIntoTeam(
+            $userId,
+            $invitation->team_id,
+            $team->name ?? ''
+        );
     }
 
     public function cancelInvitation(int $teamId, int $invitationId): void

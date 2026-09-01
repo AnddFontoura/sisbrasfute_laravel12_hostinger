@@ -19,6 +19,7 @@ class MatchPositionService extends BaseService
         protected MatchesRepository $matchesRepository,
         protected MatchPaymentService $matchPaymentService,
         protected MatchNotificationService $matchNotificationService,
+        protected NotificationService $notificationService,
     ) {
 
     }
@@ -160,8 +161,11 @@ class MatchPositionService extends BaseService
         // Delegate to MatchPaymentService for atomic refund + deletion
         $this->matchPaymentService->processRefund($matchId, $userId);
 
-        // Notify eligible players about the available position
+        // Notify eligible players about the available position (existing e-mail)
         $this->matchNotificationService->notifyPositionAvailable($match);
+
+        // In-system notification: only players NOT currently on the match list
+        $this->notificationService->notifyPositionAvailable($match->fresh());
     }
 
     /**

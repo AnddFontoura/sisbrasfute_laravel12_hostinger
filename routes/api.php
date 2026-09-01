@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\ConfigurationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GamePositionController;
@@ -261,6 +263,28 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', 'show');
             Route::post('/profile', 'updateProfile');
             Route::post('/password', 'updatePassword');
+        });
+
+    Route::prefix('notifications')
+        ->name('notifications.')
+        ->controller(NotificationController::class)
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::get('/latest', 'latest');
+            Route::get('/unread-count', 'unreadCount');
+            Route::post('/read-all', 'markAllAsRead');
+            Route::post('/{notificationUserId}/read', 'markAsRead');
+        });
+
+    Route::prefix('admin/notifications')
+        ->name('admin.notifications.')
+        ->middleware('isAdmin')
+        ->controller(AdminNotificationController::class)
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('/{id}', 'show');
+            Route::put('/{id}', 'update');
         });
 
     Route::prefix('admin')

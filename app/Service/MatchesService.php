@@ -17,6 +17,7 @@ class MatchesService extends BaseService
         protected TeamRepository $teamRepository,
         protected MatchHasGamePositionService $matchHasGamePositionService,
         protected MatchNotificationService $matchNotificationService,
+        protected NotificationService $notificationService,
     ) {
 
     }
@@ -62,7 +63,14 @@ class MatchesService extends BaseService
         }
 
         if (!$matchId) {
+            // Existing e-mail notification (kept as-is)
             $this->matchNotificationService->notifyNewMatch($matchInfo);
+
+            // In-system notification: team roster + players in the same city
+            $this->notificationService->notifyNewMatch($matchInfo->fresh('cityInfo'));
+        } else {
+            // In-system notification: match a player is involved in was updated
+            $this->notificationService->notifyMatchUpdated($matchInfo);
         }
 
         return $matchInfo;
