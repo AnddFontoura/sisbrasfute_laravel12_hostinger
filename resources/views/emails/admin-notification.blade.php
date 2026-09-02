@@ -39,7 +39,7 @@
                                         <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                                             <tr>
                                                 <td align="center" style="background-color: #f97316; border-radius: 6px;">
-                                                    <a href="{{ $notificationsUrl }}" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; letter-spacing: 0.5px;">VER NOTIFICAÇÕES</a>
+                                                    <a href="{{ $notificationsUrl }}" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; letter-spacing: 0.5px;">{{ $notificationsLabel ?? 'VER NOTIFICAÇÕES' }}</a>
                                                 </td>
                                             </tr>
                                         </table>
