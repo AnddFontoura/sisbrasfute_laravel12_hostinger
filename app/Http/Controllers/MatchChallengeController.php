@@ -228,6 +228,11 @@ class MatchChallengeController extends Controller
             'challenge_status' => 2, // confirmed
         ]);
 
+        // Mirror the position slots for the opponent team so its members can
+        // now self-assign on their own side.
+        app(\App\Service\MatchHasGamePositionService::class)
+            ->mirrorPositionsForEnemyTeam($match->fresh());
+
         // Decline all other pending challenges for this match
         MatchChallenge::where('match_id', $matchId)
             ->where('id', '!=', $challengeId)

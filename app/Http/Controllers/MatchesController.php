@@ -69,15 +69,19 @@ class MatchesController extends Controller
             );
         }
 
-        // Resolve whether the authenticated user is a member of the team that
-        // created this match, so the frontend can gate the self-assign flow.
-        $teamPlayer = \App\Models\TeamPlayer::where('team_id', $match->created_by_team_id)
+        // Resolve which of the match's two teams the authenticated user belongs
+        // to (creator or opponent), so the frontend can gate the self-assign
+        // flow and show the correct side as editable.
+        $teamIds = array_filter([$match->created_by_team_id, $match->enemy_team_id]);
+
+        $teamPlayer = \App\Models\TeamPlayer::whereIn('team_id', $teamIds)
             ->where('user_id', auth()->id())
             ->first();
 
         $payload = $match->toArray();
         $payload['is_member'] = (bool) $teamPlayer;
         $payload['current_team_player_id'] = $teamPlayer?->id;
+        $payload['current_team_id'] = $teamPlayer?->team_id;
 
         return response()->json($payload, JsonResponse::HTTP_OK);
     }

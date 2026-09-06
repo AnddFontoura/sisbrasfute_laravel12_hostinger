@@ -34,7 +34,7 @@ class PlayerSelfAssignController extends Controller
 
             $result = $this->matchPositionService->selfAssignPosition(
                 $matchId,
-                $request->game_position_id,
+                $request->match_position_id,
                 $userId,
                 $method,
                 $returnUrl,

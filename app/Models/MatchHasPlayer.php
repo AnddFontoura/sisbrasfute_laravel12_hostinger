@@ -16,6 +16,7 @@ class MatchHasPlayer extends Model
         'match_id',
         'team_player_id',
         'game_position_id',
+        'match_has_game_position_id',
         'number',
         'invited',
         'confirmed',
@@ -40,6 +41,11 @@ class MatchHasPlayer extends Model
     public function gamePositionInfo(): HasOne
     {
         return $this->hasOne(GamePosition::class, 'id', 'game_position_id');
+    }
+
+    public function matchPositionSlot(): HasOne
+    {
+        return $this->hasOne(MatchesHasGamePositions::class, 'id', 'match_has_game_position_id');
     }
 
     public function playerMatchStatistic(): HasOne

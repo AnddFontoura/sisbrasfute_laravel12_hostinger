@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\IsAdminMiddleware;
+use App\Http\Middleware\IsTeamAdminMiddleware;
 use App\Http\Middleware\IsTeamManagerMiddleware;
 use App\Http\Middleware\IsTeamMemberMiddleware;
 use Illuminate\Auth\Middleware\Authenticate;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'isAdmin' => IsAdminMiddleware::class,
             'isTeamManager' => IsTeamManagerMiddleware::class,
             'isTeamMember' => IsTeamMemberMiddleware::class,
+            'isTeamAdmin' => IsTeamAdminMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

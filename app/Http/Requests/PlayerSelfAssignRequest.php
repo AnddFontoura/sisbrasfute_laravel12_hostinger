@@ -14,7 +14,8 @@ class PlayerSelfAssignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'game_position_id' => 'required|integer|exists:game_positions,id',
+            // Id of the specific position slot (matches_has_game_positions.id).
+            'match_position_id' => 'required|integer|exists:matches_has_game_positions,id',
             'payment_method' => 'sometimes|in:wallet,pix,boleto',
             // Payer data required for boleto issuance.
             'payer_name' => 'required_if:payment_method,boleto|string',

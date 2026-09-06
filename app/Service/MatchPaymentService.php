@@ -46,25 +46,32 @@ class MatchPaymentService extends BaseService
 
     /**
      * Processes a position payment using the wallet balance (instant).
+     *
+     * @param object $slot The position slot (matches_has_game_positions row)
+     * @param object $teamPlayer The team player being assigned
      */
-    public function processPayment(int $matchId, int $gamePositionId, int $userId): MatchHasPlayer
+    public function processPayment(int $matchId, object $slot, object $teamPlayer): MatchHasPlayer
     {
-        [$match, $teamPlayer, $positionValueCents, $feeCents, $totalCost] =
-            $this->resolvePositionCost($matchId, $gamePositionId, $userId);
+        $match = $this->matchesRepository->firstById($matchId);
+        throw_if(!$match, new \Exception('Partida não encontrada', Response::HTTP_NOT_FOUND));
+
+        [$positionValueCents, $feeCents, $totalCost] = $this->costForSlot($slot);
+        $userId = $teamPlayer->user_id;
 
         // Free position: assign immediately, no wallet operations.
         if ($totalCost === 0) {
             return MatchHasPlayer::create([
                 'match_id' => $match->id,
                 'team_player_id' => $teamPlayer->id,
-                'game_position_id' => $gamePositionId,
+                'game_position_id' => $slot->game_position_id,
+                'match_has_game_position_id' => $slot->id,
                 'price_payed' => 0,
                 'payment_status' => 'free',
                 'payment_method' => PaymentMethod::Wallet->value,
             ]);
         }
 
-        return DB::transaction(function () use ($match, $gamePositionId, $userId, $teamPlayer, $positionValueCents, $feeCents, $totalCost) {
+        return DB::transaction(function () use ($match, $slot, $teamPlayer, $userId, $positionValueCents, $feeCents, $totalCost) {
             $wallet = $this->walletService->getOrCreateWallet($userId);
 
             throw_if($wallet->balance_cents < $totalCost, new InsufficientBalanceException(
@@ -81,7 +88,7 @@ class MatchPaymentService extends BaseService
                 'amount_cents' => $positionValueCents,
                 'fee_cents' => $feeCents,
                 'match_id' => $match->id,
-                'team_id' => $match->created_by_team_id,
+                'team_id' => $slot->team_id,
                 'description' => "Pagamento posição - Partida #{$match->id}",
                 'status' => 'completed',
                 'metadata' => ['payment_method' => PaymentMethod::Wallet->value],
@@ -90,13 +97,14 @@ class MatchPaymentService extends BaseService
             $assignment = MatchHasPlayer::create([
                 'match_id' => $match->id,
                 'team_player_id' => $teamPlayer->id,
-                'game_position_id' => $gamePositionId,
+                'game_position_id' => $slot->game_position_id,
+                'match_has_game_position_id' => $slot->id,
                 'price_payed' => $positionValueCents / 100,
                 'payment_status' => 'paid',
                 'payment_method' => PaymentMethod::Wallet->value,
             ]);
 
-            $this->settleReceivableAndRevenue($match, $positionValueCents, $feeCents, $walletTx->id);
+            $this->settleReceivableAndRevenue($match, $slot->team_id, $positionValueCents, $feeCents, $walletTx->id);
 
             return $assignment;
         });
@@ -107,26 +115,32 @@ class MatchPaymentService extends BaseService
      * "pending". The position is only confirmed when the gateway webhook
      * settles the charge (see confirmPositionPayment).
      *
+     * @param object $slot The position slot (matches_has_game_positions row)
+     * @param object $teamPlayer The team player being assigned
      * @param array<string, mixed> $payer Payer data (name, document, ...) for boleto
      * @return array{assignment: MatchHasPlayer, charge: PaymentChargeResult}
      */
     public function createPendingPositionPayment(
         int $matchId,
-        int $gamePositionId,
-        int $userId,
+        object $slot,
+        object $teamPlayer,
         PaymentMethod $method,
         string $returnUrl,
         array $payer = [],
     ): array {
-        [$match, $teamPlayer, $positionValueCents, $feeCents, $totalCost] =
-            $this->resolvePositionCost($matchId, $gamePositionId, $userId);
+        $match = $this->matchesRepository->firstById($matchId);
+        throw_if(!$match, new \Exception('Partida não encontrada', Response::HTTP_NOT_FOUND));
+
+        [$positionValueCents, $feeCents, $totalCost] = $this->costForSlot($slot);
+        $userId = $teamPlayer->user_id;
 
         // Free position: no charge needed, assign immediately.
         if ($totalCost === 0) {
             $assignment = MatchHasPlayer::create([
                 'match_id' => $match->id,
                 'team_player_id' => $teamPlayer->id,
-                'game_position_id' => $gamePositionId,
+                'game_position_id' => $slot->game_position_id,
+                'match_has_game_position_id' => $slot->id,
                 'price_payed' => 0,
                 'payment_status' => 'free',
                 'payment_method' => $method->value,
@@ -151,14 +165,15 @@ class MatchPaymentService extends BaseService
             $payer,
         );
 
-        return DB::transaction(function () use ($match, $gamePositionId, $userId, $teamPlayer, $positionValueCents, $feeCents, $method, $charge) {
+        return DB::transaction(function () use ($match, $slot, $teamPlayer, $userId, $positionValueCents, $feeCents, $method, $charge) {
             $wallet = $this->walletService->getOrCreateWallet($userId);
 
             // Reserve the slot as pending.
             $assignment = MatchHasPlayer::create([
                 'match_id' => $match->id,
                 'team_player_id' => $teamPlayer->id,
-                'game_position_id' => $gamePositionId,
+                'game_position_id' => $slot->game_position_id,
+                'match_has_game_position_id' => $slot->id,
                 'price_payed' => $positionValueCents / 100,
                 'payment_status' => 'pending',
                 'payment_reference' => $charge->chargeId,
@@ -173,7 +188,7 @@ class MatchPaymentService extends BaseService
                 'amount_cents' => $positionValueCents,
                 'fee_cents' => $feeCents,
                 'match_id' => $match->id,
-                'team_id' => $match->created_by_team_id,
+                'team_id' => $slot->team_id,
                 'description' => "Pagamento posição - Partida #{$match->id}",
                 'status' => 'pending',
                 'gateway_reference' => $charge->chargeId,
@@ -181,7 +196,8 @@ class MatchPaymentService extends BaseService
                     'payment_method' => $method->value,
                     'context' => 'match_position',
                     'match_has_player_id' => $assignment->id,
-                    'game_position_id' => $gamePositionId,
+                    'game_position_id' => $slot->game_position_id,
+                    'team_id' => $slot->team_id,
                 ],
             ]);
 
@@ -219,6 +235,7 @@ class MatchPaymentService extends BaseService
             if ($match) {
                 $this->settleReceivableAndRevenue(
                     $match,
+                    $transaction->team_id ?? $match->created_by_team_id,
                     $transaction->amount_cents,
                     $transaction->fee_cents,
                     $transaction->id,
@@ -256,11 +273,12 @@ class MatchPaymentService extends BaseService
         $match = $this->matchesRepository->firstById($matchId);
         throw_if(!$match, new \Exception('Partida não encontrada', Response::HTTP_NOT_FOUND));
 
-        $teamPlayer = $this->teamPlayerRepository->findByUserAndTeam($userId, $match->created_by_team_id);
-        throw_if(!$teamPlayer, new \Exception('Você não é membro do time desta partida', Response::HTTP_FORBIDDEN));
-
-        $assignment = $this->matchHasPlayerRepository->findActiveByMatchAndTeamPlayer($matchId, $teamPlayer->id);
+        // Resolve the user's active assignment across whichever team they belong to.
+        $assignment = $this->matchHasPlayerRepository->findActiveByMatchAndUser($matchId, $userId);
         throw_if(!$assignment, new \Exception('Nenhuma posição encontrada para liberação', Response::HTTP_NOT_FOUND));
+
+        // Team that owns the position (creator or opponent side).
+        $slotTeamId = $assignment->matchPositionSlot?->team_id ?? $match->created_by_team_id;
 
         // A pending (unpaid) position: just release the reservation, no refund.
         if ($assignment->payment_status === 'pending') {
@@ -275,7 +293,7 @@ class MatchPaymentService extends BaseService
 
         $positionValueCents = (int) (($assignment->price_payed ?? 0) * 100);
 
-        DB::transaction(function () use ($match, $userId, $assignment, $positionValueCents) {
+        DB::transaction(function () use ($match, $userId, $assignment, $slotTeamId, $positionValueCents) {
             // Refund always goes to the wallet, regardless of original method.
             $wallet = $this->walletService->getOrCreateWallet($userId);
             $wallet->increment('balance_cents', $positionValueCents);
@@ -287,14 +305,14 @@ class MatchPaymentService extends BaseService
                 'amount_cents' => $positionValueCents,
                 'fee_cents' => 0,
                 'match_id' => $match->id,
-                'team_id' => $match->created_by_team_id,
+                'team_id' => $slotTeamId,
                 'description' => "Reembolso posição - Partida #{$match->id}",
                 'status' => 'completed',
             ]);
 
             $assignment->delete();
 
-            $receivable = TeamReceivable::where('team_id', $match->created_by_team_id)
+            $receivable = TeamReceivable::where('team_id', $slotTeamId)
                 ->where('match_id', $match->id)
                 ->where('status', 'pending')
                 ->latest()
@@ -309,39 +327,26 @@ class MatchPaymentService extends BaseService
     }
 
     /**
-     * Resolves match, team player and cost breakdown; validates membership.
+     * Cost breakdown for a position slot.
      *
-     * @return array{0: \App\Models\Matches, 1: \App\Models\TeamPlayer, 2: int, 3: int, 4: int}
+     * @return array{0: int, 1: int, 2: int} [positionValueCents, feeCents, totalCost]
      */
-    private function resolvePositionCost(int $matchId, int $gamePositionId, int $userId): array
+    private function costForSlot(object $slot): array
     {
-        $match = $this->matchesRepository->firstById($matchId);
-        throw_if(!$match, new \Exception('Partida não encontrada', Response::HTTP_NOT_FOUND));
-
-        $position = $this->matchHasGamePositionRepository
-            ->getPositionsByMatchId($matchId)
-            ->where('game_position_id', $gamePositionId)
-            ->first();
-
-        throw_if(!$position, new \Exception('Posição inválida', Response::HTTP_UNPROCESSABLE_ENTITY));
-
-        $positionValueCents = (int) (($position->value ?? 0) * 100);
+        $positionValueCents = (int) (($slot->value ?? 0) * 100);
         $feeCents = $positionValueCents > 0 ? $this->calculateFee($positionValueCents) : 0;
         $totalCost = $positionValueCents + $feeCents;
 
-        $teamPlayer = $this->teamPlayerRepository->findByUserAndTeam($userId, $match->created_by_team_id);
-        throw_if(!$teamPlayer, new \Exception('Você não é membro do time desta partida', Response::HTTP_FORBIDDEN));
-
-        return [$match, $teamPlayer, $positionValueCents, $feeCents, $totalCost];
+        return [$positionValueCents, $feeCents, $totalCost];
     }
 
     /**
      * Credits the team receivable and records system revenue (fee).
      */
-    private function settleReceivableAndRevenue($match, int $positionValueCents, int $feeCents, int $walletTransactionId): void
+    private function settleReceivableAndRevenue($match, int $teamId, int $positionValueCents, int $feeCents, int $walletTransactionId): void
     {
         TeamReceivable::create([
-            'team_id' => $match->created_by_team_id,
+            'team_id' => $teamId,
             'match_id' => $match->id,
             'amount_cents' => $positionValueCents,
             'status' => 'pending',

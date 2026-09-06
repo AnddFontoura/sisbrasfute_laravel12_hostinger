@@ -44,4 +44,26 @@ class MatchHasGamePositionRepository extends BaseRepository
             ->where('match_id', $matchId)
             ->delete();
     }
+
+    /**
+     * Retorna as posições de uma partida pertencentes a um time específico.
+     */
+    public function getByMatchAndTeam(int $matchId, int $teamId)
+    {
+        return $this->model
+            ->where('match_id', $matchId)
+            ->where('team_id', $teamId)
+            ->get();
+    }
+
+    /**
+     * Indica se já existem posições da partida para o time informado.
+     */
+    public function existsForMatchAndTeam(int $matchId, int $teamId): bool
+    {
+        return $this->model
+            ->where('match_id', $matchId)
+            ->where('team_id', $teamId)
+            ->exists();
+    }
 }

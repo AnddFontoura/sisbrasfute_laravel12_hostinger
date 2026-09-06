@@ -36,6 +36,30 @@ class MatchHasPlayerRepository extends BaseRepository
             ->first();
     }
 
+    /**
+     * Finds the active assignment of a user in a match, across any team the
+     * user belongs to (via team_players.user_id).
+     */
+    public function findActiveByMatchAndUser(int $matchId, int $userId): ?MatchHasPlayer
+    {
+        return $this->model
+            ->where('match_has_players.match_id', $matchId)
+            ->whereNull('match_has_players.deleted_at')
+            ->join('team_players', 'team_players.id', '=', 'match_has_players.team_player_id')
+            ->where('team_players.user_id', $userId)
+            ->select('match_has_players.*')
+            ->first();
+    }
+
+    public function findActiveByMatchPositionSlot(int $matchId, int $matchPositionId): ?MatchHasPlayer
+    {
+        return $this->model
+            ->where('match_id', $matchId)
+            ->where('match_has_game_position_id', $matchPositionId)
+            ->whereNull('deleted_at')
+            ->first();
+    }
+
     public function findActiveByMatchAndPosition(int $matchId, int $gamePositionId): ?MatchHasPlayer
     {
         // Count how many slots exist for this game_position_id in this match
