@@ -22,6 +22,9 @@ class MatchHasPlayer extends Model
         'showed_up',
         'reason_for_absence',
         'price_payed',
+        'payment_status',
+        'payment_reference',
+        'payment_method',
     ];
 
     public function matchInfo(): HasOne

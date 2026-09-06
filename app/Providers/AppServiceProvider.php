@@ -14,7 +14,31 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             \App\Contracts\PaymentGatewayContract::class,
-            \App\Service\Payment\NullPaymentGateway::class
+            function ($app) {
+                $inter = config('services.inter');
+                $useInter = config('services.payment.gateway') === 'inter'
+                    && !empty($inter['client_id'])
+                    && !empty($inter['client_secret'])
+                    && !empty($inter['pix_key'])
+                    && !empty($inter['certificate_path'])
+                    && !empty($inter['private_key_path']);
+
+                if (!$useInter) {
+                    return new \App\Service\Payment\NullPaymentGateway();
+                }
+
+                return new \App\Service\Payment\InterPaymentGateway(
+                    baseUrl: $inter['base_url'],
+                    clientId: $inter['client_id'],
+                    clientSecret: $inter['client_secret'],
+                    pixKey: $inter['pix_key'],
+                    certificatePath: $inter['certificate_path'],
+                    privateKeyPath: $inter['private_key_path'],
+                    cobExpiration: $inter['cob_expiration'],
+                    contaCorrente: $inter['conta_corrente'] ?? null,
+                    boletoDueDays: $inter['boleto_due_days'] ?? 3,
+                );
+            }
         );
     }
 

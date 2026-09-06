@@ -25,7 +25,7 @@ class SystemConfigController extends Controller
         } catch (\Exception $e) {
             return response()->json(
                 ['message' => $e->getMessage()],
-                $e->getCode() ?: JsonResponse::HTTP_INTERNAL_SERVER_ERROR
+                $this->normalizeStatusCode($e->getCode())
             );
         }
     }
@@ -54,7 +54,7 @@ class SystemConfigController extends Controller
         } catch (\Exception $e) {
             return response()->json(
                 ['message' => $e->getMessage()],
-                $e->getCode() ?: JsonResponse::HTTP_INTERNAL_SERVER_ERROR
+                $this->normalizeStatusCode($e->getCode())
             );
         }
     }
@@ -82,7 +82,7 @@ class SystemConfigController extends Controller
         } catch (\Exception $e) {
             return response()->json(
                 ['message' => $e->getMessage()],
-                $e->getCode() ?: JsonResponse::HTTP_INTERNAL_SERVER_ERROR
+                $this->normalizeStatusCode($e->getCode())
             );
         }
     }

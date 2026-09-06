@@ -46,10 +46,7 @@ class TeamPlayerController extends Controller
                 JsonResponse::HTTP_OK
             );
         } catch (\Exception $e) {
-            $statusCode = $e->getCode();
-            if ($statusCode < 100 || $statusCode >= 600) {
-                $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
-            }
+            $statusCode = $this->normalizeStatusCode($e->getCode());
 
             return response()->json(
                 ['message' => $e->getMessage()],
@@ -70,10 +67,7 @@ class TeamPlayerController extends Controller
                 JsonResponse::HTTP_OK
             );
         } catch (\Exception $e) {
-            $statusCode = $e->getCode();
-            if ($statusCode < 100 || $statusCode >= 600) {
-                $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
-            }
+            $statusCode = $this->normalizeStatusCode($e->getCode());
 
             return response()->json(
                 ['message' => $e->getMessage()],
@@ -93,10 +87,7 @@ class TeamPlayerController extends Controller
                 JsonResponse::HTTP_OK
             );
         } catch (\Exception $e) {
-            $statusCode = $e->getCode();
-            if ($statusCode < 100 || $statusCode >= 600) {
-                $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
-            }
+            $statusCode = $this->normalizeStatusCode($e->getCode());
             return response()->json(['message' => $e->getMessage()], $statusCode);
         }
     }
@@ -144,11 +135,7 @@ class TeamPlayerController extends Controller
 
             return response()->json($teamPlayer->load(['tags', 'gamePositionInfo']), JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
-            $statusCode = $e->getCode();
-            // Ensure we have a valid HTTP status code
-            if ($statusCode < 100 || $statusCode >= 600) {
-                $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
-            }
+            $statusCode = $this->normalizeStatusCode($e->getCode());
 
             return response()->json(
                 ['message' => $e->getMessage()],

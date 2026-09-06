@@ -78,6 +78,8 @@ class MatchPositionService extends BaseService
                 'team_player_id' => $assignment?->team_player_id ?? null,
                 'value' => (float) ($position->value ?? 0),
                 'price_payed' => (float) ($assignment?->price_payed ?? 0),
+                'payment_status' => $assignment?->payment_status ?? null,
+                'payment_method' => $assignment?->payment_method ?? null,
             ];
         }
 
@@ -174,8 +176,14 @@ class MatchPositionService extends BaseService
      * unicidade de atribuição e disponibilidade da posição.
      * Delega a criação e o pagamento ao MatchPaymentService.
      */
-    public function selfAssignPosition(int $matchId, int $gamePositionId, int $userId): MatchHasPlayer
-    {
+    public function selfAssignPosition(
+        int $matchId,
+        int $gamePositionId,
+        int $userId,
+        \App\Enums\PaymentMethod $method = \App\Enums\PaymentMethod::Wallet,
+        string $returnUrl = '',
+        array $payer = [],
+    ): array {
         // 1. Validar existência da partida
         $match = $this->matchesRepository->firstById($matchId);
 
@@ -234,9 +242,29 @@ class MatchPositionService extends BaseService
             Response::HTTP_CONFLICT
         ));
 
-        // 6. Delegate to MatchPaymentService for atomic payment + assignment creation
+        // 6. Delegate to MatchPaymentService.
+        // Wallet: instant debit + confirmed assignment.
+        // Pix/boleto: creates a gateway charge and reserves the position as
+        //   "pending"; confirmation happens via webhook.
+        if ($method->isGateway()) {
+            $result = $this->matchPaymentService->createPendingPositionPayment(
+                $matchId,
+                $gamePositionId,
+                $userId,
+                $method,
+                $returnUrl,
+                $payer,
+            );
+
+            return [
+                'assignment' => $result['assignment'],
+                'charge' => $result['charge'],
+            ];
+        }
+
         try {
-            return $this->matchPaymentService->processPayment($matchId, $gamePositionId, $userId);
+            $assignment = $this->matchPaymentService->processPayment($matchId, $gamePositionId, $userId);
+            return ['assignment' => $assignment, 'charge' => null];
         } catch (InsufficientBalanceException $e) {
             throw new \Exception($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY, $e);
         }

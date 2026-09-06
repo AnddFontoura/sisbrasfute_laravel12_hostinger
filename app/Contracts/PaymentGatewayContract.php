@@ -2,6 +2,7 @@
 
 namespace App\Contracts;
 
+use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 
 interface PaymentGatewayContract
@@ -12,9 +13,17 @@ interface PaymentGatewayContract
      * @param int $amountCents Amount in centavos
      * @param string $userRef User reference (e.g., user ID or email)
      * @param string $returnUrl URL to redirect after payment
+     * @param PaymentMethod $method Payment method (pix or boleto)
+     * @param array<string, mixed> $payer Optional payer data (name, cpf/cnpj) required for boleto
      * @return PaymentChargeResult
      */
-    public function createCharge(int $amountCents, string $userRef, string $returnUrl): PaymentChargeResult;
+    public function createCharge(
+        int $amountCents,
+        string $userRef,
+        string $returnUrl,
+        PaymentMethod $method = PaymentMethod::Pix,
+        array $payer = [],
+    ): PaymentChargeResult;
 
     /**
      * Checks the current status of a charge.

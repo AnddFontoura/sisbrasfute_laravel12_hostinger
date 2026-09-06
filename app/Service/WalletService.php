@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Contracts\PaymentChargeResult;
 use App\Contracts\PaymentGatewayContract;
+use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
@@ -68,14 +69,24 @@ class WalletService extends BaseService
         ]);
     }
 
-    public function initiateDeposit(int $userId, int $amountCents, string $returnUrl): PaymentChargeResult
-    {
+    /**
+     * @param array<string, mixed> $payer Payer data (name, document, ...) for boleto
+     */
+    public function initiateDeposit(
+        int $userId,
+        int $amountCents,
+        string $returnUrl,
+        PaymentMethod $method = PaymentMethod::Pix,
+        array $payer = [],
+    ): PaymentChargeResult {
         $wallet = $this->getOrCreateWallet($userId);
 
         $chargeResult = $this->paymentGateway->createCharge(
             $amountCents,
             (string) $userId,
-            $returnUrl
+            $returnUrl,
+            $method,
+            $payer,
         );
 
         WalletTransaction::create([
@@ -87,12 +98,18 @@ class WalletService extends BaseService
             'description' => 'Depósito na carteira',
             'status' => 'pending',
             'gateway_reference' => $chargeResult->chargeId,
+            'metadata' => ['payment_method' => $method->value, 'context' => 'deposit'],
         ]);
 
         return $chargeResult;
     }
 
-    public function handleDepositWebhook(array $payload): void
+    /**
+     * Handles a gateway webhook. Routes settlement to the correct destination:
+     * wallet deposits credit the balance; match position payments confirm the
+     * reserved position (delegated to MatchPaymentService).
+     */
+    public function handleWebhook(array $payload): void
     {
         $webhookResult = $this->paymentGateway->handleWebhook($payload);
 
@@ -104,14 +121,33 @@ class WalletService extends BaseService
             return; // Already processed or not found
         }
 
+        // Position payments are settled by the MatchPaymentService.
+        if ($transaction->type === 'match_payment') {
+            if ($webhookResult->status === PaymentStatus::Completed) {
+                app(MatchPaymentService::class)->confirmPositionPayment($webhookResult->chargeId);
+            } elseif ($webhookResult->status === PaymentStatus::Failed) {
+                app(MatchPaymentService::class)->cancelPendingPositionPayment($webhookResult->chargeId);
+            }
+            return;
+        }
+
+        // Wallet deposit.
         if ($webhookResult->status === PaymentStatus::Completed) {
             DB::transaction(function () use ($transaction) {
                 $transaction->update(['status' => 'completed']);
                 $wallet = Wallet::find($transaction->wallet_id);
                 $wallet->increment('balance_cents', $transaction->amount_cents);
             });
-        } else {
+        } elseif ($webhookResult->status === PaymentStatus::Failed) {
             $transaction->update(['status' => 'failed']);
         }
+    }
+
+    /**
+     * @deprecated Use handleWebhook(). Kept for backward compatibility.
+     */
+    public function handleDepositWebhook(array $payload): void
+    {
+        $this->handleWebhook($payload);
     }
 }

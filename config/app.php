@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | Base URL of the SPA frontend. Used to build return/redirect URLs for
+    | payment flows.
+    |
+    */
+
+    'frontend_url' => env('APP_FRONTEND_URL', env('FRONTEND_URL', 'http://localhost:5173')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

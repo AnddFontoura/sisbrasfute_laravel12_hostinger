@@ -69,7 +69,17 @@ class MatchesController extends Controller
             );
         }
 
-        return response()->json($match, JsonResponse::HTTP_OK);
+        // Resolve whether the authenticated user is a member of the team that
+        // created this match, so the frontend can gate the self-assign flow.
+        $teamPlayer = \App\Models\TeamPlayer::where('team_id', $match->created_by_team_id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        $payload = $match->toArray();
+        $payload['is_member'] = (bool) $teamPlayer;
+        $payload['current_team_player_id'] = $teamPlayer?->id;
+
+        return response()->json($payload, JsonResponse::HTTP_OK);
     }
 
     public function deactivate(int $matchId): JsonResponse
