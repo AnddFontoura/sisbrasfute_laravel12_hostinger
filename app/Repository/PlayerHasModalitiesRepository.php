@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Models\PlayerHasModality;
-use Illuminate\Database\Eloquent\Collection;
 
 class PlayerHasModalitiesRepository extends BaseRepository
 {
@@ -25,7 +24,7 @@ class PlayerHasModalitiesRepository extends BaseRepository
             ->delete();
     }
 
-    public function getPlayerModality(int $playerId, int $modalityId): ?Collection
+    public function getPlayerModality(int $playerId, int $modalityId): ?PlayerHasModality
     {
         return $this->model
             ->where('modality_id', $modalityId)
