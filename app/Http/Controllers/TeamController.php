@@ -11,6 +11,7 @@ use App\Service\TeamPlayerService;
 use App\Service\TeamService;
 use App\Service\UploadService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -95,12 +96,21 @@ class TeamController extends Controller
         return response()->json(['message' => 'Time reativado com sucesso.'], Response::HTTP_OK);
     }
 
-    public function performance(int $teamId): JsonResponse
+    public function performance(int $teamId, Request $request): JsonResponse
     {
+        // Optional filter by one or more match types (0=Normal, 1=Friendly, 2=Championship).
+        $matchTypes = array_filter(
+            (array) $request->input('match_types', []),
+            fn ($t) => is_numeric($t)
+        );
+
         $matches = \App\Models\Matches::where(function ($q) use ($teamId) {
                 $q->where('my_team_id', $teamId)
                   ->orWhere('enemy_team_id', $teamId)
                   ->orWhere('created_by_team_id', $teamId);
+            })
+            ->when(!empty($matchTypes), function ($q) use ($matchTypes) {
+                $q->whereIn('match_type', array_map('intval', $matchTypes));
             })
             ->whereNotNull('my_team_score')
             ->whereNotNull('enemy_team_score')

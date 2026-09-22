@@ -18,7 +18,7 @@ fi
 # Roda as migrations (opcional - descomente se quiser rodar sempre)
 php artisan migrate
 php artisan db:seed
-php artisan storage:link
+php artisan storage:link --force
 
 PORT="${LARAVEL_PORT:-8201}"
 echo "🎯 Iniciando servidor Laravel na porta ${PORT}..."

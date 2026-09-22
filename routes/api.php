@@ -26,7 +26,9 @@ use App\Http\Controllers\TeamReceivableController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\TeamSearchPositionController;
+use App\Http\Controllers\TeamPlayerUniformNumberController;
 use App\Http\Controllers\TeamTagController;
+use App\Http\Controllers\TeamUniformController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WalletTransactionController;
 use Illuminate\Http\Request;
@@ -118,6 +120,28 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', 'store');
             Route::put('/{tagId}', 'update');
             Route::delete('/{tagId}', 'destroy');
+        });
+
+    Route::prefix('team/{teamId}/uniforms')
+        ->name('team-uniforms.')
+        ->controller(TeamUniformController::class)
+        ->middleware('isTeamManager')
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            // Uniform updates carry multipart file uploads, so use POST.
+            Route::post('/{uniformId}', 'update');
+            Route::delete('/{uniformId}', 'destroy');
+        });
+
+    // Player-facing: manage the numbers the logged-in member owns per uniform.
+    Route::prefix('team/{teamId}/my-uniform-numbers')
+        ->name('my-uniform-numbers.')
+        ->controller(TeamPlayerUniformNumberController::class)
+        ->middleware('isTeamMember')
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::put('/{uniformId}', 'update');
         });
 
     Route::prefix('team-search-position')

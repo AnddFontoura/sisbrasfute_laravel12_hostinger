@@ -38,6 +38,7 @@ class Matches extends Model
         'location',
         'schedule',
         'tag_id',
+        'uniform_id',
         'status',
         'challenge_status',
     ];
@@ -82,6 +83,11 @@ class Matches extends Model
     public function getMyTeamIsLabelAttribute(): string
     {
         return $this->my_team_is?->label() ?? '';
+    }
+
+    public function uniform(): BelongsTo
+    {
+        return $this->belongsTo(TeamUniform::class, 'uniform_id');
     }
 
     public function tag(): BelongsTo

@@ -39,6 +39,7 @@ class PlayerSelfAssignController extends Controller
                 $method,
                 $returnUrl,
                 $payer,
+                $request->input('number') !== null ? (int) $request->input('number') : null,
             );
 
             $charge = $result['charge'];

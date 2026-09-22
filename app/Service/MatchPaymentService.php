@@ -50,7 +50,7 @@ class MatchPaymentService extends BaseService
      * @param object $slot The position slot (matches_has_game_positions row)
      * @param object $teamPlayer The team player being assigned
      */
-    public function processPayment(int $matchId, object $slot, object $teamPlayer): MatchHasPlayer
+    public function processPayment(int $matchId, object $slot, object $teamPlayer, ?int $number = null): MatchHasPlayer
     {
         $match = $this->matchesRepository->firstById($matchId);
         throw_if(!$match, new \Exception('Partida não encontrada', Response::HTTP_NOT_FOUND));
@@ -65,13 +65,14 @@ class MatchPaymentService extends BaseService
                 'team_player_id' => $teamPlayer->id,
                 'game_position_id' => $slot->game_position_id,
                 'match_has_game_position_id' => $slot->id,
+                'number' => $number,
                 'price_payed' => 0,
                 'payment_status' => 'free',
                 'payment_method' => PaymentMethod::Wallet->value,
             ]);
         }
 
-        return DB::transaction(function () use ($match, $slot, $teamPlayer, $userId, $positionValueCents, $feeCents, $totalCost) {
+        return DB::transaction(function () use ($match, $slot, $teamPlayer, $userId, $number, $positionValueCents, $feeCents, $totalCost) {
             $wallet = $this->walletService->getOrCreateWallet($userId);
 
             throw_if($wallet->balance_cents < $totalCost, new InsufficientBalanceException(
@@ -99,6 +100,7 @@ class MatchPaymentService extends BaseService
                 'team_player_id' => $teamPlayer->id,
                 'game_position_id' => $slot->game_position_id,
                 'match_has_game_position_id' => $slot->id,
+                'number' => $number,
                 'price_payed' => $positionValueCents / 100,
                 'payment_status' => 'paid',
                 'payment_method' => PaymentMethod::Wallet->value,
@@ -127,6 +129,7 @@ class MatchPaymentService extends BaseService
         PaymentMethod $method,
         string $returnUrl,
         array $payer = [],
+        ?int $number = null,
     ): array {
         $match = $this->matchesRepository->firstById($matchId);
         throw_if(!$match, new \Exception('Partida não encontrada', Response::HTTP_NOT_FOUND));
@@ -141,6 +144,7 @@ class MatchPaymentService extends BaseService
                 'team_player_id' => $teamPlayer->id,
                 'game_position_id' => $slot->game_position_id,
                 'match_has_game_position_id' => $slot->id,
+                'number' => $number,
                 'price_payed' => 0,
                 'payment_status' => 'free',
                 'payment_method' => $method->value,
@@ -165,7 +169,7 @@ class MatchPaymentService extends BaseService
             $payer,
         );
 
-        return DB::transaction(function () use ($match, $slot, $teamPlayer, $userId, $positionValueCents, $feeCents, $method, $charge) {
+        return DB::transaction(function () use ($match, $slot, $teamPlayer, $userId, $number, $positionValueCents, $feeCents, $method, $charge) {
             $wallet = $this->walletService->getOrCreateWallet($userId);
 
             // Reserve the slot as pending.
@@ -174,6 +178,7 @@ class MatchPaymentService extends BaseService
                 'team_player_id' => $teamPlayer->id,
                 'game_position_id' => $slot->game_position_id,
                 'match_has_game_position_id' => $slot->id,
+                'number' => $number,
                 'price_payed' => $positionValueCents / 100,
                 'payment_status' => 'pending',
                 'payment_reference' => $charge->chargeId,

@@ -12,6 +12,8 @@ services:
             - ./:/var/www
         depends_on:
             - db
+        environment:
+            LARAVEL_PORT: ${LARAVEL_PORT:-8201}
         networks:
             - intra_network
         ports:

@@ -17,6 +17,7 @@ class MatchPositionSaveRequest extends FormRequest
             'game_position_id' => 'required|integer|exists:game_positions,id',
             'team_player_id'   => 'required|integer|exists:team_players,id',
             'price_payed'      => 'nullable|numeric|min:0|max:999999.99',
+            'number'           => 'sometimes|nullable|integer|min:1|max:999',
         ];
     }
 }

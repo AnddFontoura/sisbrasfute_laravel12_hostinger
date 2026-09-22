@@ -40,6 +40,7 @@ class MatchesCreateOrUpdateRequest extends FormRequest
             'positions' => 'nullable',
             'indicatePositions' => 'nullable',
             'tagId' => 'nullable|integer|exists:team_tags,id',
+            'uniformId' => 'nullable|integer|exists:team_uniforms,id',
             'championshipName' => 'nullable|string|max:254',
         ];
     }

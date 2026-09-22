@@ -82,6 +82,7 @@ class MatchPositionService extends BaseService
                 'player_name' => $assignment?->teamPlayerInfo?->name ?? null,
                 'player_nickname' => $assignment?->teamPlayerInfo?->nickname ?? null,
                 'team_player_id' => $assignment?->team_player_id ?? null,
+                'number' => $assignment?->number ?? null,
                 'value' => (float) ($position->value ?? 0),
                 'price_payed' => (float) ($assignment?->price_payed ?? 0),
                 'payment_status' => $assignment?->payment_status ?? null,
@@ -124,6 +125,13 @@ class MatchPositionService extends BaseService
             Response::HTTP_UNPROCESSABLE_ENTITY
         ));
 
+        // Número da camisa: só é gravado quando a partida tem uniforme.
+        // No fluxo do gerente (atribuição manual), o admin pode definir
+        // qualquer número — não exigimos que o jogador já o tenha cadastrado.
+        $number = ($match->uniform_id && isset($data['number']) && $data['number'] !== null)
+            ? (int) $data['number']
+            : null;
+
         // Criar ou atualizar atribuição usando match_id + game_position_id como chave
         $assignment = $this->matchHasPlayerRepository->createOrUpdateByParameters(
             [
@@ -133,6 +141,7 @@ class MatchPositionService extends BaseService
             [
                 'team_player_id' => $data['team_player_id'],
                 'price_payed' => $data['price_payed'] ?? 0,
+                'number' => $number,
             ]
         );
 
@@ -182,6 +191,7 @@ class MatchPositionService extends BaseService
         \App\Enums\PaymentMethod $method = \App\Enums\PaymentMethod::Wallet,
         string $returnUrl = '',
         array $payer = [],
+        ?int $number = null,
     ): array {
         // 1. Validar existência da partida
         $match = $this->matchesRepository->firstById($matchId);
@@ -209,6 +219,9 @@ class MatchPositionService extends BaseService
             'Você não é membro do time desta posição',
             Response::HTTP_FORBIDDEN
         ));
+
+        // 3.1 Validar o número da camisa (quando a partida tem uniforme definido)
+        $number = $this->validateUniformNumber($match, $teamPlayer->id, $number);
 
         // 3.5 Validar elegibilidade por tag
         if ($match->tag_id) {
@@ -253,6 +266,7 @@ class MatchPositionService extends BaseService
                 $method,
                 $returnUrl,
                 $payer,
+                $number,
             );
 
             return [
@@ -262,11 +276,36 @@ class MatchPositionService extends BaseService
         }
 
         try {
-            $assignment = $this->matchPaymentService->processPayment($matchId, $slot, $teamPlayer);
+            $assignment = $this->matchPaymentService->processPayment($matchId, $slot, $teamPlayer, $number);
             return ['assignment' => $assignment, 'charge' => null];
         } catch (InsufficientBalanceException $e) {
             throw new \Exception($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY, $e);
         }
+    }
+
+    /**
+     * Validates the chosen shirt number against the match's uniform.
+     *
+     * - If the match has no uniform, no number is stored (returns null).
+     * - If a number is provided, it must be one the player owns for that uniform.
+     */
+    private function validateUniformNumber($match, int $teamPlayerId, ?int $number): ?int
+    {
+        if (!$match->uniform_id || $number === null) {
+            return null;
+        }
+
+        $owns = \App\Models\TeamPlayerUniformNumber::where('team_player_id', $teamPlayerId)
+            ->where('team_uniform_id', $match->uniform_id)
+            ->where('number', $number)
+            ->exists();
+
+        throw_if(!$owns, new \Exception(
+            'Você não possui esse número para o uniforme desta partida',
+            Response::HTTP_UNPROCESSABLE_ENTITY
+        ));
+
+        return $number;
     }
 
     /**

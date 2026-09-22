@@ -24,6 +24,8 @@ class PlayerSelfAssignRequest extends FormRequest
             'payer_address' => 'sometimes|nullable|string',
             'payer_city' => 'sometimes|nullable|string',
             'payer_uf' => 'sometimes|nullable|string|size:2',
+            // Chosen shirt number (validated against the match uniform in the service).
+            'number' => 'sometimes|nullable|integer|min:1|max:999',
         ];
     }
 }
