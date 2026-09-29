@@ -5,6 +5,7 @@ use App\Http\Middleware\IsAdminMiddleware;
 use App\Http\Middleware\IsTeamAdminMiddleware;
 use App\Http\Middleware\IsTeamManagerMiddleware;
 use App\Http\Middleware\IsTeamMemberMiddleware;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Resolve the request locale (bilingual API) before any other logic.
+        $middleware->prependToGroup('api', SetLocale::class);
+
         $middleware->alias([
             'auth' => Authenticate::class,
             'emailVerified' => EnsureEmailIsVerified::class,

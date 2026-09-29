@@ -42,7 +42,7 @@ class SystemConfigController extends Controller
             $this->systemConfigService->set('fee_value', (string) $request->input('fee_value'));
 
             return response()->json([
-                'message' => 'Configuração de taxa atualizada com sucesso.',
+                'message' => __('messages.system_config.fee_updated'),
                 'fee_type' => $request->input('fee_type'),
                 'fee_value' => $request->input('fee_value'),
             ], JsonResponse::HTTP_OK);

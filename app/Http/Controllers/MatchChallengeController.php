@@ -46,13 +46,13 @@ class MatchChallengeController extends Controller
         $match = Matches::find($matchId);
 
         if (!$match) {
-            return response()->json(['message' => 'Partida não encontrada.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.match.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         // Only the host team owner can see challenges
         $team = Team::find($match->created_by_team_id);
         if (!$team || $team->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Sem permissão.'], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => __('error.challenge.forbidden')], Response::HTTP_FORBIDDEN);
         }
 
         $challenges = MatchChallenge::with('challengerTeam')
@@ -85,11 +85,11 @@ class MatchChallengeController extends Controller
         $match = Matches::find($matchId);
 
         if (!$match) {
-            return response()->json(['message' => 'Partida não encontrada.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.match.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         if ($match->challenge_status !== 1) {
-            return response()->json(['message' => 'Esta partida não está aberta para desafios.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['message' => __('error.challenge.not_open')], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $challengerTeamId = $request->challenger_team_id;
@@ -97,12 +97,12 @@ class MatchChallengeController extends Controller
         // Verify the user owns the challenger team
         $challengerTeam = Team::find($challengerTeamId);
         if (!$challengerTeam || $challengerTeam->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Você não administra este time.'], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => __('error.challenge.not_team_admin')], Response::HTTP_FORBIDDEN);
         }
 
         // Cannot challenge your own match
         if ($match->created_by_team_id === $challengerTeamId) {
-            return response()->json(['message' => 'Você não pode desafiar sua própria partida.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['message' => __('error.challenge.cannot_challenge_own')], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Check if already challenged
@@ -112,7 +112,7 @@ class MatchChallengeController extends Controller
             ->first();
 
         if ($existing) {
-            return response()->json(['message' => 'Este time já enviou um desafio para esta partida.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['message' => __('error.challenge.already_sent')], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $challenge = MatchChallenge::create([
@@ -135,18 +135,18 @@ class MatchChallengeController extends Controller
             ->first();
 
         if (!$challenge) {
-            return response()->json(['message' => 'Desafio não encontrado.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.challenge.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         if (!$challenge->isPending()) {
-            return response()->json(['message' => 'Este desafio não está mais pendente.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['message' => __('error.challenge.not_pending')], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Verify user is the host team owner
         $match = Matches::find($matchId);
         $team = Team::find($match->created_by_team_id);
         if (!$team || $team->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Sem permissão.'], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => __('error.challenge.forbidden')], Response::HTTP_FORBIDDEN);
         }
 
         $challenge->update([
@@ -155,7 +155,7 @@ class MatchChallengeController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Desafio aceito! Aguardando confirmação do desafiante.',
+            'message' => __('messages.challenge.accepted'),
             'challenge' => $challenge->fresh()->load('challengerTeam'),
         ], Response::HTTP_OK);
     }
@@ -170,25 +170,25 @@ class MatchChallengeController extends Controller
             ->first();
 
         if (!$challenge) {
-            return response()->json(['message' => 'Desafio não encontrado.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.challenge.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         if ($challenge->isConfirmed()) {
-            return response()->json(['message' => 'Não é possível recusar um desafio já confirmado.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['message' => __('error.challenge.cannot_decline_confirmed')], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Verify user is the host team owner
         $match = Matches::find($matchId);
         $team = Team::find($match->created_by_team_id);
         if (!$team || $team->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Sem permissão.'], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => __('error.challenge.forbidden')], Response::HTTP_FORBIDDEN);
         }
 
         $challenge->update([
             'status' => MatchChallenge::STATUS_DECLINED,
         ]);
 
-        return response()->json(['message' => 'Desafio recusado.'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.challenge.declined')], Response::HTTP_OK);
     }
 
     /**
@@ -201,17 +201,17 @@ class MatchChallengeController extends Controller
             ->first();
 
         if (!$challenge) {
-            return response()->json(['message' => 'Desafio não encontrado.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.challenge.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         if (!$challenge->isHostAccepted()) {
-            return response()->json(['message' => 'O anfitrião ainda não aceitou este desafio.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['message' => __('error.challenge.host_not_accepted')], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Verify user owns the challenger team
         $challengerTeam = Team::find($challenge->challenger_team_id);
         if (!$challengerTeam || $challengerTeam->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Sem permissão.'], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => __('error.challenge.forbidden')], Response::HTTP_FORBIDDEN);
         }
 
         // Confirm the challenge
@@ -240,7 +240,7 @@ class MatchChallengeController extends Controller
             ->update(['status' => MatchChallenge::STATUS_DECLINED]);
 
         return response()->json([
-            'message' => 'Desafio confirmado! A partida está marcada.',
+            'message' => __('messages.challenge.confirmed'),
             'match' => $match->fresh()->load(['myTeamInfo', 'enemyTeamInfo', 'cityInfo.stateInfo']),
         ], Response::HTTP_OK);
     }
@@ -255,24 +255,24 @@ class MatchChallengeController extends Controller
             ->first();
 
         if (!$challenge) {
-            return response()->json(['message' => 'Desafio não encontrado.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.challenge.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         if ($challenge->isConfirmed()) {
-            return response()->json(['message' => 'Não é possível cancelar um desafio já confirmado.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['message' => __('error.challenge.cannot_cancel_confirmed')], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Verify user owns the challenger team
         $challengerTeam = Team::find($challenge->challenger_team_id);
         if (!$challengerTeam || $challengerTeam->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Sem permissão.'], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => __('error.challenge.forbidden')], Response::HTTP_FORBIDDEN);
         }
 
         $challenge->update([
             'status' => MatchChallenge::STATUS_CANCELLED,
         ]);
 
-        return response()->json(['message' => 'Desafio cancelado.'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.challenge.cancelled')], Response::HTTP_OK);
     }
 
     /**

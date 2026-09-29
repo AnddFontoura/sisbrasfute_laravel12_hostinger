@@ -33,7 +33,7 @@ class AdminNotificationController extends Controller
 
         if (!$notification) {
             return response()->json(
-                ['message' => 'Nenhum destinatário encontrado para o público selecionado.'],
+                ['message' => __('error.notification.no_recipients')],
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         }
@@ -46,7 +46,7 @@ class AdminNotificationController extends Controller
         $notification = $this->notificationService->adminShow($id);
 
         if (!$notification) {
-            return response()->json(['error' => 'Notificação não encontrada.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => __('error.notification.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json($notification, Response::HTTP_OK);
@@ -57,7 +57,7 @@ class AdminNotificationController extends Controller
         $notification = $this->notificationService->adminUpdate($id, $request->validated());
 
         if (!$notification) {
-            return response()->json(['error' => 'Notificação não encontrada.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => __('error.notification.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json($notification, Response::HTTP_OK);

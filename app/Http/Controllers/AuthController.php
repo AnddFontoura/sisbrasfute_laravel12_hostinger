@@ -62,7 +62,7 @@ class AuthController extends Controller
         }
 
         return response()->json(
-            ['message' => 'User registered successfully', 'verification_sent' => true],
+            ['message' => __('messages.auth.registered'), 'verification_sent' => true],
             Response::HTTP_CREATED
         );
     }
@@ -85,7 +85,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (!auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => __('error.auth.unauthorized')], 401);
         }
 
         $user = auth()->user();
@@ -112,7 +112,7 @@ class AuthController extends Controller
     {
         $request->user()->token()->revoke();
         return response()->json(
-            ['message' => 'Successfully logged out'],
+            ['message' => __('messages.auth.logged_out')],
             Response::HTTP_OK
         );
     }

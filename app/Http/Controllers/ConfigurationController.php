@@ -64,7 +64,7 @@ class ConfigurationController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Dados atualizados com sucesso.',
+            'message' => __('messages.account.updated'),
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
@@ -110,7 +110,7 @@ class ConfigurationController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Senha atualizada com sucesso.',
+            'message' => __('messages.account.password_updated'),
         ], Response::HTTP_OK);
     }
 

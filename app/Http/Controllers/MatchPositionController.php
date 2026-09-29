@@ -48,7 +48,7 @@ class MatchPositionController extends Controller
         try {
             $this->matchPositionService->updatePayment($matchId, $atribuicaoId, $request->price_payed);
 
-            return response()->json(['success' => 'Pagamento atualizado com sucesso'], JsonResponse::HTTP_OK);
+            return response()->json(['success' => __('messages.match.payment_updated')], JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(
                 ['message' => $e->getMessage()],

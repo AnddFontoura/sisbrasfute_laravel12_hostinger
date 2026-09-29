@@ -33,7 +33,7 @@ class AdminController extends Controller
 
         if (!$user) {
             return response()->json(
-                ['error' => 'Recurso não encontrado.'],
+                ['error' => __('error.common.resource_not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -57,14 +57,14 @@ class AdminController extends Controller
 
         if (!$team) {
             return response()->json(
-                ['error' => 'Recurso não encontrado.'],
+                ['error' => __('error.common.resource_not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
 
         if (!$team->logo_path) {
             return response()->json(
-                ['error' => 'Imagem não encontrada para este time.'],
+                ['error' => __('error.team.logo_not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -75,7 +75,7 @@ class AdminController extends Controller
         $team->save();
 
         return response()->json(
-            ['message' => 'Logo removido com sucesso.'],
+            ['message' => __('messages.admin.logo_removed')],
             Response::HTTP_OK
         );
     }
@@ -86,14 +86,14 @@ class AdminController extends Controller
 
         if (!$team) {
             return response()->json(
-                ['error' => 'Recurso não encontrado.'],
+                ['error' => __('error.common.resource_not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
 
         if (!$team->banner_path) {
             return response()->json(
-                ['error' => 'Imagem não encontrada para este time.'],
+                ['error' => __('error.team.logo_not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -104,7 +104,7 @@ class AdminController extends Controller
         $team->save();
 
         return response()->json(
-            ['message' => 'Banner removido com sucesso.'],
+            ['message' => __('messages.admin.banner_removed')],
             Response::HTTP_OK
         );
     }
@@ -164,7 +164,7 @@ class AdminController extends Controller
 
         if (!$position) {
             return response()->json(
-                ['error' => 'Posição não encontrada.'],
+                ['error' => __('error.game_position.not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -178,7 +178,7 @@ class AdminController extends Controller
 
         if (!$position) {
             return response()->json(
-                ['error' => 'Posição não encontrada.'],
+                ['error' => __('error.game_position.not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -208,14 +208,14 @@ class AdminController extends Controller
 
         if (!$user) {
             return response()->json(
-                ['error' => 'Usuário não encontrado.'],
+                ['error' => __('error.user.not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
 
         if ($user->email_verified_at) {
             return response()->json(
-                ['message' => 'Email já verificado.'],
+                ['message' => __('messages.email_verification.already_verified')],
                 Response::HTTP_OK
             );
         }
@@ -224,7 +224,7 @@ class AdminController extends Controller
         $user->save();
 
         return response()->json(
-            ['message' => 'Email verificado com sucesso.'],
+            ['message' => __('messages.email_verification.verified')],
             Response::HTTP_OK
         );
     }

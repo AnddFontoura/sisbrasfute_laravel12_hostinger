@@ -38,7 +38,7 @@ class MatchesController extends Controller
 
             if (!$match) {
                 return response()->json(
-                    ['message' => 'Partida não encontrada.'],
+                    ['message' => __('error.match.not_found')],
                     JsonResponse::HTTP_NOT_FOUND
                 );
             }
@@ -47,7 +47,7 @@ class MatchesController extends Controller
 
             if (!$team || $team->user_id !== auth()->id()) {
                 return response()->json(
-                    ['message' => 'Você não tem permissão para editar esta partida.'],
+                    ['message' => __('error.match.cannot_edit')],
                     JsonResponse::HTTP_FORBIDDEN
                 );
             }
@@ -55,7 +55,7 @@ class MatchesController extends Controller
 
         $this->matchesService->createOrUpdateMatch($data, $matchId);
 
-        return response()->json(['success' => 'Partida criada ou atualizada com sucesso'], JsonResponse::HTTP_OK);
+        return response()->json(['success' => __('messages.match.saved')], JsonResponse::HTTP_OK);
     }
 
     public function show(int $matchId): JsonResponse
@@ -64,7 +64,7 @@ class MatchesController extends Controller
 
         if (!$match) {
             return response()->json(
-                ['message' => 'Partida não encontrada'],
+                ['message' => __('error.match.not_found')],
                 JsonResponse::HTTP_NOT_FOUND
             );
         }
@@ -91,18 +91,18 @@ class MatchesController extends Controller
         $match = $this->matchesRepository->getById($matchId);
 
         if (!$match) {
-            return response()->json(['message' => 'Partida não encontrada.'], JsonResponse::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.match.not_found')], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $team = \App\Models\Team::find($match->created_by_team_id);
 
         if (!$team || $team->user_id !== auth()->id()) {
-            return response()->json(['message' => 'Você não tem permissão para desativar esta partida.'], JsonResponse::HTTP_FORBIDDEN);
+            return response()->json(['message' => __('error.match.cannot_deactivate')], JsonResponse::HTTP_FORBIDDEN);
         }
 
         $match->update(['status' => 0]);
 
-        return response()->json(['message' => 'Partida desativada com sucesso.'], JsonResponse::HTTP_OK);
+        return response()->json(['message' => __('messages.match.deactivated')], JsonResponse::HTTP_OK);
     }
 
     public function reactivate(int $matchId): JsonResponse
@@ -110,18 +110,18 @@ class MatchesController extends Controller
         $match = $this->matchesRepository->getById($matchId);
 
         if (!$match) {
-            return response()->json(['message' => 'Partida não encontrada.'], JsonResponse::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.match.not_found')], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $team = \App\Models\Team::find($match->created_by_team_id);
 
         if (!$team || $team->user_id !== auth()->id()) {
-            return response()->json(['message' => 'Você não tem permissão para reativar esta partida.'], JsonResponse::HTTP_FORBIDDEN);
+            return response()->json(['message' => __('error.match.cannot_reactivate')], JsonResponse::HTTP_FORBIDDEN);
         }
 
         $match->update(['status' => 1]);
 
-        return response()->json(['message' => 'Partida reativada com sucesso.'], JsonResponse::HTTP_OK);
+        return response()->json(['message' => __('messages.match.reactivated')], JsonResponse::HTTP_OK);
     }
 
     public function myMatches(Request $request): JsonResponse

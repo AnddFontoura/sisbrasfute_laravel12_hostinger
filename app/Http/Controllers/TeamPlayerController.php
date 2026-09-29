@@ -42,7 +42,7 @@ class TeamPlayerController extends Controller
             $this->teamPlayerService->unlinkPlayer($teamId, Auth::id());
 
             return response()->json(
-                ['message' => 'Jogador desvinculado com sucesso.'],
+                ['message' => __('messages.team_player.unlinked')],
                 JsonResponse::HTTP_OK
             );
         } catch (\Exception $e) {
@@ -63,7 +63,7 @@ class TeamPlayerController extends Controller
             $this->teamPlayerService->updateNotificationPreference($teamId, Auth::id(), $notifyMatch);
 
             return response()->json(
-                ['message' => 'Preferência de notificação atualizada com sucesso.'],
+                ['message' => __('messages.team_player.notification_preference_updated')],
                 JsonResponse::HTTP_OK
             );
         } catch (\Exception $e) {
@@ -83,7 +83,7 @@ class TeamPlayerController extends Controller
             $this->teamPlayerService->toggleActive($teamId, $playerId, $active, Auth::id());
 
             return response()->json(
-                ['message' => $active ? 'Jogador ativado com sucesso.' : 'Jogador inativado com sucesso.'],
+                ['message' => $active ? __('messages.team_player.activated') : __('messages.team_player.deactivated')],
                 JsonResponse::HTTP_OK
             );
         } catch (\Exception $e) {
