@@ -84,6 +84,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/deactivate/{teamId}', 'deactivate')->middleware('isTeamManager');
             Route::post('/reactivate/{teamId}', 'reactivate')->middleware('isTeamManager');
             Route::get('show/{teamId}', 'show');
+            Route::get('{teamId}/players', 'players');
             Route::get('{teamId}/performance', 'performance');
             Route::get('list/my-teams', 'listOfManagedTeamsByUser');
             Route::get('list/my-teams-full', 'myTeamsFull');
@@ -213,6 +214,7 @@ Route::middleware('auth:api')->group(function () {
         ->group(function () {
             Route::get('/', 'index');
             Route::get('my-matches', 'myMatches');
+            Route::get('team/{teamId}/upcoming', 'upcomingByTeam');
             Route::post('save/{matchId?}', 'save')->middleware('emailVerified');
             Route::post('{matchId}/deactivate', 'deactivate');
             Route::post('{matchId}/reactivate', 'reactivate');

@@ -27,6 +27,28 @@ class MatchesRepository extends BaseRepository
         return $sql->paginate(12);
     }
 
+    /**
+     * Próximas partidas de um time (como criador, mandante ou adversário),
+     * agendadas para o futuro, ordenadas da mais próxima para a mais distante.
+     * Retorna no máximo $limit registros ativos.
+     */
+    public function getUpcomingMatchesForTeam(int $teamId, int $limit = 5)
+    {
+        return $this->model
+            ->with('cityInfo.stateInfo')
+            ->where('status', 1)
+            ->whereNotNull('schedule')
+            ->where('schedule', '>=', now())
+            ->where(function ($q) use ($teamId) {
+                $q->where('created_by_team_id', $teamId)
+                  ->orWhere('my_team_id', $teamId)
+                  ->orWhere('enemy_team_id', $teamId);
+            })
+            ->orderBy('schedule', 'asc')
+            ->limit($limit)
+            ->get();
+    }
+
     public function getById(int $id)
     {
         return $this->model

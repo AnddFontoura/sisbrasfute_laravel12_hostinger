@@ -28,6 +28,17 @@ class MatchesController extends Controller
     }
 
 
+    /**
+     * Próximas partidas de um time (limitado a 5 por padrão), disponível
+     * publicamente para exibição na tela de visualização do time.
+     */
+    public function upcomingByTeam(int $teamId): JsonResponse
+    {
+        $matches = $this->matchesRepository->getUpcomingMatchesForTeam($teamId, 5);
+
+        return response()->json($matches, JsonResponse::HTTP_OK);
+    }
+
     public function save(MatchesCreateOrUpdateRequest $request, ?int $matchId = null): JsonResponse
     {
         $data = $request->validated();

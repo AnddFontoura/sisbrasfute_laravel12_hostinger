@@ -29,6 +29,13 @@ class TeamPlayerService extends BaseService
         return $this->teamPlayerRepository->getPlayersFromTeam($filter, $teamId);
     }
 
+    public function getActivePublicPlayersFromTeam(array $filter, int $teamId)
+    {
+        $this->teamService->checkIfTeamExists($teamId);
+
+        return $this->teamPlayerRepository->getActivePublicPlayersFromTeam($filter, $teamId);
+    }
+
     public function getTeamPlayer(int $teamId, int $playerId): TeamPlayer
     {
         $this->teamService->checkIfTeamExists($teamId);

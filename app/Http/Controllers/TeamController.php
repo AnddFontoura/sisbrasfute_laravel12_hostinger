@@ -62,6 +62,22 @@ class TeamController extends Controller
         return response()->json($team, Response::HTTP_OK);
     }
 
+    /**
+     * Lista pública, paginada (10 por página), dos jogadores ativos do time.
+     * Aceita filtro parcial por nome via query param "name".
+     * Disponível para qualquer usuário autenticado (inclusive de fora do time).
+     */
+    public function players(int $teamId, Request $request): JsonResponse
+    {
+        $filter = [
+            'name' => $request->query('name'),
+        ];
+
+        $players = $this->teamPlayerService->getActivePublicPlayersFromTeam($filter, $teamId);
+
+        return response()->json($players, Response::HTTP_OK);
+    }
+
     public function listOfManagedTeamsByUser()
     {
         $user = Auth::user();

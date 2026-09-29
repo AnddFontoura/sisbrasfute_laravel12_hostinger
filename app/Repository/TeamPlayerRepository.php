@@ -55,6 +55,27 @@ class TeamPlayerRepository extends BaseRepository
             ->paginate(12);
     }
 
+    /**
+     * Lista pública dos jogadores ativos de um time, paginada (10 por página).
+     * Aceita filtro parcial por nome. Usada na tela de visualização do time
+     * para que quem é de fora do time possa ver os jogadores cadastrados.
+     */
+    public function getActivePublicPlayersFromTeam(array $filter, int $teamId)
+    {
+        $sql = $this->model
+            ->with(['gamePositionInfo'])
+            ->where('team_id', $teamId)
+            ->where('active', true);
+
+        // Filtro por nome (busca parcial)
+        if (!empty($filter['name'])) {
+            $sql->where('name', 'LIKE', '%' . $filter['name'] . '%');
+        }
+
+        return $sql->orderBy('name', 'asc')
+            ->paginate(10);
+    }
+
     public function firstByUserIdAndTeamId(int $userId, int $teamId)
     {
         return $this->model
