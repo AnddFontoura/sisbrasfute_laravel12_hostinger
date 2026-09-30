@@ -108,7 +108,7 @@ class TeamUniformController extends Controller
     {
         try {
             $this->teamUniformService->delete($teamId, $uniformId);
-            return response()->json(['success' => 'Camisa removida com sucesso'], JsonResponse::HTTP_OK);
+            return response()->json(['success' => __('messages.team.uniform_removed')], JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(
                 ['message' => $e->getMessage()],

@@ -30,7 +30,7 @@ class IsTeamAdminMiddleware
 
         if (!$team || $team->user_id !== Auth::id()) {
             return response()->json(
-                ['error' => 'Você não tem permissão para acessar essa página'],
+                ['error' => __('error.auth.forbidden')],
                 Response::HTTP_FORBIDDEN
             );
         }

@@ -45,13 +45,13 @@ class NotificationController extends Controller
     {
         $this->notificationService->markAsRead($notificationUserId, auth()->id());
 
-        return response()->json(['message' => 'Notificação marcada como lida.'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.notification.marked_read')], Response::HTTP_OK);
     }
 
     public function markAllAsRead(): JsonResponse
     {
         $this->notificationService->markAllAsRead(auth()->id());
 
-        return response()->json(['message' => 'Todas as notificações foram marcadas como lidas.'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.notification.all_marked_read')], Response::HTTP_OK);
     }
 }

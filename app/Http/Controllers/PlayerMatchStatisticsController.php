@@ -26,7 +26,7 @@ class PlayerMatchStatisticsController extends Controller
 
         if (!$match) {
             return response()->json(
-                ['message' => 'Partida não encontrada.'],
+                ['message' => __('error.match.not_found')],
                 JsonResponse::HTTP_NOT_FOUND
             );
         }
@@ -35,7 +35,7 @@ class PlayerMatchStatisticsController extends Controller
 
         if (!$team || $team->user_id !== auth()->id()) {
             return response()->json(
-                ['message' => 'Você não tem permissão para gerenciar estatísticas desta partida.'],
+                ['message' => __('error.match.stats_forbidden')],
                 JsonResponse::HTTP_FORBIDDEN
             );
         }
@@ -55,7 +55,7 @@ class PlayerMatchStatisticsController extends Controller
 
         if (!$match) {
             return response()->json(
-                ['message' => 'Partida não encontrada.'],
+                ['message' => __('error.match.not_found')],
                 JsonResponse::HTTP_NOT_FOUND
             );
         }
@@ -64,7 +64,7 @@ class PlayerMatchStatisticsController extends Controller
 
         if (!$team || $team->user_id !== auth()->id()) {
             return response()->json(
-                ['message' => 'Você não tem permissão para gerenciar estatísticas desta partida.'],
+                ['message' => __('error.match.stats_forbidden')],
                 JsonResponse::HTTP_FORBIDDEN
             );
         }
@@ -74,7 +74,7 @@ class PlayerMatchStatisticsController extends Controller
         $this->playerMatchStatisticsService->upsertStatistics($matchId, $validated['statistics']);
 
         return response()->json(
-            ['message' => 'Estatísticas salvas com sucesso.'],
+            ['message' => __('messages.match.stats_saved')],
             JsonResponse::HTTP_OK
         );
     }
@@ -89,14 +89,14 @@ class PlayerMatchStatisticsController extends Controller
 
         if (!$team) {
             return response()->json(
-                ['message' => 'Time não encontrado.'],
+                ['message' => __('error.team.team_not_found')],
                 JsonResponse::HTTP_NOT_FOUND
             );
         }
 
         if ($team->user_id !== auth()->id()) {
             return response()->json(
-                ['message' => 'Você não tem permissão para gerenciar estatísticas desta partida.'],
+                ['message' => __('error.match.stats_forbidden')],
                 JsonResponse::HTTP_FORBIDDEN
             );
         }

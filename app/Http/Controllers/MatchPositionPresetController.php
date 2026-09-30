@@ -56,7 +56,7 @@ class MatchPositionPresetController extends Controller
 
         if (!$preset) {
             return response()->json(
-                ['message' => 'Preset não encontrado.'],
+                ['message' => __('error.preset.not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -72,7 +72,7 @@ class MatchPositionPresetController extends Controller
 
         if (!$preset) {
             return response()->json(
-                ['message' => 'Preset não encontrado.'],
+                ['message' => __('error.preset.not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -109,13 +109,13 @@ class MatchPositionPresetController extends Controller
 
         if (!$preset) {
             return response()->json(
-                ['message' => 'Preset não encontrado.'],
+                ['message' => __('error.preset.not_found')],
                 Response::HTTP_NOT_FOUND
             );
         }
 
         $preset->delete();
 
-        return response()->json(['message' => 'Preset removido com sucesso.'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.preset.removed')], Response::HTTP_OK);
     }
 }

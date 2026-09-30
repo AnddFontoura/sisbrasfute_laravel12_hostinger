@@ -34,7 +34,7 @@ class PasswordResetController extends Controller
         }
 
         return response()->json([
-            'message' => 'Se o email estiver cadastrado, enviaremos um link de recuperação.',
+            'message' => __('messages.password_reset.link_sent'),
         ], 200);
     }
 
@@ -60,12 +60,12 @@ class PasswordResetController extends Controller
 
         if ($status === Password::PASSWORD_RESET) {
             return response()->json([
-                'message' => 'Senha redefinida com sucesso!',
+                'message' => __('messages.password_reset.reset'),
             ], 200);
         }
 
         return response()->json([
-            'message' => 'Token inválido ou expirado.',
+            'message' => __('error.password_reset.invalid_token'),
         ], 422);
     }
 }

@@ -32,7 +32,7 @@ class TeamApplicationController extends Controller
 
         $this->teamApplyService->createApplication($data);
 
-        return response()->json(['message' => 'Team application created successfully'], Response::HTTP_CREATED);
+        return response()->json(['message' => __('messages.team_application.created')], Response::HTTP_CREATED);
     }
 
     public function answer(TeamApplyAnswerRequest $request, int $teamId, int $teamApplicationId)
@@ -41,6 +41,6 @@ class TeamApplicationController extends Controller
 
         $this->teamApplyService->answerApplication($data, $teamId, $teamApplicationId);
 
-        return response()->json(['message' => 'Team application answered successfully'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.team_application.answered')], Response::HTTP_OK);
     }
 }
