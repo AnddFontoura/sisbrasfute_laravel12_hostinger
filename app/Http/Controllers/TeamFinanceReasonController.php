@@ -63,7 +63,7 @@ class TeamFinanceReasonController extends Controller
     {
         try {
             $this->teamFinanceReasonService->delete($teamId, $reasonId);
-            return response()->json(['success' => 'Razão removida com sucesso'], JsonResponse::HTTP_OK);
+            return response()->json(['success' => __('messages.team.finance_reason_removed')], JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(
                 ['message' => $e->getMessage()],

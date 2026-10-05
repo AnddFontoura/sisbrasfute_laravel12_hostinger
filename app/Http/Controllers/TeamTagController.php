@@ -65,7 +65,7 @@ class TeamTagController extends Controller
     {
         try {
             $this->teamTagService->delete($teamId, $tagId);
-            return response()->json(['success' => 'Tag removida com sucesso'], JsonResponse::HTTP_OK);
+            return response()->json(['success' => __('messages.team.tag_removed')], JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(
                 ['message' => $e->getMessage()],

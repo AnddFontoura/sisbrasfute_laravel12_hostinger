@@ -44,11 +44,11 @@ class TeamController extends Controller
         if ($teamId) {
             $teamInfo = $this->teamService->updateTeam($data, $teamId);
 
-            $message = "Time atualizado com sucesso";
+            $message = __('messages.team.updated');
         } else {
             $teamInfo = $this->teamService->createTeam($data);
 
-            $message = "Time criado com sucesso";
+            $message = __('messages.team.created');
         }
 
         return response()->json($message, Response::HTTP_CREATED);
@@ -91,12 +91,12 @@ class TeamController extends Controller
         $team = $this->teamRepository->getById($teamId);
 
         if (!$team) {
-            return response()->json(['message' => 'Time não encontrado.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.team.team_not_found')], Response::HTTP_NOT_FOUND);
         }
 
         $team->update(['status' => 0]);
 
-        return response()->json(['message' => 'Time desativado com sucesso.'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.team.deactivated')], Response::HTTP_OK);
     }
 
     public function reactivate(int $teamId): JsonResponse
@@ -104,12 +104,12 @@ class TeamController extends Controller
         $team = $this->teamRepository->getById($teamId);
 
         if (!$team) {
-            return response()->json(['message' => 'Time não encontrado.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('error.team.team_not_found')], Response::HTTP_NOT_FOUND);
         }
 
         $team->update(['status' => 1]);
 
-        return response()->json(['message' => 'Time reativado com sucesso.'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.team.reactivated')], Response::HTTP_OK);
     }
 
     public function performance(int $teamId, Request $request): JsonResponse

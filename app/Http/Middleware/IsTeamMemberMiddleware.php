@@ -28,7 +28,7 @@ class IsTeamMemberMiddleware
 
         if (!$teamId) {
             return response()->json(
-                ['error' => 'Você não tem permissão para acessar essa página'],
+                ['error' => __('error.auth.forbidden')],
                 Response::HTTP_FORBIDDEN
             );
         }
@@ -39,7 +39,7 @@ class IsTeamMemberMiddleware
 
         if (!$teamHasPlayer) {
             return response()->json(
-                ['error' => 'Você não tem permissão para acessar essa página'],
+                ['error' => __('error.auth.forbidden')],
                 Response::HTTP_FORBIDDEN
             );
         }

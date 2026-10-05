@@ -31,7 +31,7 @@ class PlayerController extends Controller
 
         $this->playerService->saveOrUpdate($data);
 
-        return response()->json(['Dado atualizado com sucesso'], JsonResponse::HTTP_OK);
+        return response()->json([__('messages.player.data_updated')], JsonResponse::HTTP_OK);
     }
 
     public function show(?int $id = null): JsonResponse

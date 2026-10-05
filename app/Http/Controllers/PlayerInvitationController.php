@@ -23,7 +23,7 @@ class PlayerInvitationController extends Controller
 
         $this->playerInvitationService->sendInvitation($data, $teamId);
 
-        return response()->json(['message' => 'Convite enviado com sucesso'], Response::HTTP_CREATED);
+        return response()->json(['message' => __('messages.player_invitation.sent')], Response::HTTP_CREATED);
     }
 
     public function index(int $teamId): JsonResponse
@@ -55,6 +55,6 @@ class PlayerInvitationController extends Controller
 
         $this->playerInvitationService->acceptInvitation($invitationId, $userId);
 
-        return response()->json(['message' => 'Convite aceito com sucesso'], Response::HTTP_OK);
+        return response()->json(['message' => __('messages.player_invitation.accepted')], Response::HTTP_OK);
     }
 }

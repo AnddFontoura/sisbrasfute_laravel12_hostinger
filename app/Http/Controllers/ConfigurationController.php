@@ -38,8 +38,8 @@ class ConfigurationController extends Controller
             'cpf' => ['nullable', 'string', 'max:14', 'unique:users,cpf,' . $user->id, 'regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/'],
             'rg' => ['nullable', 'string', 'max:20'],
         ], [
-            'cpf.regex' => 'O CPF deve estar no formato 000.000.000-00.',
-            'cpf.unique' => 'Este CPF já está vinculado a outra conta.',
+            'cpf.regex' => __('validation.custom.cpf.regex'),
+            'cpf.unique' => __('validation.custom.cpf.unique'),
         ]);
 
         if ($validator->fails()) {
@@ -52,7 +52,7 @@ class ConfigurationController extends Controller
         // Validação de dígitos verificadores do CPF
         if ($request->cpf && !$this->isValidCpf($request->cpf)) {
             return response()->json(
-                ['errors' => ['cpf' => ['CPF inválido. Verifique os dígitos.']]],
+                ['errors' => ['cpf' => [__('validation.custom.cpf.invalid')]]],
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         }
@@ -64,7 +64,7 @@ class ConfigurationController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Dados atualizados com sucesso.',
+            'message' => __('messages.account.updated'),
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
@@ -85,10 +85,10 @@ class ConfigurationController extends Controller
             'current_password' => 'required|string',
             'new_password' => 'required|string|min:8|confirmed',
         ], [
-            'current_password.required' => 'Informe a senha atual.',
-            'new_password.required' => 'Informe a nova senha.',
-            'new_password.min' => 'A nova senha deve ter no mínimo 8 caracteres.',
-            'new_password.confirmed' => 'A confirmação da nova senha não confere.',
+            'current_password.required' => __('validation.custom.current_password.required'),
+            'new_password.required' => __('validation.custom.new_password.required'),
+            'new_password.min' => __('validation.custom.new_password.min'),
+            'new_password.confirmed' => __('validation.custom.new_password.confirmed'),
         ]);
 
         if ($validator->fails()) {
@@ -100,7 +100,7 @@ class ConfigurationController extends Controller
 
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json(
-                ['errors' => ['current_password' => ['Senha atual incorreta.']]],
+                ['errors' => ['current_password' => [__('validation.custom.current_password.incorrect')]]],
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         }
@@ -110,7 +110,7 @@ class ConfigurationController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Senha atualizada com sucesso.',
+            'message' => __('messages.account.password_updated'),
         ], Response::HTTP_OK);
     }
 

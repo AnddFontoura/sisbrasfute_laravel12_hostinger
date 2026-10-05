@@ -74,7 +74,7 @@ class PlayerSelfAssignController extends Controller
             $this->matchPositionService->releasePosition($matchId, $userId);
 
             return response()->json(
-                ['success' => 'Posição liberada com sucesso'],
+                ['success' => __('messages.match.position_released')],
                 JsonResponse::HTTP_OK
             );
         } catch (\Exception $e) {

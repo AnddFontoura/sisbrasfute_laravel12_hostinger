@@ -13,18 +13,18 @@ class TeamMatchesController extends Controller
     public function createTeamMatch(TeamMatchesCreateOrUpdateRequest $request): JsonResponse
     {
 
-        return response()->json(['success' => 'Partida criada com sucesso'], JsonResponse::HTTP_OK);
+        return response()->json(['success' => __('messages.match.created')], JsonResponse::HTTP_OK);
     }
 
     public function joinTeamMatch(TeamMatchesJoinRequest $request): JsonResponse
     {
 
-        return response()->json(['success' => 'Partida criada com sucesso'], JsonResponse::HTTP_OK);
+        return response()->json(['success' => __('messages.match.created')], JsonResponse::HTTP_OK);
     }
 
     public function leaveTeamMatch(TeamMatchesLeaveRequest $request): JsonResponse
     {
 
-        return response()->json(['success' => 'Partida criada com sucesso'], JsonResponse::HTTP_OK);
+        return response()->json(['success' => __('messages.match.created')], JsonResponse::HTTP_OK);
     }
 }

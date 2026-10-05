@@ -35,10 +35,10 @@ class TeamFinanceController extends Controller
 
         if ($teamFinanceId) {
             $this->teamFinanceService->updateTeamFinance($data, $teamId, $teamFinanceId);
-            $message = "Registro financeiro atualizado com sucesso";
+            $message = __('messages.finance.updated');
         } else {
             $this->teamFinanceService->createTeamFinance($data, $teamId);
-            $message = "Registro financeiro criado com sucesso";
+            $message = __('messages.finance.created');
         }
 
         return response()->json(['message' => $message], JsonResponse::HTTP_CREATED);
@@ -50,7 +50,7 @@ class TeamFinanceController extends Controller
 
         if (!$teamFinance || $teamFinance->team_id !== $teamId) {
             return response()->json(
-                ['message' => 'Registro não encontrado'],
+                ['message' => __('error.finance.record_not_found')],
                 JsonResponse::HTTP_NOT_FOUND
             );
         }

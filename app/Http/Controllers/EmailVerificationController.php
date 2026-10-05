@@ -22,13 +22,13 @@ class EmailVerificationController extends Controller
             // Check if it's expired vs tampered
             if (now()->timestamp > $request->query('expires')) {
                 return response()->json([
-                    'message' => 'O link de verificação expirou. Solicite um novo.',
+                    'message' => __('error.email_verification.link_expired'),
                     'error' => 'link_expired',
                 ], Response::HTTP_GONE);
             }
 
             return response()->json([
-                'message' => 'Link de verificação inválido.',
+                'message' => __('error.email_verification.invalid_link'),
                 'error' => 'invalid_signature',
             ], Response::HTTP_FORBIDDEN);
         }
@@ -37,21 +37,21 @@ class EmailVerificationController extends Controller
 
         if (!$user) {
             return response()->json([
-                'message' => 'Usuário não encontrado.',
+                'message' => __('error.user.not_found'),
                 'error' => 'user_not_found',
             ], Response::HTTP_NOT_FOUND);
         }
 
         if (!hash_equals(sha1($user->email), $hash)) {
             return response()->json([
-                'message' => 'Link de verificação inválido.',
+                'message' => __('error.email_verification.invalid_link'),
                 'error' => 'invalid_signature',
             ], Response::HTTP_FORBIDDEN);
         }
 
         if ($user->email_verified_at !== null) {
             return response()->json([
-                'message' => 'Email já verificado.',
+                'message' => __('messages.email_verification.already_verified'),
             ], Response::HTTP_OK);
         }
 
@@ -59,7 +59,7 @@ class EmailVerificationController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'Email verificado com sucesso!',
+            'message' => __('messages.email_verification.verified'),
         ], Response::HTTP_OK);
     }
 
@@ -72,7 +72,7 @@ class EmailVerificationController extends Controller
 
         if ($user->email_verified_at !== null) {
             return response()->json([
-                'message' => 'Email já verificado.',
+                'message' => __('messages.email_verification.already_verified'),
             ], Response::HTTP_OK);
         }
 
@@ -80,7 +80,7 @@ class EmailVerificationController extends Controller
 
         if (RateLimiter::tooManyAttempts($throttleKey, 1)) {
             return response()->json([
-                'message' => 'Aguarde 60 segundos antes de solicitar outro email.',
+                'message' => __('error.email_verification.throttled'),
                 'error' => 'throttled',
             ], Response::HTTP_TOO_MANY_REQUESTS);
         }
@@ -105,7 +105,7 @@ class EmailVerificationController extends Controller
         Mail::to($user->email)->send(new EmailVerificationMail($frontendUrl, $user->name));
 
         return response()->json([
-            'message' => 'Email de verificação reenviado.',
+            'message' => __('messages.email_verification.resent'),
         ], Response::HTTP_OK);
     }
 }
