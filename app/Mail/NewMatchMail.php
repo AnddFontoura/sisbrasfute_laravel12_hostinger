@@ -51,7 +51,9 @@ class NewMatchMail extends Mailable implements ShouldQueue
                 'myTeamName' => $this->match->my_team_name,
                 'enemyTeamName' => $this->match->enemy_team_name,
                 'schedule' => $this->match->schedule_br,
-                'location' => strip_tags($this->match->location ?? ''),
+                // Mantém a formatação (quebras de linha, listas, negrito) criada
+                // no editor do site, removendo apenas tags perigosas/indesejadas.
+                'location' => $this->sanitizeLocationHtml($this->match->location ?? ''),
                 'cityName' => $this->match->cityInfo?->name ?? '',
                 'tagName' => $this->match->tag?->name ?? null,
             ],
@@ -66,5 +68,39 @@ class NewMatchMail extends Mailable implements ShouldQueue
     public function attachments(): array
     {
         return [];
+    }
+
+    /**
+     * Mantém a formatação básica do HTML gerado pelo editor do site
+     * (parágrafos, quebras de linha, listas, ênfase e links), removendo
+     * tags perigosas e atributos que possam carregar scripts.
+     */
+    private function sanitizeLocationHtml(string $html): string
+    {
+        if ($html === '') {
+            return '';
+        }
+
+        // Allowlist de tags de formatação que o editor (Quill) produz.
+        $allowedTags = '<p><br><b><strong><i><em><u><s><ul><ol><li><a><span>';
+        $clean = strip_tags($html, $allowedTags);
+
+        // Remove quaisquer atributos que não sejam href em links,
+        // evitando injeção via on*, style, etc.
+        $clean = preg_replace_callback(
+            '/<a\b[^>]*>/i',
+            function ($matches) {
+                if (preg_match('/\bhref\s*=\s*("[^"]*"|\'[^\']*\'|[^\s">]+)/i', $matches[0], $href)) {
+                    return '<a ' . $href[0] . ' target="_blank" rel="noopener noreferrer">';
+                }
+                return '<a>';
+            },
+            $clean
+        );
+
+        // Remove atributos de todas as demais tags permitidas.
+        $clean = preg_replace('/<(?!a\b)([a-z0-9]+)\b[^>]*>/i', '<$1>', $clean);
+
+        return trim($clean);
     }
 }

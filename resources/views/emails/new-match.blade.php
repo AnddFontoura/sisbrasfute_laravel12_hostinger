@@ -52,11 +52,18 @@
                                                                 📅 {{ $schedule }}
                                                             </td>
                                                         </tr>
-                                                        <!-- Location -->
+                                                        <!-- Location / Description (HTML from the site editor) -->
                                                         @if(!empty($location))
                                                         <tr>
-                                                            <td style="font-size: 15px; color: #374151; padding-bottom: 12px;">
-                                                                📍 {{ $location }}
+                                                            <td style="font-size: 15px; color: #374151; line-height: 1.6; padding-bottom: 12px;">
+                                                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                                                    <tr>
+                                                                        <td valign="top" style="width: 24px; font-size: 15px; padding-right: 4px;">📍</td>
+                                                                        <td valign="top" style="font-size: 15px; color: #374151; line-height: 1.6;">
+                                                                            <div style="margin: 0;">{!! $location !!}</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
                                                             </td>
                                                         </tr>
                                                         @endif
