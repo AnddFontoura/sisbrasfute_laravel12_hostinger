@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\SanitizesRichText;
 use App\Models\Matches;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 class PositionAvailableMail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, SanitizesRichText;
 
     public $tries = 3;
 
@@ -51,7 +52,9 @@ class PositionAvailableMail extends Mailable implements ShouldQueue
                 'myTeamName' => $this->match->my_team_name,
                 'enemyTeamName' => $this->match->enemy_team_name,
                 'schedule' => $this->match->schedule_br,
-                'location' => strip_tags($this->match->location ?? ''),
+                // Mantém a formatação (quebras de linha, listas, negrito) criada
+                // no editor do site, removendo apenas tags perigosas/indesejadas.
+                'location' => $this->sanitizeRichTextHtml($this->match->location ?? ''),
                 'cityName' => $this->match->cityInfo?->name ?? '',
                 'tagName' => $this->match->tag?->name ?? null,
             ],
