@@ -14,6 +14,7 @@ class PlayerRepository extends BaseRepository
     public function paginatedByName()
     {
         return $this->model
+            ->with('cityInfo.stateInfo')
             ->orderBy('name')
             ->paginate(15);
     }
