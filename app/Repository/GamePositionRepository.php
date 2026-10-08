@@ -46,21 +46,9 @@ class GamePositionRepository extends BaseRepository
 
     public function getOrderedByNameWithParameters(array $parameters): ?Collection
     {
-        $teamId = $parameters['teamId'] ?? $parameters['teamID'] ?? null;
-
-        $sql = $this->model
+        return $this->model
             ->select('game_positions.*')
-            ->orderBy('game_positions.name', $parameters['order'] ?? 'asc');
-
-        if ($teamId) {
-            $sql->leftJoin('team_search_positions', function ($join) use ($teamId) {
-                $join->on('team_search_positions.game_position_id', '=', 'game_positions.id')
-                    ->where('team_search_positions.team_id', '=', $teamId)
-                    ->whereNull('team_search_positions.deleted_at');
-            })
-                ->whereNull('team_search_positions.id');
-        }
-
-        return $sql->get();
+            ->orderBy('game_positions.name', $parameters['order'] ?? 'asc')
+            ->get();
     }
 }
