@@ -7,6 +7,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CourtController;
+use App\Http\Controllers\CourtInvitationController;
+use App\Http\Controllers\CourtTeamController;
 use App\Http\Controllers\GamePositionController;
 use App\Http\Controllers\MatchesController;
 use App\Http\Controllers\MatchPositionController;
@@ -100,6 +102,29 @@ Route::middleware('auth:api')->group(function () {
             Route::post('save', 'save')->middleware('emailVerified');
             Route::post('update/{courtId}', 'save');
             Route::delete('delete/{courtId}', 'destroy');
+        });
+
+    // Court team invitations (authorization is service-asserted; no route middleware).
+    Route::prefix('court-invitation')
+        ->name('court-invitation.')
+        ->controller(CourtInvitationController::class)
+        ->group(function () {
+            Route::post('/{courtId}/send', 'send');
+            Route::get('/{courtId}/list', 'index');
+            Route::delete('/{courtId}/cancel/{invitationId}', 'cancel');
+            Route::get('/received', 'received');
+            Route::post('/accept', 'accept');
+            Route::post('/reject', 'reject');
+        });
+
+    // Court team membership management (authorization is service-asserted).
+    Route::prefix('court-team')
+        ->name('court-team.')
+        ->controller(CourtTeamController::class)
+        ->group(function () {
+            Route::get('/{courtId}/members', 'index');
+            Route::patch('/{courtId}/members/{userId}/role', 'updateRole');
+            Route::delete('/{courtId}/members/{userId}', 'remove');
         });
 
     Route::prefix('team-matches')

@@ -96,7 +96,16 @@ return [
     ],
 
     'court_invitation' => [
-        'forbidden' => 'Você não tem permissão para gerenciar esta quadra.',
+        'forbidden' => 'Você não tem permissão para gerenciar a equipe desta quadra.',
+        'not_found' => 'Convite não encontrado.',
+        'expired' => 'Este convite expirou.',
+        'already_resolved' => 'Este convite já foi respondido.',
+        'email_mismatch' => 'Este convite foi enviado para outro email.',
+        'duplicate_pending' => 'Já existe um convite pendente para este email nesta quadra.',
+        'already_member' => 'Esta pessoa já faz parte da equipe desta quadra.',
+        'cannot_invite_self' => 'Você não pode convidar a si mesmo.',
+        'cannot_remove_owner' => 'O proprietário não pode ser removido da equipe.',
+        'cannot_set_owner' => 'Não é possível definir a função de proprietário.',
     ],
 
 ];

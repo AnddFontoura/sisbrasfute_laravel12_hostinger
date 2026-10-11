@@ -56,6 +56,18 @@ return [
         'accepted' => 'Invitation accepted successfully.',
     ],
 
+    'court_invitation' => [
+        'sent' => 'Invitation sent successfully.',
+        'accepted' => 'Invitation accepted successfully.',
+        'rejected' => 'Invitation rejected.',
+        'cancelled' => 'Invitation cancelled.',
+    ],
+
+    'court_team' => [
+        'role_updated' => 'Member role updated.',
+        'member_removed' => 'Member removed from the team.',
+    ],
+
     'team' => [
         'created' => 'Team created successfully.',
         'updated' => 'Team updated successfully.',

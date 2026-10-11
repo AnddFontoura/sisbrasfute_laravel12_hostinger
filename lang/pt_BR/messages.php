@@ -56,6 +56,18 @@ return [
         'accepted' => 'Convite aceito com sucesso.',
     ],
 
+    'court_invitation' => [
+        'sent' => 'Convite enviado com sucesso.',
+        'accepted' => 'Convite aceito com sucesso.',
+        'rejected' => 'Convite recusado.',
+        'cancelled' => 'Convite cancelado.',
+    ],
+
+    'court_team' => [
+        'role_updated' => 'Função do membro atualizada.',
+        'member_removed' => 'Membro removido da equipe.',
+    ],
+
     'team' => [
         'created' => 'Time criado com sucesso.',
         'updated' => 'Time atualizado com sucesso.',

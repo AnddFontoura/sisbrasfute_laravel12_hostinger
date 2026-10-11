@@ -96,7 +96,16 @@ return [
     ],
 
     'court_invitation' => [
-        'forbidden' => 'You do not have permission to manage this court.',
+        'forbidden' => 'You do not have permission to manage this court team.',
+        'not_found' => 'Invitation not found.',
+        'expired' => 'This invitation has expired.',
+        'already_resolved' => 'This invitation has already been answered.',
+        'email_mismatch' => 'This invitation was sent to a different email.',
+        'duplicate_pending' => 'There is already a pending invitation for this email on this court.',
+        'already_member' => 'This person is already part of this court team.',
+        'cannot_invite_self' => 'You cannot invite yourself.',
+        'cannot_remove_owner' => 'The owner cannot be removed from the team.',
+        'cannot_set_owner' => 'The owner role cannot be assigned.',
     ],
 
 ];
