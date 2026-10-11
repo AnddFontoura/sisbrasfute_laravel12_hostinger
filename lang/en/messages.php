@@ -104,4 +104,12 @@ return [
         'answered' => 'Team application answered successfully.',
     ],
 
+    'court' => [
+        'created' => 'Court created successfully.',
+        'updated' => 'Court updated successfully.',
+        'deleted' => 'Court removed successfully.',
+        'approved' => 'Court approved successfully.',
+        'rejected' => 'Court rejected successfully.',
+    ],
+
 ];

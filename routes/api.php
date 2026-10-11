@@ -6,6 +6,7 @@ use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\CourtController;
 use App\Http\Controllers\GamePositionController;
 use App\Http\Controllers\MatchesController;
 use App\Http\Controllers\MatchPositionController;
@@ -88,6 +89,17 @@ Route::middleware('auth:api')->group(function () {
             Route::get('{teamId}/performance', 'performance');
             Route::get('list/my-teams', 'listOfManagedTeamsByUser');
             Route::get('list/my-teams-full', 'myTeamsFull');
+        });
+
+    Route::prefix('court')
+        ->name('court.')
+        ->controller(CourtController::class)
+        ->group(function () {
+            Route::get('my-courts', 'myCourts');
+            Route::get('show/{courtId}', 'show');
+            Route::post('save', 'save')->middleware('emailVerified');
+            Route::post('update/{courtId}', 'save');
+            Route::delete('delete/{courtId}', 'destroy');
         });
 
     Route::prefix('team-matches')
@@ -328,6 +340,10 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/game-positions/{id}', 'showGamePosition');
             Route::put('/game-positions/{id}', 'updateGamePosition');
             Route::post('/users/{userId}/verify-email', 'verifyUserEmail');
+            Route::get('/courts', 'courts');
+            Route::get('/courts/{courtId}', 'showCourt');
+            Route::post('/courts/{courtId}/approve', 'approveCourt');
+            Route::post('/courts/{courtId}/reject', 'rejectCourt');
         });
 
     Route::prefix('admin')

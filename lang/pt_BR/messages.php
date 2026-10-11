@@ -104,4 +104,12 @@ return [
         'answered' => 'Candidatura ao time respondida com sucesso.',
     ],
 
+    'court' => [
+        'created' => 'Quadra criada com sucesso.',
+        'updated' => 'Quadra atualizada com sucesso.',
+        'deleted' => 'Quadra removida com sucesso.',
+        'approved' => 'Quadra aprovada com sucesso.',
+        'rejected' => 'Quadra rejeitada com sucesso.',
+    ],
+
 ];

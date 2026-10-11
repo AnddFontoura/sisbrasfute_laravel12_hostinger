@@ -84,4 +84,15 @@ return [
         'invalid_token' => 'Invalid or expired token.',
     ],
 
+    'court' => [
+        'not_found' => 'Court not found.',
+        'not_owner' => 'You do not have permission to access this court.',
+        'upload_failed' => 'Failed to upload court photos.',
+        'invalid_status_transition' => 'This court cannot transition to the requested status.',
+        'photos_range' => 'A court must have between 1 and 10 photos.',
+        'duplicate_schedule_weekday' => 'Each weekday can only be configured once.',
+        'schedule_window_required' => 'Active days require a start time, end time and reservation duration.',
+        'schedule_window_invalid' => 'The time window must be valid and fit at least one reservation slot.',
+    ],
+
 ];

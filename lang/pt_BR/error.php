@@ -84,4 +84,15 @@ return [
         'invalid_token' => 'Token inválido ou expirado.',
     ],
 
+    'court' => [
+        'not_found' => 'Quadra não encontrada.',
+        'not_owner' => 'Você não tem permissão para acessar esta quadra.',
+        'upload_failed' => 'Falha ao enviar as fotos da quadra.',
+        'invalid_status_transition' => 'Esta quadra não pode mudar para o status solicitado.',
+        'photos_range' => 'Uma quadra deve ter entre 1 e 10 fotos.',
+        'duplicate_schedule_weekday' => 'Cada dia da semana só pode ser configurado uma vez.',
+        'schedule_window_required' => 'Dias ativos exigem horário de início, término e duração da reserva.',
+        'schedule_window_invalid' => 'A janela de horário deve ser válida e comportar ao menos uma reserva.',
+    ],
+
 ];
