@@ -1,0 +1,17 @@
+{
+    "verdict": "APPROVED",
+    "findings": [
+        {
+            "severity": "NIT",
+            "where": "backend tests (CLI environment)",
+            "problem": "The CLI PHP 8.5 ships without the dom/xml/xmlwriter/sqlite3/pdo_sqlite extensions, so `php artisan test` only runs after pointing PHP_INI_SCAN_DIR at manually extracted .so files (as the FEAT findings documented). This is an environment gap, not a code defect — once the extensions are loaded all 17 Court tests pass.",
+            "fix": "Install php8.5-xml and php8.5-sqlite3 (and php8.5-gd so feature tests can use UploadedFile::fake()->image()) on the CI/dev host for a clean, repeatable gate. No code change required."
+        },
+        {
+            "severity": "NIT",
+            "where": "tests/Feature/PaymentMethodFlowTest.php (pre-existing)",
+            "problem": "The full backend suite shows 8 PaymentMethodFlowTest failures. These predate the court work (the file is untouched by the court commits and fails on base commit 893ddc5), so they do not block this feature.",
+            "fix": "Track and fix the PaymentMethod fixtures separately; out of scope for court-owner ETAPA 1."
+        }
+    ]
+}

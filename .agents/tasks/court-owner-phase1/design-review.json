@@ -1,0 +1,30 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "severity": "NIT",
+      "where": "Response shapes section",
+      "problem": "Response shapes use snake_case relation keys (city_info, state_info, modality_info, pricing_rules, schedule_configs) while Court relation methods are camelCase; correct because Eloquent $snakeAttributes defaults true, but the mechanism is undocumented and an implementer might wrongly rename the relations.",
+      "fix": "Add one doc line: relation keys are snake_cased by Eloquent's default $snakeAttributes=true, so pricingRules serializes as pricing_rules (same as Team::cityInfo -> city_info)."
+    },
+    {
+      "severity": "NIT",
+      "where": "Future tables / Phase 3 note; API surface court/show",
+      "problem": "court/show/{id} is owner-scoped (403 if not owner); phase 3 public detail will need a separate non-owner endpoint, but the design does not state court/show is NOT reused publicly.",
+      "fix": "In Phase 3 note add: the public detail endpoint is new in phase 3; court/show/{id} stays owner-scoped and is not reused publicly."
+    },
+    {
+      "severity": "NIT",
+      "where": "Validation rules, scheduleConfigs.*",
+      "problem": "The slot-fit rule (end-start >= duration) is stated unconditionally, but an inactive weekday (isActive=false, court closed) may legitimately have blank/nonsensical window fields.",
+      "fix": "Clarify: when isActive=true, startTime/endTime/reservationDuration are required and end-start >= duration; when isActive=false, those fields are nullable and the slot-fit check is skipped."
+    },
+    {
+      "severity": "NIT",
+      "where": "court_pricing_rules 'rich enough' note",
+      "problem": "Phase 1 does not validate that pricing rules cover the schedule window, so a phase-2 slot could match no pricing rule and have a null price; acceptable but undocumented.",
+      "fix": "Add doc note: phase 2 must handle slots with no matching pricing rule (reject booking or require full coverage); phase 1 does not enforce coverage because pricing rules are optional on create."
+    }
+  ],
+  "reviewDoc": "/home/andrefontoura/PhpstormProjects/sisbrasfute_laravel12_hostinger/.agents/tasks/court-owner-phase1/design-review.md"
+}
