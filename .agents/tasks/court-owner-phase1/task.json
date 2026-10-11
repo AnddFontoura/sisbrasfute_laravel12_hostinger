@@ -1,7 +1,0 @@
-{
-  "task_id": "task-court-owner-phase1",
-  "task_description": "ETAPA 1 of the court-owner (Dono de Quadra) feature. Backend (Laravel 12): court domain tables/enums/models, owner-scoped CRUD (controller/service/repository/form-requests), admin approval endpoints on AdminController, routes, spatie court-owner role auto-grant on first court creation, bilingual i18n, and tests. Frontend (Vue 3): a labelName prop on ModalitiesSelect, src/router/court.js + registration + admin-courts route, a 'Quadras' nav group + admin approval nav entry, and the SFCs MyCourts/CourtForm/CourtShow/AdminCourtList. Implemented faithfully from the approved design.md; reservations (phase 2) and public browse (phase 3) are out of scope but their schema is anticipated.",
-  "status": "completed",
-  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
-  "blocked_reason": null
-}
