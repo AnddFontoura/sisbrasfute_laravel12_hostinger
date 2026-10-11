@@ -26,9 +26,11 @@ class CourtService extends BaseService
 
     public function getOwnedDetail(int $courtId): Court
     {
-        $court = $this->courtRepository->getOwnedDetail($courtId, Auth::id());
+        $court = $this->courtRepository->getDetailById($courtId);
 
-        $this->guardOwnedCourt($court, $courtId);
+        $this->assertCourtFound($court, $courtId);
+
+        app(CourtAuthorizationService::class)->assertCanEditData($courtId, Auth::id());
 
         return $court;
     }
@@ -59,6 +61,8 @@ class CourtService extends BaseService
 
                 $uploadedPaths = $this->storePhotos($court, $data['photos'] ?? []);
 
+                $this->courtRepository->createOwnerMembership($court->id, $user->id);
+
                 if (!$user->hasRole('court-owner')) {
                     $role = Role::firstOrCreate(['name' => 'court-owner', 'guard_name' => 'web']);
                     $user->assignRole($role);
@@ -80,9 +84,11 @@ class CourtService extends BaseService
 
     public function updateCourt(array $data, int $courtId): Court
     {
-        $court = $this->courtRepository->firstOwnedById($courtId, Auth::id());
+        $court = $this->courtRepository->getDetailById($courtId);
 
-        $this->guardOwnedCourt($court, $courtId);
+        $this->assertCourtFound($court, $courtId);
+
+        app(CourtAuthorizationService::class)->assertCanEditData($courtId, Auth::id());
 
         $uploadedPaths = [];
 
@@ -129,9 +135,11 @@ class CourtService extends BaseService
 
     public function delete(int $courtId): void
     {
-        $court = $this->courtRepository->firstOwnedById($courtId, Auth::id());
+        $court = $this->courtRepository->firstById($courtId);
 
-        $this->guardOwnedCourt($court, $courtId);
+        $this->assertCourtFound($court, $courtId);
+
+        app(CourtAuthorizationService::class)->assertCanManageTeam($courtId, Auth::id());
 
         $court->delete();
     }
@@ -187,23 +195,12 @@ class CourtService extends BaseService
         return $court->fresh();
     }
 
-    private function guardOwnedCourt(?Court $court, int $courtId): void
+    private function assertCourtFound(?Court $court, int $courtId): void
     {
-        if ($court) {
-            return;
-        }
-
-        $exists = $this->courtRepository->firstById($courtId);
-
-        throw_if($exists, new \Exception(
-            __('error.court.not_owner'),
-            Response::HTTP_FORBIDDEN
-        ));
-
-        throw new \Exception(
+        throw_if(!$court, new \Exception(
             __('error.court.not_found'),
             Response::HTTP_NOT_FOUND
-        );
+        ));
     }
 
     private function syncContacts(Court $court, array $contacts): void

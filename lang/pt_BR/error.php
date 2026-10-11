@@ -95,4 +95,8 @@ return [
         'schedule_window_invalid' => 'A janela de horário deve ser válida e comportar ao menos uma reserva.',
     ],
 
+    'court_invitation' => [
+        'forbidden' => 'Você não tem permissão para gerenciar esta quadra.',
+    ],
+
 ];

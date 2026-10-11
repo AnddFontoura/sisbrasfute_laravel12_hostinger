@@ -118,6 +118,7 @@ class CourtServiceTest extends TestCase
 
         $this->assertSame(0, Court::count());
         $this->assertSame(0, DB::table('court_contacts')->count());
+        $this->assertSame(0, DB::table('court_user')->count());
         $this->assertFalse($user->fresh()->hasRole('court-owner'));
     }
 

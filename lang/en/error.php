@@ -95,4 +95,8 @@ return [
         'schedule_window_invalid' => 'The time window must be valid and fit at least one reservation slot.',
     ],
 
+    'court_invitation' => [
+        'forbidden' => 'You do not have permission to manage this court.',
+    ],
+
 ];
