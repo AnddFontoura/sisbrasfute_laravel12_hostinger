@@ -50,6 +50,21 @@ class CourtAuthorizationService extends BaseService
         );
     }
 
+    public function assertCanManageReservations(int $courtId, int $userId): void
+    {
+        $this->assertCourtExists($courtId);
+
+        $role = $this->roleFor($courtId, $userId);
+
+        throw_if(
+            $role === null || !$role->canManageReservations(),
+            new \Exception(
+                __('error.court_reservation.forbidden'),
+                Response::HTTP_FORBIDDEN
+            )
+        );
+    }
+
     private function assertCourtExists(int $courtId): void
     {
         $court = $this->courtRepository->firstById($courtId);

@@ -109,4 +109,12 @@ return [
         'cannot_set_owner' => 'Não é possível definir a função de proprietário.',
     ],
 
+    'court_reservation' => [
+        'forbidden' => 'Você não tem permissão para gerenciar reservas desta quadra.',
+        'not_found' => 'Reserva não encontrada.',
+        'slot_taken' => 'Este horário já está reservado.',
+        'invalid_slot' => 'Este horário não está disponível para reserva.',
+        'no_schedule' => 'Esta quadra não possui horários configurados para este dia.',
+    ],
+
 ];

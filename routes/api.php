@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CourtController;
 use App\Http\Controllers\CourtInvitationController;
+use App\Http\Controllers\CourtReservationController;
 use App\Http\Controllers\CourtTeamController;
 use App\Http\Controllers\GamePositionController;
 use App\Http\Controllers\MatchesController;
@@ -138,6 +139,19 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/{courtId}/members', 'index');
             Route::patch('/{courtId}/members/{userId}/role', 'updateRole');
             Route::delete('/{courtId}/members/{userId}', 'remove');
+        });
+
+    // Court reservations — gated by court-allowed; per-court authorization is
+    // additionally service-asserted via assertCanManageReservations.
+    Route::prefix('court-reservation')
+        ->name('court-reservation.')
+        ->middleware('isCourtAllowed')
+        ->controller(CourtReservationController::class)
+        ->group(function () {
+            Route::get('/{courtId}/agenda', 'agenda');
+            Route::get('/{courtId}/day', 'day');
+            Route::post('/{courtId}/reserve', 'reserve');
+            Route::delete('/{courtId}/reservations/{reservationId}', 'cancel');
         });
 
     Route::prefix('team-matches')

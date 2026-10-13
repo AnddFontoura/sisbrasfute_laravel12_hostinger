@@ -83,4 +83,9 @@ class Court extends Model
     {
         return $this->hasMany(CourtInvitation::class);
     }
+
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(CourtReservation::class);
+    }
 }

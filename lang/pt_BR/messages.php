@@ -69,6 +69,12 @@ return [
         'member_removed' => 'Membro removido da equipe.',
     ],
 
+    'court_reservation' => [
+        'created' => 'Reserva criada com sucesso.',
+        'cancelled' => 'Reserva(s) cancelada(s).',
+        'skipped' => 'Estas datas já estavam ocupadas e foram puladas: :dates',
+    ],
+
     'team' => [
         'created' => 'Time criado com sucesso.',
         'updated' => 'Time atualizado com sucesso.',

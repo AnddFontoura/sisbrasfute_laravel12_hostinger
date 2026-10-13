@@ -69,6 +69,12 @@ return [
         'member_removed' => 'Member removed from the team.',
     ],
 
+    'court_reservation' => [
+        'created' => 'Reservation created successfully.',
+        'cancelled' => 'Reservation(s) cancelled.',
+        'skipped' => 'These dates were already taken and were skipped: :dates',
+    ],
+
     'team' => [
         'created' => 'Team created successfully.',
         'updated' => 'Team updated successfully.',

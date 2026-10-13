@@ -109,4 +109,12 @@ return [
         'cannot_set_owner' => 'The owner role cannot be assigned.',
     ],
 
+    'court_reservation' => [
+        'forbidden' => 'You are not allowed to manage reservations for this court.',
+        'not_found' => 'Reservation not found.',
+        'slot_taken' => 'This time slot is already reserved.',
+        'invalid_slot' => 'This time slot is not available for reservation.',
+        'no_schedule' => 'This court has no schedule configured for this day.',
+    ],
+
 ];
