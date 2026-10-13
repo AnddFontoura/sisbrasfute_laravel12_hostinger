@@ -36,6 +36,7 @@ return [
     'admin' => [
         'logo_removed' => 'Logo removido com sucesso.',
         'banner_removed' => 'Banner removido com sucesso.',
+        'court_allowed_updated' => 'Acesso a quadras atualizado.',
     ],
 
     'notification' => [

@@ -17,11 +17,24 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class CourtTeamFlowTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * Grant the court-allowed access-gate role so the acting user can reach the
+     * now-gated court routes (feature-flag gate, design §12). Invitation
+     * accept/received stay ungated, so the invitee tests do NOT call this.
+     */
+    private function grantCourtAllowed(User $user): User
+    {
+        $user->assignRole(Role::firstOrCreate(['name' => 'court-allowed', 'guard_name' => 'web']));
+
+        return $user;
+    }
 
     private function seedModalityAndCity(): array
     {
@@ -79,6 +92,7 @@ class CourtTeamFlowTest extends TestCase
      */
     private function createCourtAs(User $owner, int $modalityId, int $cityId): Court
     {
+        $this->grantCourtAllowed($owner);
         Sanctum::actingAs($owner, ['*'], 'api');
         $this->postJson('/api/court/save', $this->courtPayload($modalityId, $cityId))->assertCreated();
 
@@ -146,14 +160,16 @@ class CourtTeamFlowTest extends TestCase
         $owner = User::factory()->create();
         $court = $this->createCourtAs($owner, $modalityId, $cityId);
 
-        $manager = User::factory()->create();
+        $manager = $this->grantCourtAllowed(User::factory()->create());
         app(CourtMembershipRepository::class)->createMembership($court->id, $manager->id, CourtRole::Manager);
 
-        $employee = User::factory()->create();
+        $employee = $this->grantCourtAllowed(User::factory()->create());
         app(CourtMembershipRepository::class)->createMembership($court->id, $employee->id, CourtRole::Employee);
 
-        $stranger = User::factory()->create();
+        $stranger = $this->grantCourtAllowed(User::factory()->create());
 
+        // All actors hold court-allowed, so the 403 comes from the per-court
+        // authorization service, not the feature gate.
         foreach ([$manager, $employee, $stranger] as $actor) {
             Sanctum::actingAs($actor, ['*'], 'api');
             $this->postJson("/api/court-invitation/{$court->id}/send", [
@@ -437,7 +453,7 @@ class CourtTeamFlowTest extends TestCase
         $owner = User::factory()->create();
         $court = $this->createCourtAs($owner, $modalityId, $cityId);
 
-        $manager = User::factory()->create();
+        $manager = $this->grantCourtAllowed(User::factory()->create());
         app(CourtMembershipRepository::class)->createMembership($court->id, $manager->id, CourtRole::Manager);
 
         Sanctum::actingAs($manager, ['*'], 'api');
@@ -465,7 +481,7 @@ class CourtTeamFlowTest extends TestCase
         $owner = User::factory()->create();
         $court = $this->createCourtAs($owner, $modalityId, $cityId);
 
-        $employee = User::factory()->create();
+        $employee = $this->grantCourtAllowed(User::factory()->create());
         app(CourtMembershipRepository::class)->createMembership($court->id, $employee->id, CourtRole::Employee);
 
         Sanctum::actingAs($employee, ['*'], 'api');
@@ -483,7 +499,7 @@ class CourtTeamFlowTest extends TestCase
         $owner = User::factory()->create();
         $court = $this->createCourtAs($owner, $modalityId, $cityId);
 
-        $manager = User::factory()->create();
+        $manager = $this->grantCourtAllowed(User::factory()->create());
         app(CourtMembershipRepository::class)->createMembership($court->id, $manager->id, CourtRole::Manager);
 
         $employee = User::factory()->create();
@@ -561,12 +577,13 @@ class CourtTeamFlowTest extends TestCase
         $owner = User::factory()->create();
         $court = $this->createCourtAs($owner, $modalityId, $cityId);
 
-        $manager = User::factory()->create();
+        $manager = $this->grantCourtAllowed(User::factory()->create());
         app(CourtMembershipRepository::class)->createMembership($court->id, $manager->id, CourtRole::Manager);
 
-        $employee = User::factory()->create();
+        $employee = $this->grantCourtAllowed(User::factory()->create());
         app(CourtMembershipRepository::class)->createMembership($court->id, $employee->id, CourtRole::Employee);
 
+        // Both hold court-allowed, so the 403 proves owner-only delete, not the gate.
         foreach ([$manager, $employee] as $actor) {
             Sanctum::actingAs($actor, ['*'], 'api');
             $this->deleteJson("/api/court/delete/{$court->id}")->assertStatus(403);
@@ -608,7 +625,7 @@ class CourtTeamFlowTest extends TestCase
         $ownerB = User::factory()->create();
         $courtB = $this->createCourtAs($ownerB, $modalityId, $cityId);
 
-        $user = User::factory()->create();
+        $user = $this->grantCourtAllowed(User::factory()->create());
         app(CourtMembershipRepository::class)->createMembership($courtA->id, $user->id, CourtRole::Manager);
         app(CourtMembershipRepository::class)->createMembership($courtB->id, $user->id, CourtRole::Employee);
 

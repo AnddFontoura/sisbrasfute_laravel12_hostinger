@@ -285,4 +285,37 @@ class AdminController extends Controller
             Response::HTTP_OK
         );
     }
+
+    public function toggleCourtAllowed(Request $request, int $userId): JsonResponse
+    {
+        $user = \App\Models\User::find($userId);
+
+        if (!$user) {
+            return response()->json(
+                ['error' => __('error.user.not_found')],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $role = \Spatie\Permission\Models\Role::firstOrCreate([
+            'name' => 'court-allowed',
+            'guard_name' => 'web',
+        ]);
+
+        if ($user->hasRole('court-allowed')) {
+            $user->removeRole($role);
+            $courtAllowed = false;
+        } else {
+            $user->assignRole($role);
+            $courtAllowed = true;
+        }
+
+        return response()->json(
+            [
+                'message' => __('messages.admin.court_allowed_updated'),
+                'court_allowed' => $courtAllowed,
+            ],
+            Response::HTTP_OK
+        );
+    }
 }

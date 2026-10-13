@@ -122,6 +122,16 @@ class CourtInvitationService extends BaseService
             $invitation->role
         );
 
+        // Accepting an invitation unlocks the court feature for this user
+        // (idempotent grant of the court-allowed access-gate role).
+        $user = User::find($userId);
+        if ($user && !$user->hasRole('court-allowed')) {
+            $user->assignRole(\Spatie\Permission\Models\Role::firstOrCreate([
+                'name' => 'court-allowed',
+                'guard_name' => 'web',
+            ]));
+        }
+
         $this->courtInvitationRepository->updateById([
             'status' => CourtInvitationStatus::Accepted,
             'accepted_at' => now(),

@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\IsAdminMiddleware;
+use App\Http\Middleware\IsCourtAllowedMiddleware;
 use App\Http\Middleware\IsTeamAdminMiddleware;
 use App\Http\Middleware\IsTeamManagerMiddleware;
 use App\Http\Middleware\IsTeamMemberMiddleware;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => Authenticate::class,
             'emailVerified' => EnsureEmailIsVerified::class,
             'isAdmin' => IsAdminMiddleware::class,
+            'isCourtAllowed' => IsCourtAllowedMiddleware::class,
             'isTeamManager' => IsTeamManagerMiddleware::class,
             'isTeamMember' => IsTeamMemberMiddleware::class,
             'isTeamAdmin' => IsTeamAdminMiddleware::class,

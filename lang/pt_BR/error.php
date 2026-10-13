@@ -86,6 +86,7 @@ return [
 
     'court' => [
         'not_found' => 'Quadra não encontrada.',
+        'access_denied' => 'Você não tem acesso ao módulo de quadras.',
         'not_owner' => 'Você não tem permissão para acessar esta quadra.',
         'upload_failed' => 'Falha ao enviar as fotos da quadra.',
         'invalid_status_transition' => 'Esta quadra não pode mudar para o status solicitado.',

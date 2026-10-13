@@ -9,11 +9,23 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class CourtOwnerFlowTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * Grant the court-allowed access-gate role so the acting user can reach the
+     * now-gated court routes (feature-flag gate, design §12).
+     */
+    private function grantCourtAllowed(User $user): User
+    {
+        $user->assignRole(Role::firstOrCreate(['name' => 'court-allowed', 'guard_name' => 'web']));
+
+        return $user;
+    }
 
     private function seedModalityAndCity(): array
     {
@@ -72,7 +84,7 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        $user = User::factory()->create();
+        $user = $this->grantCourtAllowed(User::factory()->create());
         Sanctum::actingAs($user, ['*'], 'api');
 
         $response = $this->postJson('/api/court/save', $this->courtPayload($modalityId, $cityId));
@@ -91,7 +103,7 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
+        Sanctum::actingAs($this->grantCourtAllowed(User::factory()->create()), ['*'], 'api');
 
         $payload = $this->courtPayload($modalityId, $cityId, 0);
 
@@ -104,7 +116,7 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
+        Sanctum::actingAs($this->grantCourtAllowed(User::factory()->create()), ['*'], 'api');
 
         $payload = $this->courtPayload($modalityId, $cityId, 11);
 
@@ -117,7 +129,7 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
+        Sanctum::actingAs($this->grantCourtAllowed(User::factory()->create()), ['*'], 'api');
 
         $payload = $this->courtPayload($modalityId, $cityId);
         unset($payload['contacts']);
@@ -131,7 +143,7 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
+        Sanctum::actingAs($this->grantCourtAllowed(User::factory()->create()), ['*'], 'api');
 
         $payload = $this->courtPayload($modalityId, $cityId);
         $payload['courtSurfaceType'] = 'marmore';
@@ -145,7 +157,7 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
+        Sanctum::actingAs($this->grantCourtAllowed(User::factory()->create()), ['*'], 'api');
 
         $payload = $this->courtPayload($modalityId, $cityId);
         $payload['scheduleConfigs'] = [
@@ -162,12 +174,14 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        $owner = User::factory()->create();
+        $owner = $this->grantCourtAllowed(User::factory()->create());
         Sanctum::actingAs($owner, ['*'], 'api');
         $this->postJson('/api/court/save', $this->courtPayload($modalityId, $cityId))->assertCreated();
         $court = Court::first();
 
-        $other = User::factory()->create();
+        // $other holds court-allowed so the 403 comes from the ownership check,
+        // not the feature gate.
+        $other = $this->grantCourtAllowed(User::factory()->create());
         Sanctum::actingAs($other, ['*'], 'api');
 
         $this->getJson("/api/court/show/{$court->id}")
@@ -179,7 +193,7 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        $owner = User::factory()->create();
+        $owner = $this->grantCourtAllowed(User::factory()->create());
         Sanctum::actingAs($owner, ['*'], 'api');
         $this->postJson('/api/court/save', $this->courtPayload($modalityId, $cityId))->assertCreated();
         $court = Court::first();
@@ -201,7 +215,7 @@ class CourtOwnerFlowTest extends TestCase
         Storage::fake('public');
         [$modalityId, $cityId] = $this->seedModalityAndCity();
 
-        $owner = User::factory()->create();
+        $owner = $this->grantCourtAllowed(User::factory()->create());
         Sanctum::actingAs($owner, ['*'], 'api');
         $this->postJson('/api/court/save', $this->courtPayload($modalityId, $cityId))->assertCreated();
         $court = Court::first();

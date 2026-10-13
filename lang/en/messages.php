@@ -36,6 +36,7 @@ return [
     'admin' => [
         'logo_removed' => 'Logo removed successfully.',
         'banner_removed' => 'Banner removed successfully.',
+        'court_allowed_updated' => 'Court access updated.',
     ],
 
     'notification' => [

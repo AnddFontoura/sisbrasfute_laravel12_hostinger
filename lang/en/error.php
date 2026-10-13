@@ -86,6 +86,7 @@ return [
 
     'court' => [
         'not_found' => 'Court not found.',
+        'access_denied' => 'You do not have access to the courts module.',
         'not_owner' => 'You do not have permission to access this court.',
         'upload_failed' => 'Failed to upload court photos.',
         'invalid_status_transition' => 'This court cannot transition to the requested status.',

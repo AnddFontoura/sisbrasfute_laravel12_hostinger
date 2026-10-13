@@ -95,6 +95,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('court')
         ->name('court.')
+        ->middleware('isCourtAllowed')
         ->controller(CourtController::class)
         ->group(function () {
             Route::get('my-courts', 'myCourts');
@@ -104,22 +105,34 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('delete/{courtId}', 'destroy');
         });
 
-    // Court team invitations (authorization is service-asserted; no route middleware).
+    // Court team invitations — invitee-facing routes stay reachable WITHOUT the
+    // court-allowed role so a freshly-invited user can list and accept/reject an
+    // invitation (accepting then grants the role; see CourtInvitationService).
     Route::prefix('court-invitation')
         ->name('court-invitation.')
         ->controller(CourtInvitationController::class)
         ->group(function () {
-            Route::post('/{courtId}/send', 'send');
-            Route::get('/{courtId}/list', 'index');
-            Route::delete('/{courtId}/cancel/{invitationId}', 'cancel');
             Route::get('/received', 'received');
             Route::post('/accept', 'accept');
             Route::post('/reject', 'reject');
         });
 
+    // Court team invitations — owner-side management, gated by court-allowed
+    // (authorization is additionally service-asserted per court role).
+    Route::prefix('court-invitation')
+        ->name('court-invitation.owner.')
+        ->middleware('isCourtAllowed')
+        ->controller(CourtInvitationController::class)
+        ->group(function () {
+            Route::post('/{courtId}/send', 'send');
+            Route::get('/{courtId}/list', 'index');
+            Route::delete('/{courtId}/cancel/{invitationId}', 'cancel');
+        });
+
     // Court team membership management (authorization is service-asserted).
     Route::prefix('court-team')
         ->name('court-team.')
+        ->middleware('isCourtAllowed')
         ->controller(CourtTeamController::class)
         ->group(function () {
             Route::get('/{courtId}/members', 'index');
@@ -365,6 +378,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/game-positions/{id}', 'showGamePosition');
             Route::put('/game-positions/{id}', 'updateGamePosition');
             Route::post('/users/{userId}/verify-email', 'verifyUserEmail');
+            Route::post('/users/{userId}/court-allowed', 'toggleCourtAllowed');
             Route::get('/courts', 'courts');
             Route::get('/courts/{courtId}', 'showCourt');
             Route::post('/courts/{courtId}/approve', 'approveCourt');

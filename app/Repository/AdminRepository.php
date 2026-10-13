@@ -19,6 +19,7 @@ class AdminRepository
         $perPage = min(max($perPage, 1), 100);
 
         $query = User::query()
+            ->with('roles')
             ->select('id', 'name', 'email', 'email_verified_at', 'created_at')
             ->selectRaw('(email_verified_at IS NOT NULL) as email_verified')
             ->selectRaw('(EXISTS (SELECT 1 FROM players WHERE players.user_id = users.id AND players.deleted_at IS NULL)) as has_player_profile');
