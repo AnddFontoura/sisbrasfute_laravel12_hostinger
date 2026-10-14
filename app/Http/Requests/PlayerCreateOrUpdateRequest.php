@@ -15,8 +15,10 @@ class PlayerCreateOrUpdateRequest extends FormRequest
     {
         return [
             'playerCityId' => 'nullable|exists:cities,id',
-            'playerName' => 'nullable|string|max:255',
-            'playerNickName' => 'nullable|string|max:255',
+            // name e nickname são NOT NULL na tabela players — exigir aqui evita
+            // o erro de constraint ao salvar o perfil.
+            'playerName' => 'required|string|max:254',
+            'playerNickName' => 'required|string|max:254',
             'playerPositions' => 'nullable|array',
             'playerModalities' => 'nullable|array',
             'playerGender' => 'nullable|string',
@@ -38,6 +40,16 @@ class PlayerCreateOrUpdateRequest extends FormRequest
             'playerGDA' => 'nullable|string|max:255',
             'playerBirthCity' => 'nullable|integer',
             'removePhoto' => 'nullable|string',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'playerName.required' => 'O nome é obrigatório.',
+            'playerName.max' => 'O nome deve ter no máximo 254 caracteres.',
+            'playerNickName.required' => 'O apelido é obrigatório.',
+            'playerNickName.max' => 'O apelido deve ter no máximo 254 caracteres.',
         ];
     }
 }
