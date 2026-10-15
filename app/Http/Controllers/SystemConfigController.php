@@ -59,6 +59,47 @@ class SystemConfigController extends Controller
         }
     }
 
+    public function getPaymentGateway(): JsonResponse
+    {
+        try {
+            return response()->json([
+                'payment_gateway' => $this->systemConfigService->getPaymentGateway(),
+                'available' => SystemConfigService::PAYMENT_GATEWAYS,
+            ], JsonResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(
+                ['message' => $e->getMessage()],
+                $this->normalizeStatusCode($e->getCode())
+            );
+        }
+    }
+
+    public function updatePaymentGateway(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'payment_gateway' => 'required|in:' . implode(',', SystemConfigService::PAYMENT_GATEWAYS),
+            ]);
+
+            $this->systemConfigService->setPaymentGateway($validated['payment_gateway']);
+
+            return response()->json([
+                'message' => __('messages.system_config.payment_gateway_updated'),
+                'payment_gateway' => $validated['payment_gateway'],
+            ], JsonResponse::HTTP_OK);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(
+                ['message' => $e->getMessage(), 'errors' => $e->errors()],
+                JsonResponse::HTTP_UNPROCESSABLE_ENTITY
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                ['message' => $e->getMessage()],
+                $this->normalizeStatusCode($e->getCode())
+            );
+        }
+    }
+
     public function getRevenue(Request $request): JsonResponse
     {
         try {

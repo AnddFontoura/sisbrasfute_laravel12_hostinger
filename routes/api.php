@@ -335,6 +335,8 @@ Route::middleware('auth:api')->group(function () {
         ->group(function () {
             Route::get('/config/fee', [SystemConfigController::class, 'getFee']);
             Route::put('/config/fee', [SystemConfigController::class, 'updateFee']);
+            Route::get('/config/payment-gateway', [SystemConfigController::class, 'getPaymentGateway']);
+            Route::put('/config/payment-gateway', [SystemConfigController::class, 'updatePaymentGateway']);
             Route::get('/revenue', [SystemConfigController::class, 'getRevenue']);
         });
 });

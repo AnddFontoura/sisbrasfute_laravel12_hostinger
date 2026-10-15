@@ -40,15 +40,43 @@ return [
     | Payment Gateway
     |--------------------------------------------------------------------------
     |
-    | Defines which payment gateway drives wallet deposits. When set to
-    | "inter" and the Inter credentials below are present, the Banco Inter
-    | Pix gateway is used; otherwise the application falls back to the
-    | NullPaymentGateway (useful for local/dev environments).
+    | Defines which payment gateway drives wallet deposits. The active gateway
+    | is normally chosen in the admin panel (system_configs "payment_gateway"
+    | key) and defaults to "efi". When the selected gateway's credentials are
+    | missing, the application falls back to the NullPaymentGateway (useful for
+    | local/dev environments). Supported values: "efi", "inter", "null".
     |
     */
 
     'payment' => [
-        'gateway' => env('PAYMENT_GATEWAY', 'null'),
+        // Fallback used when no gateway is configured in the admin panel
+        // (system_configs "payment_gateway" key). The admin setting takes
+        // precedence; this env only acts as the default. Valid: efi, inter, null.
+        'gateway' => env('PAYMENT_GATEWAY', 'efi'),
+    ],
+
+    'efi' => [
+        // Pix API (used for Pix charges, requires mTLS).
+        // Production: https://pix.api.efipay.com.br  Sandbox: https://pix-h.api.efipay.com.br
+        'pix_base_url' => env('EFI_PIX_BASE_URL', 'https://pix.api.efipay.com.br'),
+        // Cobranças API (used for boleto + credit card, no mTLS).
+        // Production: https://cobrancas.api.efipay.com.br  Sandbox: https://cobrancas-h.api.efipay.com.br
+        'cobrancas_base_url' => env('EFI_COBRANCAS_BASE_URL', 'https://cobrancas.api.efipay.com.br'),
+        'client_id' => env('EFI_CLIENT_ID'),
+        'client_secret' => env('EFI_CLIENT_SECRET'),
+        // Pix key (chave) that will receive the payments.
+        'pix_key' => env('EFI_PIX_KEY'),
+        // Absolute path to the mTLS certificate (.pem) generated from the .p12
+        // downloaded in the EFI dashboard (API > Minhas aplicações). Used by the
+        // Pix API only; the Cobranças API (boleto/card) does not use mTLS.
+        'certificate_path' => env('EFI_CERTIFICATE_PATH'),
+        // Optional: separate private key path. Leave empty when the .pem above
+        // already bundles both certificate and key.
+        'private_key_path' => env('EFI_PRIVATE_KEY_PATH'),
+        // Expiration (in seconds) of the Pix charge (cob).
+        'cob_expiration' => (int) env('EFI_COB_EXPIRATION', 3600),
+        // Number of days until the boleto due date.
+        'boleto_due_days' => (int) env('EFI_BOLETO_DUE_DAYS', 3),
     ],
 
     'inter' => [

@@ -49,6 +49,9 @@ class InterPaymentGateway implements PaymentGatewayContract
     ): PaymentChargeResult {
         return match ($method) {
             PaymentMethod::Boleto => $this->createBoleto($amountCents, $userRef, $payer),
+            PaymentMethod::Card => throw new \InvalidArgumentException(
+                'O Banco Inter não suporta pagamento com cartão de crédito. Selecione Pix ou boleto, ou use o gateway EFI.'
+            ),
             default => $this->createPix($amountCents, $userRef, $returnUrl),
         };
     }

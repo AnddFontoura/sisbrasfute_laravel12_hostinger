@@ -26,10 +26,14 @@ class PlayerSelfAssignController extends Controller
             $payer = [
                 'name' => $request->input('payer_name'),
                 'document' => $request->input('payer_document'),
+                'email' => $request->input('payer_email'),
+                'phone' => $request->input('payer_phone'),
                 'cep' => $request->input('payer_cep'),
                 'address' => $request->input('payer_address'),
                 'city' => $request->input('payer_city'),
                 'uf' => $request->input('payer_uf'),
+                'payment_token' => $request->input('payment_token'),
+                'installments' => $request->input('installments'),
             ];
 
             $result = $this->matchPositionService->selfAssignPosition(
@@ -56,6 +60,8 @@ class PlayerSelfAssignController extends Controller
                     'boleto_linha_digitavel' => $charge->boletoLinhaDigitavel,
                     'boleto_pdf_url' => $charge->boletoPdfUrl,
                     'boleto_due_date' => $charge->boletoDueDate,
+                    'installments' => $charge->installments,
+                    'installment_value_cents' => $charge->installmentValueCents,
                 ] : null,
             ], JsonResponse::HTTP_CREATED);
         } catch (\Exception $e) {

@@ -32,5 +32,13 @@ class PaymentChargeResult
          * Boleto due date (YYYY-MM-DD).
          */
         public readonly ?string $boletoDueDate = null,
+        /**
+         * Number of installments for a credit card charge.
+         */
+        public readonly ?int $installments = null,
+        /**
+         * Value of each installment, in centavos, for a credit card charge.
+         */
+        public readonly ?int $installmentValueCents = null,
     ) {}
 }

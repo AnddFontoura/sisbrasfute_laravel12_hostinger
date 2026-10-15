@@ -37,13 +37,18 @@ class WalletController extends Controller
         try {
             $request->validate([
                 'amount_cents' => 'required|integer|min:100',
-                'payment_method' => 'sometimes|in:pix,boleto',
-                'payer_name' => 'required_if:payment_method,boleto|string',
-                'payer_document' => 'required_if:payment_method,boleto|string',
+                'payment_method' => 'sometimes|in:pix,boleto,card',
+                'payer_name' => 'required_if:payment_method,boleto,card|string',
+                'payer_document' => 'required_if:payment_method,boleto,card|string',
+                'payer_email' => 'required_if:payment_method,card|nullable|email',
+                'payer_phone' => 'sometimes|nullable|string',
                 'payer_cep' => 'sometimes|nullable|string',
                 'payer_address' => 'sometimes|nullable|string',
                 'payer_city' => 'sometimes|nullable|string',
                 'payer_uf' => 'sometimes|nullable|string|size:2',
+                // Credit card: payment_token comes from the Efí JS SDK (frontend).
+                'payment_token' => 'required_if:payment_method,card|string',
+                'installments' => 'sometimes|nullable|integer|min:1|max:12',
             ]);
 
             $userId = auth()->id();
@@ -53,10 +58,14 @@ class WalletController extends Controller
             $payer = [
                 'name' => $request->input('payer_name'),
                 'document' => $request->input('payer_document'),
+                'email' => $request->input('payer_email'),
+                'phone' => $request->input('payer_phone'),
                 'cep' => $request->input('payer_cep'),
                 'address' => $request->input('payer_address'),
                 'city' => $request->input('payer_city'),
                 'uf' => $request->input('payer_uf'),
+                'payment_token' => $request->input('payment_token'),
+                'installments' => $request->input('installments'),
             ];
 
             $chargeResult = $this->walletService->initiateDeposit(
@@ -70,12 +79,15 @@ class WalletController extends Controller
             return response()->json(
                 [
                     'payment_method' => $chargeResult->method,
+                    'payment_status' => $chargeResult->status,
                     'payment_url' => $chargeResult->paymentUrl,
                     'pix_copia_e_cola' => $chargeResult->pixCopiaECola,
                     'pix_qrcode_base64' => $chargeResult->pixQrCodeBase64,
                     'boleto_linha_digitavel' => $chargeResult->boletoLinhaDigitavel,
                     'boleto_pdf_url' => $chargeResult->boletoPdfUrl,
                     'boleto_due_date' => $chargeResult->boletoDueDate,
+                    'installments' => $chargeResult->installments,
+                    'installment_value_cents' => $chargeResult->installmentValueCents,
                 ],
                 JsonResponse::HTTP_CREATED
             );

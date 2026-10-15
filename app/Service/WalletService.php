@@ -89,17 +89,28 @@ class WalletService extends BaseService
             $payer,
         );
 
-        WalletTransaction::create([
+        // Synchronous methods (credit card) are authorized in-line, so the
+        // charge may already be completed. Persist the final status and credit
+        // the balance immediately instead of waiting for a webhook that would
+        // never arrive as "pending".
+        $alreadyCompleted = $method->isSynchronous()
+            && $chargeResult->status === PaymentStatus::Completed->value;
+
+        $transaction = WalletTransaction::create([
             'user_id' => $userId,
             'wallet_id' => $wallet->id,
             'type' => 'deposit',
             'amount_cents' => $amountCents,
             'fee_cents' => 0,
             'description' => 'Depósito na carteira',
-            'status' => 'pending',
+            'status' => $alreadyCompleted ? 'completed' : 'pending',
             'gateway_reference' => $chargeResult->chargeId,
             'metadata' => ['payment_method' => $method->value, 'context' => 'deposit'],
         ]);
+
+        if ($alreadyCompleted) {
+            $wallet->increment('balance_cents', $amountCents);
+        }
 
         return $chargeResult;
     }

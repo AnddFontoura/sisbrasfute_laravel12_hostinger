@@ -17,13 +17,26 @@ class NullPaymentGateway implements PaymentGatewayContract
         PaymentMethod $method = PaymentMethod::Pix,
         array $payer = [],
     ): PaymentChargeResult {
+        $prefix = match ($method) {
+            PaymentMethod::Boleto => 'boleto:',
+            PaymentMethod::Card => 'card:',
+            default => '',
+        };
+
         return new PaymentChargeResult(
-            chargeId: 'null_' . uniqid(),
+            chargeId: $prefix . 'null_' . uniqid(),
             paymentUrl: $returnUrl . '?status=success',
-            status: 'pending',
+            // Card is synchronous: approve immediately in the fake gateway.
+            status: $method === PaymentMethod::Card
+                ? PaymentStatus::Completed->value
+                : PaymentStatus::Pending->value,
             method: $method->value,
             pixCopiaECola: $method === PaymentMethod::Pix ? 'null-pix-copia-e-cola' : null,
             boletoLinhaDigitavel: $method === PaymentMethod::Boleto ? '00000.00000 00000.000000 00000.000000 0 00000000000000' : null,
+            installments: $method === PaymentMethod::Card ? max(1, (int) ($payer['installments'] ?? 1)) : null,
+            installmentValueCents: $method === PaymentMethod::Card
+                ? intdiv($amountCents, max(1, (int) ($payer['installments'] ?? 1)))
+                : null,
         );
     }
 

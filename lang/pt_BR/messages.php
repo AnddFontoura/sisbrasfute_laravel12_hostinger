@@ -45,6 +45,7 @@ return [
 
     'system_config' => [
         'fee_updated' => 'Configuração de taxa atualizada com sucesso.',
+        'payment_gateway_updated' => 'Gateway de pagamento atualizado com sucesso.',
     ],
 
     'player' => [

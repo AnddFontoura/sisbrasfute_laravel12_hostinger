@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Contracts\PaymentChargeResult;
 use App\Contracts\PaymentGatewayContract;
 use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Exceptions\InsufficientBalanceException;
 use App\Models\MatchHasPlayer;
 use App\Models\SystemRevenue;
@@ -169,7 +170,7 @@ class MatchPaymentService extends BaseService
             $payer,
         );
 
-        return DB::transaction(function () use ($match, $slot, $teamPlayer, $userId, $number, $positionValueCents, $feeCents, $method, $charge) {
+        $result = DB::transaction(function () use ($match, $slot, $teamPlayer, $userId, $number, $positionValueCents, $feeCents, $method, $charge) {
             $wallet = $this->walletService->getOrCreateWallet($userId);
 
             // Reserve the slot as pending.
@@ -185,7 +186,8 @@ class MatchPaymentService extends BaseService
                 'payment_method' => $method->value,
             ]);
 
-            // Pending transaction linked to the charge; settled by webhook.
+            // Pending transaction linked to the charge; settled by webhook for
+            // Pix/boleto, or inline below for synchronous methods (card).
             WalletTransaction::create([
                 'user_id' => $userId,
                 'wallet_id' => $wallet->id,
@@ -208,6 +210,16 @@ class MatchPaymentService extends BaseService
 
             return ['assignment' => $assignment, 'charge' => $charge];
         });
+
+        // Credit card is authorized synchronously: settle the position in-line
+        // reusing the same idempotent confirmation the webhook triggers, so the
+        // assignment flips to 'paid' and revenue is recorded immediately.
+        if ($method->isSynchronous() && $charge->status === PaymentStatus::Completed->value) {
+            $this->confirmPositionPayment($charge->chargeId);
+            $result['assignment']->refresh();
+        }
+
+        return $result;
     }
 
     /**
