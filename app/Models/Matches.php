@@ -25,6 +25,7 @@ class Matches extends Model
         'my_team_is',
         'my_team_id',
         'enemy_team_id',
+        'teams_count',
         'field_id',
         'city_id',
         'championship_name',
