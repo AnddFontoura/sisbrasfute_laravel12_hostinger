@@ -6,6 +6,7 @@ use App\Contracts\PaymentChargeResult;
 use App\Contracts\PaymentGatewayContract;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Exceptions\PaymentMethodNotAvailableException;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,27 @@ class WalletService extends BaseService
 {
     public function __construct(
         protected PaymentGatewayContract $paymentGateway,
+        protected SystemConfigService $systemConfigService,
     ) {}
+
+    /**
+     * Ensures a gateway payment method is enabled on the active gateway before
+     * a charge is created. Instant methods (wallet) never hit a gateway and are
+     * therefore always allowed.
+     */
+    public function assertMethodAvailable(PaymentMethod $method): void
+    {
+        if (!$method->isGateway()) {
+            return;
+        }
+
+        if (!$this->systemConfigService->isMethodEnabled($method->value)) {
+            throw new PaymentMethodNotAvailableException(
+                $method->value,
+                $this->systemConfigService->getPaymentGateway(),
+            );
+        }
+    }
 
     public function getOrCreateWallet(int $userId): Wallet
     {
@@ -79,6 +100,8 @@ class WalletService extends BaseService
         PaymentMethod $method = PaymentMethod::Pix,
         array $payer = [],
     ): PaymentChargeResult {
+        $this->assertMethodAvailable($method);
+
         $wallet = $this->getOrCreateWallet($userId);
 
         $chargeResult = $this->paymentGateway->createCharge(

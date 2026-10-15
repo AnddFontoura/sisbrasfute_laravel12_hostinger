@@ -47,6 +47,8 @@ return [
     'system_config' => [
         'fee_updated' => 'Fee configuration updated successfully.',
         'payment_gateway_updated' => 'Payment gateway updated successfully.',
+        'payment_methods_updated' => 'Payment methods updated successfully.',
+        'payment_environment_updated' => 'Payment environment updated successfully.',
     ],
 
     'player' => [

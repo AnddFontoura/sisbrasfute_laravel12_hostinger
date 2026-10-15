@@ -162,6 +162,10 @@ class MatchPaymentService extends BaseService
             ];
         }
 
+        // Reject methods disabled on (or unsupported by) the active gateway
+        // before touching the gateway.
+        $this->walletService->assertMethodAvailable($method);
+
         $charge = $this->paymentGateway->createCharge(
             $totalCost,
             (string) $userId,

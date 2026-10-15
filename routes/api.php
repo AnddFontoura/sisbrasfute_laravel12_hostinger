@@ -72,6 +72,9 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/balance', [WalletController::class, 'balance']);
             Route::post('/deposit', [WalletController::class, 'deposit']);
             Route::get('/transactions', [WalletTransactionController::class, 'index']);
+            // Methods currently available on the active gateway, for the
+            // payment screen to decide which options to render.
+            Route::get('/payment-methods', [SystemConfigController::class, 'availablePaymentMethods']);
         });
 
     // Team Receivables (team owner)
@@ -406,6 +409,10 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/config/fee', [SystemConfigController::class, 'updateFee']);
             Route::get('/config/payment-gateway', [SystemConfigController::class, 'getPaymentGateway']);
             Route::put('/config/payment-gateway', [SystemConfigController::class, 'updatePaymentGateway']);
+            Route::get('/config/payment-methods', [SystemConfigController::class, 'getPaymentMethods']);
+            Route::put('/config/payment-methods', [SystemConfigController::class, 'updatePaymentMethods']);
+            Route::get('/config/payment-environment', [SystemConfigController::class, 'getPaymentEnvironment']);
+            Route::put('/config/payment-environment', [SystemConfigController::class, 'updatePaymentEnvironment']);
             Route::get('/revenue', [SystemConfigController::class, 'getRevenue']);
         });
 });
