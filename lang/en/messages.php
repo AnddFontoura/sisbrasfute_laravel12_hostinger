@@ -36,6 +36,7 @@ return [
     'admin' => [
         'logo_removed' => 'Logo removed successfully.',
         'banner_removed' => 'Banner removed successfully.',
+        'court_allowed_updated' => 'Court access updated.',
     ],
 
     'notification' => [
@@ -55,6 +56,24 @@ return [
     'player_invitation' => [
         'sent' => 'Invitation sent successfully.',
         'accepted' => 'Invitation accepted successfully.',
+    ],
+
+    'court_invitation' => [
+        'sent' => 'Invitation sent successfully.',
+        'accepted' => 'Invitation accepted successfully.',
+        'rejected' => 'Invitation rejected.',
+        'cancelled' => 'Invitation cancelled.',
+    ],
+
+    'court_team' => [
+        'role_updated' => 'Member role updated.',
+        'member_removed' => 'Member removed from the team.',
+    ],
+
+    'court_reservation' => [
+        'created' => 'Reservation created successfully.',
+        'cancelled' => 'Reservation(s) cancelled.',
+        'skipped' => 'These dates were already taken and were skipped: :dates',
     ],
 
     'team' => [
@@ -103,6 +122,14 @@ return [
     'team_application' => [
         'created' => 'Team application created successfully.',
         'answered' => 'Team application answered successfully.',
+    ],
+
+    'court' => [
+        'created' => 'Court created successfully.',
+        'updated' => 'Court updated successfully.',
+        'deleted' => 'Court removed successfully.',
+        'approved' => 'Court approved successfully.',
+        'rejected' => 'Court rejected successfully.',
     ],
 
 ];

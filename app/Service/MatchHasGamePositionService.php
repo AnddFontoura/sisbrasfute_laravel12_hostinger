@@ -27,6 +27,21 @@ class MatchHasGamePositionService extends BaseService
         // Delete existing positions for this match before recreating.
         $this->repository->deleteByMatchId($matches->id);
 
+        // Intra-team match ("Partida entre o time"): the squad is split into
+        // several sub-teams. We generate one identical slot set per sub-team,
+        // all owned by the creator team but tagged with a distinct
+        // team_reference (1 = Time A, 2 = Time B, ...), so the frontend can
+        // render one list per sub-team side by side.
+        if ($matches->match_type === \App\Enums\MatchType::Normal && !$matches->enemy_team_id) {
+            $teamsCount = max(1, (int) ($matches->teams_count ?? 1));
+
+            for ($reference = 1; $reference <= $teamsCount; $reference++) {
+                $this->createPositionsForTeam($matches, $matches->created_by_team_id, $reference, $positions);
+            }
+
+            return;
+        }
+
         // Always create the creator team side.
         $this->createPositionsForTeam($matches, $matches->created_by_team_id, 1, $positions);
 

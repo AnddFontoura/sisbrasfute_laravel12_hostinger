@@ -84,4 +84,37 @@ return [
         'invalid_token' => 'Token inválido ou expirado.',
     ],
 
+    'court' => [
+        'not_found' => 'Quadra não encontrada.',
+        'access_denied' => 'Você não tem acesso ao módulo de quadras.',
+        'not_owner' => 'Você não tem permissão para acessar esta quadra.',
+        'upload_failed' => 'Falha ao enviar as fotos da quadra.',
+        'invalid_status_transition' => 'Esta quadra não pode mudar para o status solicitado.',
+        'photos_range' => 'Uma quadra deve ter entre 1 e 10 fotos.',
+        'duplicate_schedule_weekday' => 'Cada dia da semana só pode ser configurado uma vez.',
+        'schedule_window_required' => 'Dias ativos exigem horário de início, término e duração da reserva.',
+        'schedule_window_invalid' => 'A janela de horário deve ser válida e comportar ao menos uma reserva.',
+    ],
+
+    'court_invitation' => [
+        'forbidden' => 'Você não tem permissão para gerenciar a equipe desta quadra.',
+        'not_found' => 'Convite não encontrado.',
+        'expired' => 'Este convite expirou.',
+        'already_resolved' => 'Este convite já foi respondido.',
+        'email_mismatch' => 'Este convite foi enviado para outro email.',
+        'duplicate_pending' => 'Já existe um convite pendente para este email nesta quadra.',
+        'already_member' => 'Esta pessoa já faz parte da equipe desta quadra.',
+        'cannot_invite_self' => 'Você não pode convidar a si mesmo.',
+        'cannot_remove_owner' => 'O proprietário não pode ser removido da equipe.',
+        'cannot_set_owner' => 'Não é possível definir a função de proprietário.',
+    ],
+
+    'court_reservation' => [
+        'forbidden' => 'Você não tem permissão para gerenciar reservas desta quadra.',
+        'not_found' => 'Reserva não encontrada.',
+        'slot_taken' => 'Este horário já está reservado.',
+        'invalid_slot' => 'Este horário não está disponível para reserva.',
+        'no_schedule' => 'Esta quadra não possui horários configurados para este dia.',
+    ],
+
 ];

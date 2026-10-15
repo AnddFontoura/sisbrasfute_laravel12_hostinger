@@ -84,4 +84,37 @@ return [
         'invalid_token' => 'Invalid or expired token.',
     ],
 
+    'court' => [
+        'not_found' => 'Court not found.',
+        'access_denied' => 'You do not have access to the courts module.',
+        'not_owner' => 'You do not have permission to access this court.',
+        'upload_failed' => 'Failed to upload court photos.',
+        'invalid_status_transition' => 'This court cannot transition to the requested status.',
+        'photos_range' => 'A court must have between 1 and 10 photos.',
+        'duplicate_schedule_weekday' => 'Each weekday can only be configured once.',
+        'schedule_window_required' => 'Active days require a start time, end time and reservation duration.',
+        'schedule_window_invalid' => 'The time window must be valid and fit at least one reservation slot.',
+    ],
+
+    'court_invitation' => [
+        'forbidden' => 'You do not have permission to manage this court team.',
+        'not_found' => 'Invitation not found.',
+        'expired' => 'This invitation has expired.',
+        'already_resolved' => 'This invitation has already been answered.',
+        'email_mismatch' => 'This invitation was sent to a different email.',
+        'duplicate_pending' => 'There is already a pending invitation for this email on this court.',
+        'already_member' => 'This person is already part of this court team.',
+        'cannot_invite_self' => 'You cannot invite yourself.',
+        'cannot_remove_owner' => 'The owner cannot be removed from the team.',
+        'cannot_set_owner' => 'The owner role cannot be assigned.',
+    ],
+
+    'court_reservation' => [
+        'forbidden' => 'You are not allowed to manage reservations for this court.',
+        'not_found' => 'Reservation not found.',
+        'slot_taken' => 'This time slot is already reserved.',
+        'invalid_slot' => 'This time slot is not available for reservation.',
+        'no_schedule' => 'This court has no schedule configured for this day.',
+    ],
+
 ];

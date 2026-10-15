@@ -36,6 +36,7 @@ return [
     'admin' => [
         'logo_removed' => 'Logo removido com sucesso.',
         'banner_removed' => 'Banner removido com sucesso.',
+        'court_allowed_updated' => 'Acesso a quadras atualizado.',
     ],
 
     'notification' => [
@@ -55,6 +56,24 @@ return [
     'player_invitation' => [
         'sent' => 'Convite enviado com sucesso.',
         'accepted' => 'Convite aceito com sucesso.',
+    ],
+
+    'court_invitation' => [
+        'sent' => 'Convite enviado com sucesso.',
+        'accepted' => 'Convite aceito com sucesso.',
+        'rejected' => 'Convite recusado.',
+        'cancelled' => 'Convite cancelado.',
+    ],
+
+    'court_team' => [
+        'role_updated' => 'Função do membro atualizada.',
+        'member_removed' => 'Membro removido da equipe.',
+    ],
+
+    'court_reservation' => [
+        'created' => 'Reserva criada com sucesso.',
+        'cancelled' => 'Reserva(s) cancelada(s).',
+        'skipped' => 'Estas datas já estavam ocupadas e foram puladas: :dates',
     ],
 
     'team' => [
@@ -103,6 +122,14 @@ return [
     'team_application' => [
         'created' => 'Candidatura ao time criada com sucesso.',
         'answered' => 'Candidatura ao time respondida com sucesso.',
+    ],
+
+    'court' => [
+        'created' => 'Quadra criada com sucesso.',
+        'updated' => 'Quadra atualizada com sucesso.',
+        'deleted' => 'Quadra removida com sucesso.',
+        'approved' => 'Quadra aprovada com sucesso.',
+        'rejected' => 'Quadra rejeitada com sucesso.',
     ],
 
 ];

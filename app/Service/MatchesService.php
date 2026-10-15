@@ -28,12 +28,19 @@ class MatchesService extends BaseService
         $myTeamIs = MyTeamIs::fromFrontendValue($data['myTeamIs'] ?? 'home');
         $myTeamInfo = $this->teamRepository->firstById($data['teamId']);
 
+        // Only an intra-team match ("Partida entre o time") splits the squad
+        // into several sub-teams. Every other type always has a single list.
+        $teamsCount = $matchType === MatchType::Normal
+            ? max(2, (int) ($data['teamsCount'] ?? 2))
+            : 1;
+
         $dataToUpdate = [
             'created_by_team_id' => $data['teamId'],
             'match_type' => $matchType->value,
             'my_team_is' => $myTeamIs->value,
             'my_team_id' => $data['teamId'],
             'enemy_team_id' => $data['enemyTeamId'] ?? null,
+            'teams_count' => $teamsCount,
             'championship_id' => null,
             'field_id' => null,
             'city_id' => $data['cityId'],

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CourtRejectRequest;
 use App\Models\GamePosition;
 use App\Models\Team;
 use App\Repository\AdminRepository;
+use App\Repository\CourtRepository;
+use App\Service\CourtService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +18,8 @@ class AdminController extends Controller
 {
     public function __construct(
         protected AdminRepository $adminRepository,
+        protected CourtService $courtService,
+        protected CourtRepository $courtRepository,
     ) {}
 
     public function users(Request $request): JsonResponse
@@ -202,6 +207,58 @@ class AdminController extends Controller
         return response()->json($position->fresh(), Response::HTTP_OK);
     }
 
+    public function courts(Request $request): JsonResponse
+    {
+        $filters = $request->only(['status', 'modality_id', 'state_id', 'city_id']);
+        $perPage = (int) $request->query('per_page', 15);
+
+        $courts = $this->adminRepository->getPaginatedCourts($filters, $perPage);
+
+        return response()->json($courts, Response::HTTP_OK);
+    }
+
+    public function showCourt(int $courtId): JsonResponse
+    {
+        $court = $this->courtRepository->getDetailForAdmin($courtId);
+
+        if (!$court) {
+            return response()->json(
+                ['error' => __('error.court.not_found')],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        return response()->json($court, Response::HTTP_OK);
+    }
+
+    public function approveCourt(int $courtId): JsonResponse
+    {
+        try {
+            $this->courtService->approve($courtId);
+        } catch (\Exception $e) {
+            return response()->json(
+                ['message' => $e->getMessage()],
+                $this->normalizeStatusCode($e->getCode())
+            );
+        }
+
+        return response()->json(__('messages.court.approved'), Response::HTTP_OK);
+    }
+
+    public function rejectCourt(CourtRejectRequest $request, int $courtId): JsonResponse
+    {
+        try {
+            $this->courtService->reject($courtId, $request->validated()['reason'] ?? null);
+        } catch (\Exception $e) {
+            return response()->json(
+                ['message' => $e->getMessage()],
+                $this->normalizeStatusCode($e->getCode())
+            );
+        }
+
+        return response()->json(__('messages.court.rejected'), Response::HTTP_OK);
+    }
+
     public function verifyUserEmail(int $userId): JsonResponse
     {
         $user = \App\Models\User::find($userId);
@@ -225,6 +282,39 @@ class AdminController extends Controller
 
         return response()->json(
             ['message' => __('messages.email_verification.verified')],
+            Response::HTTP_OK
+        );
+    }
+
+    public function toggleCourtAllowed(Request $request, int $userId): JsonResponse
+    {
+        $user = \App\Models\User::find($userId);
+
+        if (!$user) {
+            return response()->json(
+                ['error' => __('error.user.not_found')],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $role = \Spatie\Permission\Models\Role::firstOrCreate([
+            'name' => 'court-allowed',
+            'guard_name' => 'web',
+        ]);
+
+        if ($user->hasRole('court-allowed')) {
+            $user->removeRole($role);
+            $courtAllowed = false;
+        } else {
+            $user->assignRole($role);
+            $courtAllowed = true;
+        }
+
+        return response()->json(
+            [
+                'message' => __('messages.admin.court_allowed_updated'),
+                'court_allowed' => $courtAllowed,
+            ],
             Response::HTTP_OK
         );
     }

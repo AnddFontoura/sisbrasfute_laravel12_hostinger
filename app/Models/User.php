@@ -65,6 +65,7 @@ class User extends Authenticatable
 
     protected $appends = [
         'is_admin',
+        'court_allowed',
     ];
 
     /**
@@ -73,5 +74,14 @@ class User extends Authenticatable
     public function getIsAdminAttribute(): bool
     {
         return (bool) ($this->attributes['is_admin'] ?? false) || $this->hasRole('admin');
+    }
+
+    /**
+     * Accessor: user may access the court feature if they hold the Spatie
+     * 'court-allowed' role (the feature-flag gate).
+     */
+    public function getCourtAllowedAttribute(): bool
+    {
+        return $this->hasRole('court-allowed');
     }
 }

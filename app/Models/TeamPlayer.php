@@ -57,6 +57,16 @@ class TeamPlayer extends Model
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
+    /**
+     * Perfil público do jogador (tabela players) vinculado pelo mesmo user_id.
+     * Permite resolver o player_profile_id correto na listagem do time,
+     * já que o id do TeamPlayer NÃO é o id do perfil do jogador.
+     */
+    public function playerInfo(): HasOne
+    {
+        return $this->hasOne(Player::class, 'user_id', 'user_id');
+    }
+
     public function gamePositionInfo(): HasOne
     {
         return $this->hasOne(GamePosition::class, 'id', 'game_position_id');

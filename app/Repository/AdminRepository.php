@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Models\Court;
 use App\Models\Matches;
 use App\Models\Player;
 use App\Models\Team;
@@ -18,6 +19,7 @@ class AdminRepository
         $perPage = min(max($perPage, 1), 100);
 
         $query = User::query()
+            ->with('roles')
             ->select('id', 'name', 'email', 'email_verified_at', 'created_at')
             ->selectRaw('(email_verified_at IS NOT NULL) as email_verified')
             ->selectRaw('(EXISTS (SELECT 1 FROM players WHERE players.user_id = users.id AND players.deleted_at IS NULL)) as has_player_profile');
@@ -88,6 +90,37 @@ class AdminRepository
         }
 
         return $query->orderBy('name', 'asc')->paginate($perPage);
+    }
+
+    /**
+     * Get paginated courts with eager loaded owner/modality/city/state info.
+     */
+    public function getPaginatedCourts(array $filters, int $perPage = 15): LengthAwarePaginator
+    {
+        $perPage = min(max($perPage, 1), 100);
+
+        $query = Court::query()
+            ->with(['owner:id,name', 'modalityInfo', 'cityInfo.stateInfo'])
+            ->withCount('photos');
+
+        $status = !empty($filters['status']) ? $filters['status'] : 'pending';
+        $query->where('status', $status);
+
+        if (!empty($filters['modality_id'])) {
+            $query->where('modality_id', $filters['modality_id']);
+        }
+
+        if (!empty($filters['state_id'])) {
+            $query->whereHas('cityInfo', function ($q) use ($filters) {
+                $q->where('state_id', $filters['state_id']);
+            });
+        }
+
+        if (!empty($filters['city_id'])) {
+            $query->where('city_id', $filters['city_id']);
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     /**
