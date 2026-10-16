@@ -17,6 +17,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | RabbitMQ Named Queues
+    |--------------------------------------------------------------------------
+    |
+    | Logical queue names used on the RabbitMQ connection. Each kind of work
+    | gets its own queue so a slow/stuck consumer for one never blocks another,
+    | and so workers can be scaled independently. A worker must be draining
+    | each queue listed here (see routes/console.php for the production cron).
+    |
+    */
+
+    'rabbitmq_queues' => [
+        'payments' => env('RABBITMQ_QUEUE', 'payments'),
+        'emails' => env('RABBITMQ_EMAIL_QUEUE', 'emails'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Queue Connections
     |--------------------------------------------------------------------------
     |

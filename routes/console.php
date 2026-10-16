@@ -23,12 +23,21 @@ Schedule::command('court:expire-invitations')->hourly();
 |     under a minute so it never turns into a daemon and never overlaps the
 |     next run. This gives up to ~1 min latency on webhook settlement.
 |
-|  2. Reconcile: poll the gateway for still-pending charges and settle any
+|  2. Drain the RabbitMQ e-mail queue the same way (separate worker/queue so a
+|     backlog of e-mails never delays payment settlement, and vice versa).
+|
+|  3. Reconcile: poll the gateway for still-pending charges and settle any
 |     whose webhook was lost. Run inline (not dispatched) so it doesn't create
 |     another queue that would also need draining.
 */
-Schedule::command('queue:work rabbitmq --queue=' . config('queue.connections.rabbitmq.queue', 'payments') . ' --stop-when-empty --max-time=50 --tries=5 --sleep=1')
+Schedule::command('queue:work rabbitmq --queue=' . config('queue.rabbitmq_queues.payments', 'payments') . ' --stop-when-empty --max-time=50 --tries=5 --sleep=1')
     ->name('drain-payments-queue')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('queue:work rabbitmq --queue=' . config('queue.rabbitmq_queues.emails', 'emails') . ' --stop-when-empty --max-time=50 --tries=3 --sleep=1')
+    ->name('drain-emails-queue')
     ->everyMinute()
     ->withoutOverlapping()
     ->runInBackground();

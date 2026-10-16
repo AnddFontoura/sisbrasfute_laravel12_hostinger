@@ -47,7 +47,7 @@ class ProcessPaymentWebhookJob implements ShouldQueue, ShouldBeUnique
         // Dedicated durable buffer for payments. Explicit so the app's default
         // queue connection is left untouched.
         $this->onConnection('rabbitmq');
-        $this->onQueue(config('queue.connections.rabbitmq.queue', 'payments'));
+        $this->onQueue(config('queue.rabbitmq_queues.payments', 'payments'));
     }
 
     public function uniqueId(): string

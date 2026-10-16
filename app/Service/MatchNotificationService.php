@@ -32,9 +32,11 @@ class MatchNotificationService extends BaseService
             }
 
             try {
-                Mail::to($email)->queue(
-                    new NewMatchMail($match, $player->name)
-                );
+                $mail = (new NewMatchMail($match, $player->name))
+                    ->onConnection('rabbitmq')
+                    ->onQueue(config('queue.rabbitmq_queues.emails', 'emails'));
+
+                Mail::to($email)->queue($mail);
             } catch (\Throwable $e) {
                 Log::error('Failed to dispatch match notification', [
                     'team_player_id' => $player->id,
@@ -62,9 +64,11 @@ class MatchNotificationService extends BaseService
             }
 
             try {
-                Mail::to($email)->queue(
-                    new PositionAvailableMail($match, $player->name)
-                );
+                $mail = (new PositionAvailableMail($match, $player->name))
+                    ->onConnection('rabbitmq')
+                    ->onQueue(config('queue.rabbitmq_queues.emails', 'emails'));
+
+                Mail::to($email)->queue($mail);
             } catch (\Throwable $e) {
                 Log::error('Failed to dispatch position available notification', [
                     'team_player_id' => $player->id,

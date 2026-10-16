@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Enums\MatchType;
 use App\Enums\MyTeamIs;
+use App\Jobs\SendNewMatchEmailsJob;
 use App\Models\Matches;
 use App\Models\MatchesHasGamePositions;
 use App\Repository\MatchesRepository;
@@ -16,7 +17,6 @@ class MatchesService extends BaseService
         protected MatchesHasGamePositions $matchesHasGamePositions,
         protected TeamRepository $teamRepository,
         protected MatchHasGamePositionService $matchHasGamePositionService,
-        protected MatchNotificationService $matchNotificationService,
         protected NotificationService $notificationService,
     ) {
 
@@ -71,8 +71,10 @@ class MatchesService extends BaseService
         }
 
         if (!$matchId) {
-            // Existing e-mail notification (kept as-is)
-            $this->matchNotificationService->notifyNewMatch($matchInfo);
+            // E-mail notification: dispatched to RabbitMQ and fanned out on a
+            // worker, so creating a match no longer pays for the per-player
+            // e-mail loop inside the request. See SendNewMatchEmailsJob.
+            SendNewMatchEmailsJob::dispatch($matchInfo->id);
 
             // In-system notification: team roster + players in the same city
             $this->notificationService->notifyNewMatch($matchInfo->fresh('cityInfo'));
