@@ -60,6 +60,26 @@ class MatchHasPlayerRepository extends BaseRepository
             ->first();
     }
 
+    /**
+     * Remove (soft delete) as atribuições de jogadores vinculadas aos slots de
+     * posição informados. Usado quando posições são removidas da configuração
+     * da partida durante a edição, para não deixar atribuições órfãs apontando
+     * para slots inexistentes.
+     *
+     * @param array<int, int> $matchPositionSlotIds
+     */
+    public function deleteByMatchPositionSlotIds(int $matchId, array $matchPositionSlotIds)
+    {
+        if (empty($matchPositionSlotIds)) {
+            return 0;
+        }
+
+        return $this->model
+            ->where('match_id', $matchId)
+            ->whereIn('match_has_game_position_id', $matchPositionSlotIds)
+            ->delete();
+    }
+
     public function findActiveByMatchAndPosition(int $matchId, int $gamePositionId): ?MatchHasPlayer
     {
         // Count how many slots exist for this game_position_id in this match

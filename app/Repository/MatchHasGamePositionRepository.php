@@ -46,6 +46,58 @@ class MatchHasGamePositionRepository extends BaseRepository
     }
 
     /**
+     * Deleta as posições de uma partida, exceto os ids informados.
+     *
+     * Usado no fluxo de edição: os slots que continuam na configuração são
+     * reaproveitados (preservando o vínculo com os jogadores em
+     * match_has_player.match_has_game_position_id) e apenas os slots que saíram
+     * da configuração são removidos.
+     *
+     * @param array<int, int> $keepIds
+     */
+    public function deleteByMatchExcludingIds(int $matchId, array $keepIds)
+    {
+        $query = $this->model->where('match_id', $matchId);
+
+        if (!empty($keepIds)) {
+            $query->whereNotIn('id', $keepIds);
+        }
+
+        return $query->delete();
+    }
+
+    /**
+     * Retorna os slots de posição de uma partida, exceto os ids informados.
+     * Usado para identificar os slots que serão removidos na edição.
+     *
+     * @param array<int, int> $keepIds
+     */
+    public function getByMatchExcludingIds(int $matchId, array $keepIds)
+    {
+        $query = $this->model->where('match_id', $matchId);
+
+        if (!empty($keepIds)) {
+            $query->whereNotIn('id', $keepIds);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Retorna as posições de uma partida de um lado específico
+     * (time + referência de sub-time).
+     */
+    public function getByMatchTeamAndReference(int $matchId, int $teamId, int $teamReference)
+    {
+        return $this->model
+            ->where('match_id', $matchId)
+            ->where('team_id', $teamId)
+            ->where('team_reference', $teamReference)
+            ->orderBy('id', 'asc')
+            ->get();
+    }
+
+    /**
      * Retorna as posições de uma partida pertencentes a um time específico.
      */
     public function getByMatchAndTeam(int $matchId, int $teamId)
