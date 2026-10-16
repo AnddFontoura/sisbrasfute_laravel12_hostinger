@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libcurl4-openssl-dev \
     libssl-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip sockets
 
 # Ajusta limites de upload do PHP para bater com a validação da aplicação (10 MB)
 COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini

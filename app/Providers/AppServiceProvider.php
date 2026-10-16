@@ -73,7 +73,7 @@ class AppServiceProvider extends ServiceProvider
 
         $ready = !empty($creds['client_id'])
             && !empty($creds['client_secret'])
-            && !empty($efi['pix_key'])
+            && !empty($creds['pix_key'])
             && !empty($creds['certificate_path']);
 
         if (!$ready) {
@@ -85,7 +85,7 @@ class AppServiceProvider extends ServiceProvider
             cobrancasBaseUrl: $creds['cobrancas_base_url'],
             clientId: $creds['client_id'],
             clientSecret: $creds['client_secret'],
-            pixKey: $efi['pix_key'],
+            pixKey: $creds['pix_key'],
             certificatePath: $creds['certificate_path'],
             privateKeyPath: $creds['private_key_path'] ?? null,
             cobExpiration: $efi['cob_expiration'] ?? 3600,

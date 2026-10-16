@@ -29,6 +29,23 @@ services:
             - back
         networks:
             - intra_network
+    worker:
+        container_name: sisbrasfute_worker
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: docker/php/Dockerfile
+            args:
+                USER_ID: ${UID:-1000}
+                GROUP_ID: ${GID:-1000}
+        volumes:
+            - ./:/var/www
+        depends_on:
+            - db
+            - back
+        entrypoint: ["/bin/sh", "/var/www/docker/php/worker.sh"]
+        networks:
+            - intra_network
     db:
         container_name: sisbrasfute_db
         restart: unless-stopped

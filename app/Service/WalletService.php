@@ -142,39 +142,81 @@ class WalletService extends BaseService
      * Handles a gateway webhook. Routes settlement to the correct destination:
      * wallet deposits credit the balance; match position payments confirm the
      * reserved position (delegated to MatchPaymentService).
+     *
+     * SECURITY — the webhook endpoint is public and unauthenticated, so the
+     * payload is NEVER trusted to decide money movement. We take only the
+     * charge reference (txid) from it, then independently re-query the gateway
+     * for the authoritative status via checkStatus(). A forged POST can at most
+     * trigger a status re-check against a txid; it cannot credit a balance
+     * because the gateway must itself confirm the charge is settled.
      */
     public function handleWebhook(array $payload): void
     {
-        $webhookResult = $this->paymentGateway->handleWebhook($payload);
+        $parsed = $this->paymentGateway->handleWebhook($payload);
+        $chargeId = $parsed->chargeId;
 
-        $transaction = WalletTransaction::where('gateway_reference', $webhookResult->chargeId)
-            ->where('status', 'pending')
-            ->first();
-
-        if (!$transaction) {
-            return; // Already processed or not found
+        if ($chargeId === '' || $chargeId === 'unknown') {
+            return; // Nothing actionable in the payload.
         }
 
-        // Position payments are settled by the MatchPaymentService.
-        if ($transaction->type === 'match_payment') {
-            if ($webhookResult->status === PaymentStatus::Completed) {
-                app(MatchPaymentService::class)->confirmPositionPayment($webhookResult->chargeId);
-            } elseif ($webhookResult->status === PaymentStatus::Failed) {
-                app(MatchPaymentService::class)->cancelPendingPositionPayment($webhookResult->chargeId);
+        $this->settleCharge($chargeId);
+    }
+
+    /**
+     * Settles a charge by its gateway reference using the AUTHORITATIVE status
+     * fetched from the gateway (not the webhook payload). Shared by the webhook
+     * worker and the reconciliation job, so both paths verify the same way and
+     * are idempotent.
+     */
+    public function settleCharge(string $chargeId): void
+    {
+        $type = WalletTransaction::where('gateway_reference', $chargeId)->value('type');
+
+        if ($type === null) {
+            return; // No transaction for this reference.
+        }
+
+        // Authoritative status straight from the gateway (verifies the txid).
+        $status = $this->paymentGateway->checkStatus($chargeId);
+
+        if ($status === PaymentStatus::Pending) {
+            return; // Not settled yet; a later webhook/reconcile run will catch it.
+        }
+
+        // Position payments are settled by the MatchPaymentService, which owns
+        // its own transactional locking around the match position.
+        if ($type === 'match_payment') {
+            if ($status === PaymentStatus::Completed) {
+                app(MatchPaymentService::class)->confirmPositionPayment($chargeId);
+            } elseif ($status === PaymentStatus::Failed || $status === PaymentStatus::Expired) {
+                app(MatchPaymentService::class)->cancelPendingPositionPayment($chargeId);
             }
             return;
         }
 
-        // Wallet deposit.
-        if ($webhookResult->status === PaymentStatus::Completed) {
-            DB::transaction(function () use ($transaction) {
+        // Wallet deposit. Lock the pending transaction row INSIDE the
+        // transaction before deciding to credit. This closes the race where
+        // two concurrent re-deliveries both read "pending" and both credit:
+        // the second one blocks on the lock, then sees status != pending and
+        // becomes a no-op. Combined with the unique index on
+        // gateway_reference, double-crediting is impossible.
+        DB::transaction(function () use ($chargeId, $status) {
+            $transaction = WalletTransaction::where('gateway_reference', $chargeId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$transaction || $transaction->status !== 'pending') {
+                return; // Already processed, failed, or not found.
+            }
+
+            if ($status === PaymentStatus::Completed) {
                 $transaction->update(['status' => 'completed']);
-                $wallet = Wallet::find($transaction->wallet_id);
-                $wallet->increment('balance_cents', $transaction->amount_cents);
-            });
-        } elseif ($webhookResult->status === PaymentStatus::Failed) {
-            $transaction->update(['status' => 'failed']);
-        }
+                Wallet::whereKey($transaction->wallet_id)
+                    ->increment('balance_cents', $transaction->amount_cents);
+            } elseif ($status === PaymentStatus::Failed || $status === PaymentStatus::Expired) {
+                $transaction->update(['status' => 'failed']);
+            }
+        });
     }
 
     /**

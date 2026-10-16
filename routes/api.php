@@ -59,7 +59,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
+// Gateway webhook (public, unauthenticated). EFI's Pix webhook appends "/pix"
+// to the configured URL, so both paths map to the same handler.
 Route::post('/wallet/webhook', [WalletController::class, 'webhookCallback']);
+Route::post('/wallet/webhook/pix', [WalletController::class, 'webhookCallback']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);

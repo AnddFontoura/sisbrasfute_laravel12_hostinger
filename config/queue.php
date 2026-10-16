@@ -72,6 +72,51 @@ return [
             'after_commit' => false,
         ],
 
+        /*
+        | RabbitMQ (CloudAMQP). Used as the durable buffer for payment webhook
+        | processing so the webhook endpoint can ack the gateway immediately
+        | (return 200) and the settlement runs reliably on a worker with
+        | retries. CloudAMQP uses amqps:// (TLS) on port 5671.
+        */
+        'rabbitmq' => [
+            'driver' => 'rabbitmq',
+            'queue' => env('RABBITMQ_QUEUE', 'default'),
+            // 'default' lets the package build the connection via
+            // AMQPConnectionFactory, which honors `secure` + `ssl_options`
+            // (TLS). Using an explicit *LazyConnection class here would take a
+            // deprecated path that ignores SSL and fails against amqps (5671).
+            'connection' => 'default',
+
+            'hosts' => [
+                [
+                    'host' => env('RABBITMQ_HOST', '127.0.0.1'),
+                    'port' => (int) env('RABBITMQ_PORT', 5672),
+                    'user' => env('RABBITMQ_USER', 'guest'),
+                    'password' => env('RABBITMQ_PASSWORD', 'guest'),
+                    'vhost' => env('RABBITMQ_VHOST', '/'),
+                ],
+            ],
+
+            'options' => [
+                'ssl_options' => [
+                    'cafile' => env('RABBITMQ_SSL_CAFILE'),
+                    'local_cert' => env('RABBITMQ_SSL_LOCALCERT'),
+                    'local_key' => env('RABBITMQ_SSL_LOCALKEY'),
+                    'verify_peer' => (bool) env('RABBITMQ_SSL_VERIFY_PEER', true),
+                    'passphrase' => env('RABBITMQ_SSL_PASSPHRASE'),
+                ],
+                'queue' => [
+                    'job' => VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Jobs\RabbitMQJob::class,
+                ],
+            ],
+
+            // CloudAMQP speaks amqps (TLS). When true, the driver connects via
+            // AMQPSSLConnection using the ssl_options above.
+            'secure' => (bool) env('RABBITMQ_SSL', true),
+
+            'worker' => env('RABBITMQ_WORKER', 'default'),
+        ],
+
     ],
 
     /*

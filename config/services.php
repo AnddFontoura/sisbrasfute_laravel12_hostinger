@@ -66,8 +66,9 @@ return [
     'efi' => [
         'default_environment' => env('EFI_ENVIRONMENT', 'production'),
 
-        // Shared across environments: the Pix key and charge timings.
-        'pix_key' => env('EFI_PIX_KEY'),
+        // Charge timings shared across environments. The Pix key is NOT shared:
+        // each environment carries its own (production vs homologação), since
+        // a homologação Pix key is invalid in production and vice versa.
         'cob_expiration' => (int) env('EFI_COB_EXPIRATION', 3600),
         'boleto_due_days' => (int) env('EFI_BOLETO_DUE_DAYS', 3),
 
@@ -78,9 +79,11 @@ return [
             'cobrancas_base_url' => env('EFI_COBRANCAS_BASE_URL', 'https://cobrancas.api.efipay.com.br'),
             'client_id' => env('EFI_CLIENT_ID'),
             'client_secret' => env('EFI_CLIENT_SECRET'),
+            // Pix key registered on the PRODUCTION account.
+            'pix_key' => env('EFI_PIX_KEY'),
             // Absolute path to the mTLS certificate (.pem) generated from the
             // production .p12 (EFI dashboard > API > Minhas aplicações).
-            'certificate_path' => env('EFI_CERTIFICATE_PATH'),
+            'certificate_path' =>  storage_path('app/private') . '/' .  env('EFI_CERTIFICATE_PATH'),
             // Optional separate key; leave empty if the .pem bundles both.
             'private_key_path' => env('EFI_PRIVATE_KEY_PATH'),
         ],
@@ -90,8 +93,12 @@ return [
             'cobrancas_base_url' => env('EFI_SANDBOX_COBRANCAS_BASE_URL', 'https://cobrancas-h.api.efipay.com.br'),
             'client_id' => env('EFI_SANDBOX_CLIENT_ID'),
             'client_secret' => env('EFI_SANDBOX_CLIENT_SECRET'),
+            // Pix key registered on the homologação account.
+            'pix_key' => env('EFI_SANDBOX_PIX_KEY'),
             // mTLS certificate (.pem) generated from the homologação .p12.
-            'certificate_path' => env('EFI_SANDBOX_CERTIFICATE_PATH'),
+            // Same convention as production: set only the file name in the env;
+            // it is resolved under storage/app/private.
+            'certificate_path' => storage_path('app/private') . '/' . env('EFI_SANDBOX_CERTIFICATE_PATH'),
             'private_key_path' => env('EFI_SANDBOX_PRIVATE_KEY_PATH'),
         ],
     ],

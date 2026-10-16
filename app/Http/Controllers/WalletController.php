@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Service\WalletService;
+use App\Service\WebhookIngestService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WalletController extends Controller
 {
     public function __construct(
         protected WalletService $walletService,
+        protected WebhookIngestService $webhookIngestService,
     ) {
 
     }
@@ -104,17 +107,30 @@ class WalletController extends Controller
         }
     }
 
+    /**
+     * Inbound gateway webhook (EFI/Inter Pix + boleto/card).
+     *
+     * This endpoint only buffers the event durably and enqueues it on RabbitMQ,
+     * then acks the gateway with 200 immediately. Settlement happens on the
+     * worker (ProcessPaymentWebhookJob) with retries and idempotency, so a slow
+     * or failing settle never makes us lose a confirmed payment.
+     *
+     * We always return 200 once the event is safely recorded/enqueued: a 5xx
+     * here would make the gateway retry needlessly, and the event is already
+     * persisted for reconciliation.
+     */
     public function webhookCallback(Request $request): JsonResponse
     {
         try {
-            $this->walletService->handleWebhook($request->all());
-
-            return response()->json([], JsonResponse::HTTP_OK);
-        } catch (\Exception $e) {
-            return response()->json(
-                ['message' => $e->getMessage()],
-                $this->normalizeStatusCode($e->getCode())
-            );
+            $this->webhookIngestService->ingest($request->all());
+        } catch (\Throwable $e) {
+            // Even if enqueueing/recording hiccups, don't 5xx the gateway into a
+            // retry storm — log it; the reconciliation job is the safety net.
+            Log::error('Webhook ingest failed', [
+                'error' => $e->getMessage(),
+            ]);
         }
+
+        return response()->json([], JsonResponse::HTTP_OK);
     }
 }
